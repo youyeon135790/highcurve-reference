@@ -39,7 +39,7 @@
       <label class="wiz-label">직접 적기</label><input class="wiz-input" placeholder="예: 릴스 올려도 조회수 300 나오는 사장님" value="${esc(W.extra.target_free || "")}" oninput="wizExtra('target_free', this)">`;
       next = `<button class="btn p big" onclick="${W.target.length || W.extra.target_free ? "wizGo(3)" : "toast('타깃을 하나 이상 골라주세요')"}">다음</button>`;
     } else if (s === 3) {
-      body = `<h1>핵심 키워드 하나만 적어주세요.</h1><p class="muted">이 키워드로 우리 저장소(릴스 ${fmt(META?.stats?.items || 9000)}개)에서 같이 쓰인 단어를 뽑고, 참고 릴스를 찾아요.</p>
+      body = `<h1>핵심 키워드 하나만 적어주세요.</h1>${STATIC ? '<div class="panel warn" style="margin:8px 0">체험판이라 AI 없이 저장소 통계로만 단어를 뽑아요. 사내 서버에서는 AI가 직업·타깃에 맞춰 뽑습니다.</div>' : ""}<p class="muted">이 키워드로 우리 저장소(릴스 ${fmt(META?.stats?.items || 9000)}개)에서 같이 쓰인 단어를 뽑고, 참고 릴스를 찾아요.</p>
       <div class="row"><input id="wiz-kw" class="wiz-input" placeholder="예: 카페 신메뉴, 릴스 만드는 법, 홈트" value="${esc(W.keyword)}" oninput="wizInput('keyword', this)" onkeydown="if(event.key==='Enter')wizSubs()"><button class="btn p" onclick="wizSubs()">✨ 서브 키워드 뽑기</button></div>
       <div class="wiz-sub">서브 키워드 <small class="muted">${W.subs.length ? `${W.selSubs.length}/${W.subs.length} 선택 · 눌러서 켜고 끄기` : "키워드를 넣고 뽑기를 누르세요 (AI가 5~10초)"}</small></div>
       <div class="pills" id="wiz-subs">${W.subs.map(k => pill("#" + k, W.selSubs.includes(k), `wizToggle('selSubs','${esc(k)}')`)).join("")}</div>`;
@@ -68,7 +68,7 @@
   async function renderRefsStep() {
     const sel = W.refs;
     const cards = W.refsCache.map(x => refCard(x, sel.includes(x.id))).join("");
-    return `<h1>참고할 릴스를 골라주세요 <small class="muted">(최대 3개)</small></h1><p class="muted">키워드로 우리 저장소에서 찾은 인기 릴스예요. 고른 릴스의 컷·자막·대사·효과음을 뜯어서 내 기획안에 옮깁니다.</p>
+    return `<h1>참고할 릴스를 골라주세요 <small class="muted">(최대 3개)</small></h1>${STATIC ? '<div class="panel warn" style="margin:8px 0">체험판: 키워드 일치로만 찾습니다. 사내 서버에서는 AI가 직업·타깃에 맞는 릴스만 골라 이유와 함께 보여줘요.</div>' : ""}<p class="muted">키워드로 우리 저장소에서 찾은 인기 릴스예요. 고른 릴스의 컷·자막·대사·효과음을 뜯어서 내 기획안에 옮깁니다.</p>
     <div class="pills small">${[W.keyword, ...W.selSubs].filter(Boolean).map(k => `<span class="pill on">#${esc(k)}</span>`).join("")}<button class="btn small" onclick="wizSearchRefs()">↻ 다시 찾기</button>${STATIC ? "" : `<button class="btn small" onclick="wizLiveSearch()">🌐 인스타에서 새로 찾기</button>`}</div>
     <div class="wiz-sel">${sel.length ? `선택 ${sel.length}/3 · ` + sel.map(id => `<span class="pill on tiny" onclick="wizPick(${id})">@${esc((W.refsCache.find(x => x.id === id) || {}).account || id)} ✕</span>`).join(" ") : "아직 고른 릴스가 없어요"}</div>
     <div class="refgrid" id="wiz-refs">${cards || '<div class="muted" style="padding:30px;text-align:center" id="wiz-refs-msg">저장소에서 후보를 찾고, AI가 이 직업·타깃에 맞는 것만 고르는 중… (30~40초)</div>'}</div>

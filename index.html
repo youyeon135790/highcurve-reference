@@ -144,7 +144,7 @@ mark{background:var(--lime);padding:1px 4px;border-radius:4px}
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1788889560"></script>
+<script src="static_api.js?v=1788889752"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => { const j = await staticApi(p, opt); if (j && j.error) throw new Error(j.error); return j; };
@@ -532,6 +532,6 @@ async function route() {
 window.addEventListener("hashchange", route);
 (async () => { try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=6"></script>
+<script src="static/plan.js?v=7"></script>
 </body>
 </html>
