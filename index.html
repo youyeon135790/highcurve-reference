@@ -67,8 +67,43 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 6px;b
 .ok{color:#1a9c5b}.no{color:var(--mute)}code{background:#f0f2f8;padding:2px 5px;border-radius:4px;font-size:12px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.2s;z-index:40}.toast.on{opacity:1}
 .avatar{width:44px;height:44px;border-radius:12px;background:#e9ecf5;object-fit:cover}
+
+/* ---- 디자인 리프레시 + 기획 위저드 */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+body{font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;-webkit-font-smoothing:antialiased}
+h1{font-size:26px;letter-spacing:-.03em;line-height:1.25;margin:0 0 6px}
+.panel{box-shadow:0 1px 2px rgba(20,25,60,.04)}.panel.soft{background:#fafbfe}.panel.warn{background:#fff8e1;border-color:#f3e2a0}
+.btn{transition:.15s;font-weight:600}.btn:hover{border-color:#c9cddb;background:#fafbfe}.btn.p{background:var(--ink);border-color:var(--ink);color:#fff}.btn.p:hover{background:#000;box-shadow:0 6px 18px rgba(21,23,31,.25)}.btn.big{padding:13px 22px;font-size:15px;border-radius:12px}.btn.ghost{background:transparent;border-color:transparent}.btn.ghost2{background:#fff}.btn:disabled{opacity:.4;cursor:default}.btn.small{padding:5px 10px;font-size:12px}
+.nav a.on{background:var(--ink);color:#fff}.nav a.on .tag{background:var(--lime);color:var(--ink)}.rcard{border-radius:16px}.rcard:hover{box-shadow:0 14px 32px rgba(20,25,60,.12);transform:translateY(-2px)}
+.tag.ok{background:var(--lime);color:var(--ink)}
+.wiz{max-width:860px;margin:0 auto}.wiz-head{margin-bottom:22px}.wiz-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.wiz-step{font-size:12px;letter-spacing:.18em;color:var(--mute);font-weight:700}
+.wiz-bar{height:5px;background:#e9ebf3;border-radius:99px;overflow:hidden}.wiz-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ink),#4b5168);border-radius:99px;transition:width .4s}
+.wiz-body{min-height:420px}.wiz-foot{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(246,247,251,0),var(--bg) 30%);padding:18px 0 8px;display:flex;gap:10px;justify-content:flex-end}.wiz-foot .btn.p{flex:1;max-width:420px}
+.wiz-label{display:block;font-size:12px;color:var(--mute);margin:16px 0 6px;font-weight:600}.wiz-sub{font-weight:800;margin:18px 0 6px;display:flex;gap:8px;align-items:center}
+.wiz-input{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;background:#fff;transition:.15s}.wiz-input:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 4px rgba(21,23,31,.06)}.wiz-input.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.pills{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}.pills.small{gap:6px;margin:8px 0}.pill{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:11px 18px;font-size:14px;font-weight:600;color:#2c3040;transition:.15s;cursor:pointer}.pill:hover{border-color:#b9bfd2;transform:translateY(-1px)}.pill.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 6px 16px rgba(21,23,31,.2)}.pill.tiny{padding:4px 10px;font-size:12px}.pills.small .pill{padding:6px 12px;font-size:12px}
+.wiz-sel{font-size:13px;color:var(--mute);margin:6px 0 12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.refgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}.refcard{background:#fff;border:1.5px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:.15s;position:relative}.refcard:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(20,25,60,.12)}.refcard.on{border-color:var(--ink);box-shadow:0 0 0 3px rgba(21,23,31,.12)}
+.rc-thumb{position:relative;aspect-ratio:9/12;background:#eceef5}.rc-thumb img{width:100%;height:100%;object-fit:cover;display:block}.rc-label{position:absolute;left:8px;top:8px;background:var(--lime);color:var(--ink);font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px}.rc-check{position:absolute;right:8px;top:8px;width:24px;height:24px;border-radius:50%;border:2px solid #fff;background:rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px}.refcard.on .rc-check{background:var(--ink)}
+.rc-body{padding:10px 12px 12px}.rc-acc{font-weight:800;font-size:13px}.rc-desc{font-size:12px;color:#3b4052;margin:4px 0;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.rc-meta{font-size:11px;color:var(--mute)}.rc-actions{display:flex;gap:4px;margin-top:8px}
+.topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin:8px 0 14px}.topic{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:14px 16px;cursor:pointer;transition:.15s}.topic:hover{border-color:#b9bfd2}.topic.on{border-color:var(--ink);background:#15171f;color:#fff}.topic.on .muted{color:#c9cddb}.topic b{display:block;font-size:15px;margin-bottom:4px}
+.wiz-more{margin:16px 0;border:1.5px dashed var(--line);border-radius:14px;padding:10px 14px}.wiz-more summary{cursor:pointer;font-weight:700;color:#3b4052}.wiz-more .two{margin-top:10px;gap:10px}.wiz-more label{font-size:12px;color:var(--mute);font-weight:600}
+.wiz-summary{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;color:#3b4052}
+.plan-home .hero{display:grid;grid-template-columns:1fr 280px;gap:20px;background:linear-gradient(135deg,#15171f,#2a2f45);color:#fff;border-radius:22px;padding:34px 36px;margin-bottom:22px;position:relative;overflow:hidden}.plan-home .hero h1{font-size:30px;color:#fff;margin:6px 0 10px}.plan-home .hero p{color:#c9cddb;max-width:560px;line-height:1.55}.plan-home .hero .btn.p{background:var(--lime);color:var(--ink);border-color:var(--lime)}.plan-home .hero .btn.p:hover{background:#d3ffbb;box-shadow:none}.plan-home .hero .ghost2{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff}
+.hero-art{position:relative}.hero-art i{position:absolute;border-radius:14px;background:linear-gradient(135deg,rgba(191,254,158,.9),rgba(191,254,158,.2));width:90px;height:150px;right:20px;top:0;transform:rotate(-8deg)}.hero-art i:nth-child(2){right:110px;top:30px;opacity:.55;transform:rotate(6deg)}.hero-art i:nth-child(3){right:70px;top:-40px;opacity:.3;transform:rotate(-20deg)}
+.ph-kicker{font-size:11px;letter-spacing:.16em;font-weight:800;color:var(--lime);text-transform:uppercase}.plan-hero .ph-kicker{color:var(--mute)}
+.plangrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}.plancard{background:#fff;border:1.5px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:.15s}.plancard:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(20,25,60,.12)}.pc-cover{aspect-ratio:16/9;background:#eceef5;position:relative}.pc-cover img{width:100%;height:100%;object-fit:cover;display:block}.pc-cover .tag{position:absolute;left:8px;top:8px}.pc-body{padding:10px 12px}.pc-body b{display:block;font-size:14px;margin-bottom:3px}
+.plan-hero{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:20px 22px;margin-bottom:12px}.plan-hero .ph-title{flex:1}.plan-hero h1{font-size:24px;margin:4px 0}.plan-hero p{color:#3b4052;margin:4px 0}.ph-thumbtext{display:inline-block;background:var(--lime);padding:4px 10px;border-radius:8px;font-size:12px;margin-top:6px}.ph-actions{display:flex;gap:6px}
+.tabs{display:flex;gap:6px;margin:6px 0 14px;border-bottom:1.5px solid var(--line)}.tab{border:0;background:transparent;padding:10px 14px;font-size:14px;font-weight:700;color:var(--mute);border-bottom:2.5px solid transparent;margin-bottom:-1.5px}.tab.on{color:var(--ink);border-bottom-color:var(--ink)}
+.sec{margin-bottom:18px}.sec h2{margin:10px 0 10px;font-size:18px}.hooks{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}.hook{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}.hook.on{border-color:var(--ink);box-shadow:0 0 0 3px rgba(21,23,31,.1)}.hook b{display:block;font-size:15px;margin:6px 0 4px}
+.tablewrap{overflow-x:auto;background:#fff;border:1.5px solid var(--line);border-radius:14px}table.scenes{width:100%;border-collapse:collapse;font-size:13px;min-width:900px}table.scenes th{background:#f3f4f9;text-align:left;padding:9px 10px;font-size:12px;color:#3b4052;white-space:nowrap}table.scenes td{padding:9px 10px;border-top:1px solid var(--line);vertical-align:top;line-height:1.45}table.scenes td.say{font-weight:600;min-width:180px}table.scenes td.cap{color:#1d4ed8;font-weight:700;white-space:nowrap}table.scenes td.capcut{font-size:12px;min-width:170px}table.scenes img.tf{width:64px;border-radius:6px;display:block}
+.refsec{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:14px}.ref-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}.ref-head img{width:64px;aspect-ratio:9/12;object-fit:cover;border-radius:10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:8px 0}.stat{background:#f6f7fb;border-radius:10px;padding:8px 10px}.stat small{display:block;color:var(--mute);font-size:11px}.stat b{font-size:13px}
+.filmstrip{display:flex;gap:6px;overflow-x:auto;padding:6px 0 10px}.filmstrip img{height:150px;border-radius:8px;flex:none}
+mark{background:var(--lime);padding:1px 4px;border-radius:4px}
+@media(max-width:900px){.plan-home .hero{grid-template-columns:1fr}.hero-art{display:none}.plan-hero{flex-direction:column}}
 </style>
-<style>a[data-r="boards"],a[data-r="plan"],a[data-r="edit"],a[data-r="settings"],#rlive,#rlivemsg,.racct .btn,button[onclick*="pickBoard"],button[onclick*="openItem"]{display:none!important}</style>
+<style>a[data-r="boards"],a[data-r="settings"],#rlive,#rlivemsg,.racct .btn,button[onclick*="pickBoard"],button[onclick*="openItem"]{display:none!important}</style>
 </head>
 <body>
 <div class="app">
@@ -81,8 +116,8 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 6px;b
       <a href="#/brands" data-r="brands">🏷️ 브랜드 아카이브</a>
       <a href="#/trends" data-r="trends">📈 트렌드 <span class="tag">NEW</span></a>
       <a href="#/boards" data-r="boards">📌 보드</a>
-      <a href="#/plan" data-r="plan">✍️ 기획 스킬 <span class="tag">준비중</span></a>
-      <a href="#/edit" data-r="edit">🎬 편집 스킬 <span class="tag">연결</span></a>
+      <a href="#/plan" data-r="plan">✍️ 기획</a>
+      <a href="#/edit" data-r="edit">🎬 편집</a>
       <a href="#/settings" data-r="settings">⚙️ 설정 · 수집</a>
     </nav>
     <div class="foot"><b id="wsname">하이커브 워크스페이스</b><span id="count">-</span></div>
@@ -93,7 +128,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 6px;b
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1788884967"></script>
+<script src="static_api.js?v=1788887823"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => { const j = await staticApi(p, opt); if (j && j.error) throw new Error(j.error); return j; };
@@ -362,7 +397,7 @@ async function openReel(id) {
       <div class="pills">${it.music && (it.music.artist || it.music.title) ? pill("🎤", "작곡가", esc(it.music.artist || "-")) + pill("🎵", "음원제목", esc(it.music.title || (it.music.original ? "오리지널 오디오" : "-"))) : `<span class="pill muted">🎵 음원 정보 없음 (벤더 수집분에 표시)</span>`}${pill("📅", "작성일", esc(it.posted_at || "-"))}${it.industry ? pill("🏷", "카테고리", esc(it.industry)) : ""}${it.duration ? pill("⏱", "길이", Math.round(it.duration) + "초") : ""}</div>
       <div class="rcaph">✏️ 캡션</div><div class="rcapbox">${esc(it.caption || "").replace(/\n/g, "<br>") || '<span class="muted">캡션 없음</span>'}</div>
       ${it.description ? `<div class="rcaph">🧠 AI 설명</div><div class="rcapbox">${esc(it.description)}</div>` : ""}
-      <div class="row" style="margin-top:12px"><button class="btn p" onclick="pickBoard(${id})">보드에 저장</button><button class="btn" onclick="closeAll();openItem(${id})">메모·수정</button><a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">원본 열기 ↗</a></div>
+      <div class="row" style="margin-top:12px"><button class="btn p" onclick="pickBoard(${id})">보드에 저장</button><button class="btn" onclick="closeAll();openItem(${id})">메모·수정</button><button class="btn" id="planbtn-${id}" onclick="togglePlanRef(${id})">${PLANREFS().includes(id) ? "✅ 담김" : "✍️ 기획에 담기"}</button><a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">원본 열기 ↗</a></div>
     </div>
     <div class="rstrip"><button class="nav" onclick="${idx > 0 ? `openReel(${list[idx - 1].id})` : ""}" ${idx > 0 ? "" : "disabled"}>‹</button><div class="thumbs">${strip}</div><button class="nav" onclick="${idx < list.length - 1 ? `openReel(${list[idx + 1].id})` : ""}" ${idx < list.length - 1 ? "" : "disabled"}>›</button></div>
     <div class="rsim" id="rsim"><div class="rcaph">🔎 유사한 릴스 <small style="color:var(--mute);font-weight:400">같은 카테고리 · 캡션·해시태그·썸네일 유사도</small></div><div class="rsimgrid">불러오는 중…</div></div>`;
@@ -430,9 +465,18 @@ async function syncAllBrands() { const brands = await api("/api/brands"); for (c
 async function demo() { await post("/api/demo"); toast("샘플 24건 추가 (설정에서 지울 수 있어요)"); route(); }
 
 // ---------------- 도구 페이지
-function viewPlan() { $("#main").innerHTML = `<h2>기획 스킬</h2><div class="panel">보드에 모은 레퍼런스와 우리 노하우로 <b>우리 양식의 기획안</b>(훅 5개 · 장면별 대사 · 촬영 가이드 · 캡션)을 뽑는 단계입니다.<br><br>
-  준비물: 지금까지 쓴 기획안 파일들 + 기획안 양식 + 원칙 메모. 이걸 <code>기획스킬/</code> 폴더에 넣으면 클로드 코드에서 "카페 사장님 릴스 기획안 5개"로 호출할 수 있게 연결합니다.<br><br>
-  <span style="color:var(--mute)">여기서는 보드를 고르면 그 보드의 레퍼런스 요약(계정·훅 첫 줄·수치·메모)을 기획 프롬프트용 텍스트로 복사해 줍니다.</span><br><br><button class="btn p" onclick="exportBoardPrompt()">보드 → 기획 프롬프트 복사</button></div>`; }
+// ---------------- ✍️ 기획 (레퍼런스 4~5개 → 분석 → 하이커브 양식 기획안)
+const PLANREFS = () => { try { return JSON.parse(localStorage.getItem("planRefs") || "[]"); } catch (e) { return []; } };
+const setPlanRefs = (a) => { localStorage.setItem("planRefs", JSON.stringify([...new Set(a)].slice(0, 6))); updatePlanBadge(); };
+function togglePlanRef(id) { const a = PLANREFS(); const i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); setPlanRefs(a); toast(i >= 0 ? "기획 바구니에서 뺐어요" : `기획 바구니에 담았어요 (${PLANREFS().length}개)`); const b = $("#planbtn-" + id); if (b) b.textContent = i >= 0 ? "✍️ 기획에 담기" : "✅ 담김"; }
+function updatePlanBadge() { const n = PLANREFS().length; const a = $('a[data-r="plan"]'); if (a) a.innerHTML = `✍️ 기획 ${n ? `<span class="tag" style="background:#111;color:#fff">${n}</span>` : ""}`; }
+let PLAN = { current: null };
+async function viewPlan(arg) {
+  updatePlanBadge();
+  if (arg === "new") return viewPlanWizard();
+  if (arg) return viewPlanWizard(arg);
+  return viewPlanHome();
+}
 async function exportBoardPrompt() {
   const boards = await api("/api/boards"); if (!boards.length) return toast("보드가 없어요");
   const name = prompt("어느 보드? " + boards.map(b => b.name).join(" / "), boards[0].name); const b = boards.find(x => x.name === name); if (!b) return;
@@ -440,9 +484,15 @@ async function exportBoardPrompt() {
   const txt = `# 레퍼런스 보드: ${b.name} (${items.length}개)\n` + items.map(i => `- [${PLAT[i.platform]}] @${i.account || "-"} (${i.posted_at || ""}) 조회 ${fmt(i.views)} · 좋아요 ${fmt(i.likes)} · 팔로워 ${fmt(i.followers)}\n  훅: ${(i.caption || "").split("\n")[0].slice(0, 80)}\n  ${i.description ? "설명: " + i.description + "\n  " : ""}${i.note ? "메모: " + i.note : ""}`).join("\n");
   await navigator.clipboard.writeText(txt); toast("클립보드에 복사됨 — 클로드 코드에 붙여넣으세요");
 }
-function viewEdit() { $("#main").innerHTML = `<h2>편집 스킬</h2><div class="panel">캡컷 러프컷 스킬(<code>~/.claude/skills/capcut-roughcut</code>)이 설치돼 있습니다. 클로드 코드에서 이렇게 부르면 됩니다.<br><br>
-  <code>0907 컷편집해줘</code> · <code>0907 꾹꾹체로 자막 넣어줘</code> · <code>0907 러프컷 돌리고 효과음도 넣어줘</code><br><br>
-  <span style="color:var(--mute)">흐름: 기획안 → 촬영 → 캡컷 자동자막 → 러프컷(컷·자막·효과음 자동) → 편집자가 B롤·강조 자막 20분 → 납품</span></div>`; }
+function viewEdit() { $("#main").innerHTML = `<h2 style="margin:0 0 4px">🎬 편집</h2><div class="muted" style="margin-bottom:14px">기획안이 나온 뒤 촬영 → 편집 → 납품까지의 하이커브 편집 흐름과 규칙. 편집자에게 그대로 전달하는 기준입니다.</div>
+  <div class="two">
+  <div class="panel"><b>① 편집 파이프라인</b><ol style="margin:8px 0 0 18px;line-height:1.8"><li><b>기획안</b> — ✍️ 기획에서 씬표·훅·자막 확정 (JSON/엑셀 내보내기)</li><li><b>촬영</b> — 촬영 지시서대로 컷·인서트 확보 (씬당 2테이크 이상)</li><li><b>캡컷 자동자막</b> — 원본 붙여 자동 자막 생성 후 오탈자만 수정</li><li><b>러프컷(자동)</b> — 캡컷 러프컷 스킬: 무음·군더더기 컷 제거, 자막 스타일(꾹꾹체 등), 효과음 자동 배치</li><li><b>편집자 마무리 20분</b> — B롤·강조 자막·줌인·색보정</li><li><b>납품 체크</b> — 아래 체크리스트 통과 후 업로드</li></ol></div>
+  <div class="panel"><b>② 납품 전 체크리스트</b><ul style="margin:8px 0 0 18px;line-height:1.8"><li>0~1초에 첫 자막이 뜨는가 (검은 화면·로고 인트로 금지)</li><li>훅 자막은 화면 상단 1/3, 12자 이내, 한 줄</li><li>컷 전환 3~5초 이내, 같은 구도 6초 이상 지속 금지</li><li>자막은 말과 동시에, 한 줄 10자·1.2초 리듬, 강조어는 색·크기로만</li><li>정보 씬마다 인서트(손·제품·화면녹화) 1개 이상</li><li>효과음: 훅·반전·CTA 3지점, BGM은 -18dB 이하</li><li>엔딩은 CTA 자막으로 끝내고 마지막 1초 검은 화면 없음</li><li>세이프존: 하단 20%(캡션·버튼 영역)에 자막 배치 금지</li></ul></div>
+  </div>
+  <div class="two" style="margin-top:12px">
+  <div class="panel"><b>③ 캡컷 러프컷 스킬 (클로드 코드)</b><div class="muted" style="margin:6px 0">유연 표준 팩: Pretendard 번들 · 자막 프리셋 · 호흡 컷 기준. 클로드 코드에서 프로젝트 이름과 함께 부르면 됩니다.</div><code>0907 컷편집해줘</code> · <code>0907 꾹꾹체로 자막 넣어줘</code> · <code>0907 러프컷 돌리고 효과음도 넣어줘</code><div class="muted" style="margin-top:8px">다음 단계(준비중): 색보정·애니메이션 자동 → 프롬프터 → 대본 교정 → 강조 자막·B롤 자동 제안</div></div>
+  <div class="panel"><b>④ 편집자에게 전달하기</b><div style="margin:6px 0">기획안 페이지의 <b>JSON 복사</b> 또는 <b>엑셀 다운로드</b> 결과를 그대로 편집자에게 전달합니다. 씬표의 '연출·편집' 열과 '이탈 방지' 열이 편집 지시서입니다.</div><div class="muted">하이커브 스튜디오 편집자 콜(건바이건 배분)과 연결되면 이 페이지에서 바로 발주가 됩니다 — 준비중</div><div style="margin-top:8px"><a class="btn" href="#/plan">✍️ 기획안 보관함으로</a></div></div>
+  </div>`; }
 
 // ---------------- 사이드바 카테고리 트리
 let navOpen = { instagram: true, youtube: true };
@@ -459,12 +509,13 @@ async function route() {
   $$(".nav a[data-r]").forEach(a => a.classList.toggle("on", a.dataset.r === r)); renderCatNav();
   try {
     if (r === "explore") await viewExplore(); else if (r === "brands") await viewBrands(arg ? decodeURIComponent(arg) : null); else if (r === "trends") await viewTrends();
-    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "plan") viewPlan(); else if (r === "edit") viewEdit(); else await viewExplore();
+    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "plan") await viewPlan(arg); else if (r === "edit") viewEdit(); else await viewExplore();
     const s = await api("/api/stats"); $("#count").textContent = `레퍼런스 ${s.items} · 브랜드 ${s.brands} · 보드 ${s.boards}`;
   } catch (e) { $("#main").innerHTML = `<div class="empty"><b>서버 연결 실패</b>${esc(e.message)}<br>터미널에서 <code>python3 server.py</code> 를 실행하세요.</div>`; }
 }
 window.addEventListener("hashchange", route);
 (async () => { try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
+<script src="static/plan.js?v=3"></script>
 </body>
 </html>

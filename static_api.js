@@ -92,10 +92,35 @@
     const golden = recent.filter(x => x.views && x.followers).sort((a, b) => (b.views / b.followers) - (a.views / a.followers)).slice(0, 12);
     return { keywords, hashtags, accounts, industries, by_day, new_top, golden, rising: [], snapshot_days: 0 };
   }
+  // 배포본: 카드 '열기'/편집창 대신 릴스 상세창으로
+  window.addEventListener("DOMContentLoaded", () => { window.openItem = (id) => window.openReel(id); });
+  function planSubkeywords(q) {
+    const toks = q.trim().split(/\s+/).filter(Boolean); if (!toks.length) return { keywords: [] };
+    let rows = STATIC.items.filter(x => x.platform === "instagram" && toks.every(t => (x.caption || "").includes(t)));
+    if (rows.length < 40) rows = rows.concat(STATIC.items.filter(x => x.platform === "instagram" && !rows.includes(x) && toks.some(t => (x.caption || "").includes(t))).slice(0, 300));
+    const cnt = {}, docs = {};
+    for (const x of rows.slice(0, 500)) {
+      const cap = x.caption || ""; const tags = new Set((cap.match(/#([가-힣A-Za-z0-9_]{2,15})/g) || []).map(s => s.slice(1))); const words = new Set(cap.replace(/#\S+/g, "").match(/[가-힣]{2,6}/g) || []);
+      for (const h of tags) { cnt[h] = (cnt[h] || 0) + 2; docs[h] = (docs[h] || 0) + 1; }
+      for (const w of words) if (!tags.has(w)) { cnt[w] = (cnt[w] || 0) + 1; docs[w] = (docs[w] || 0) + 1; }
+    }
+    const stop = new Set([...toks, "그리고", "정말", "너무", "오늘", "이번", "여러분", "진짜", "그래서", "하지만", "있는", "없는", "합니다", "입니다", "해요", "있어요", "이거", "저희", "우리", "때문", "그냥", "이렇게", "하는", "되는", "제가", "저는", "그런", "이런", "모든", "많이", "같이", "함께", "위해", "대한", "통해", "다시", "지금", "바로", "여기", "하나", "사실", "혹시"]);
+    const keywords = Object.entries(cnt).sort((a, b) => b[1] - a[1]).map(([k]) => k).filter(k => !stop.has(k) && docs[k] >= 2 && !toks.some(t => k.includes(t) || t.includes(k)) && !(k.length >= 3 && /[가이은는을를의에도만로과와]$/.test(k))).slice(0, 12);
+    return { keywords, matched: rows.length };
+  }
+  function planRefs(q, tags, limit) {
+    const terms = (q + " " + tags).split(/[\s,]+/).filter(Boolean).slice(0, 8); if (!terms.length) return { items: [] };
+    const rows = STATIC.items.filter(x => x.platform === "instagram" && x.kind === "reel" && x.views >= 10000 && x.days_ago <= 365 && terms.some(t => (x.caption || "").includes(t)));
+    rows.sort((a, b) => { const ha = terms.filter(t => (a.caption || "").includes(t)).length, hb = terms.filter(t => (b.caption || "").includes(t)).length; return hb - ha || (b.views || 0) - (a.views || 0); });
+    const seen = new Set(), items = [];
+    for (const r of rows) { if (seen.has(r.account)) continue; seen.add(r.account); items.push({ ...r, frames: !!r.frames, transcript: !!r.transcript }); if (items.length >= limit) break; }
+    if (items.length) { items.reduce((a, b) => (b.views > a.views ? b : a)).label = "조회수 1위"; const eng = items.filter(x => x.views && x.likes); if (eng.length) { const e = eng.reduce((a, b) => (b.likes / b.views > a.likes / a.views ? b : a)); e.label = e.label || "참여율 1위"; } const n = items.reduce((a, b) => ((b.posted_at || "") > (a.posted_at || "") ? b : a)); n.label = n.label || "가장 최근"; }
+    return { items, matched: rows.length };
+  }
   window.staticApi = async function (p, opt) {
     await load();
     const method = (opt && opt.method) || "GET";
-    if (method !== "GET") throw new Error("읽기 전용 배포본입니다 (수집·저장은 원본 서버에서만 가능)");
+    if (method !== "GET") throw new Error("체험판(배포본)에서는 여기까지예요. 영상 분석·기획안 생성은 하이커브 서버에서만 됩니다");
     const u = new URL(p, location.href); const path = u.pathname.replace(/^.*\/api\//, "/api/"); const qs = u.searchParams;
     if (path === "/api/meta") return { ...STATIC.meta, adapters: {}, static: true };
     if (path === "/api/stats") return stats();
@@ -105,6 +130,9 @@
     if (path === "/api/accounts") return accounts(qs);
     if (path === "/api/brands") return STATIC.brands;
     if (path === "/api/boards") return [];
+    if (path === "/api/plans") return [];
+    if (path === "/api/plan/subkeywords") return planSubkeywords(qs.get("q") || "");
+    if (path === "/api/plan/refs") return planRefs(qs.get("q") || "", qs.get("tags") || "", Number(qs.get("limit") || 12));
     if (path === "/api/trends2") return trends2(qs);
     if (path === "/api/config") return STATIC.meta.config || {};
     throw new Error("정적 배포본에서는 지원하지 않는 기능입니다");
