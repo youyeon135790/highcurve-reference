@@ -7,6 +7,7 @@
   const AGES = ["10대", "20대", "30대", "40대", "50대+"]; const LIFE = ["직장인", "자영업 사장님", "학생", "주부", "육아맘", "자취생", "커플·신혼", "운동하는 사람", "창업 준비"];
   const HOOKS = ["질문형", "숫자형", "반전형", "고백형", "금지형", "발견형", "비교형", "경고형"];
   const HOOK_FORMULAS = ["금지명령형", "발견선언형", "소외공포형", "비밀누설형", "랭킹형", "조합공식형", "자가테스트형", "통념반전형", "공감저격형", "성과인증형", "시각증명형", "스토리형", "정리본형", "대조형", "비밀형", "지적형", "수치형", "원인찾기형", "경고형", "손해형", "비교형", "반전형", "도전형", "공감형", "증명형", "첫마디형", "질문형", "숫자형", "고백형"];
+  window.reSketch = async (pid, no) => { toast("스케치 그리는 중… (10초)"); const r = await post("/api/plans/" + pid + "/sketches", { only: no ? [no] : null }); if (r.error) return toast(r.error); CUR = r; renderPlan2(r); };
   window.applyHook = async (pid, i) => { const r = await post("/api/plans/" + pid + "/hook", { index: i }); if (r.error) return toast(r.error); CUR = r; renderPlan2(r); toast(`${i}번 훅으로 씬 1을 바꿨어요`); };
   window.genHooks = async (pid) => { const f = $("#hook-formula").value; const m = $("#hook-msg"); m.textContent = `'${f}' 공식으로 뽑는 중… (10~20초)`; try { const r = await post("/api/plans/" + pid + "/hooks", { formula: f, n: 3 }); if (r.error) throw new Error(r.error); CUR = r; renderPlan2(r); toast("훅 3개 추가됨 — 눌러서 적용"); } catch (e) { m.textContent = "실패: " + e.message; } };
   window.rewriteOpening = async (pid, i) => { const m = $("#hook-msg"); m.textContent = "씬 1~2 다시 쓰는 중… (30~60초)"; try { const r = await post("/api/plans/" + pid + "/rewrite_opening", { index: i }); if (r.error) throw new Error(r.error); CUR = r; renderPlan2(r); toast("씬 1~2를 훅에 맞춰 다시 썼어요"); } catch (e) { m.textContent = "실패: " + e.message; } };
@@ -203,7 +204,7 @@
     else if (TAB === "pro") body = done ? renderProTab(plan, p) : promptBox(p);
     else body = done ? renderPlanTab(plan, p) : promptBox(p);
     $("#main").innerHTML = `<div class="plan-hero"><a class="btn ghost" href="#/plan">← 기획</a><div class="ph-title"><span class="ph-kicker">${done ? "내 릴스 기획안" : "프롬프트 패키지"} · ${esc(p.created_at || "")}</span><h1>${esc(title)}</h1>${plan && plan.one_line ? `<p>${esc(plan.one_line)}</p>` : ""}${plan && plan.thumbnail_text ? `<div class="ph-thumbtext">썸네일 문구 <b>${esc(plan.thumbnail_text)}</b></div>` : ""}</div>
-      <div class="ph-actions"><a class="btn" href="/api/plans/${esc(p.id)}.csv">📊 엑셀</a><button class="btn" onclick="navigator.clipboard.writeText(planJson());toast('복사됨')">JSON</button><button class="btn d" onclick="planDelete('${esc(p.id)}')">삭제</button></div></div>
+      <div class="ph-actions"><a class="btn" href="/api/plans/${esc(p.id)}.csv">📊 엑셀</a><button class="btn" onclick="navigator.clipboard.writeText(planJson());toast('복사됨')">JSON</button>${plan ? `<button class="btn" onclick="reSketch('${esc(p.id)}')" title="모든 씬 구도 스케치 생성 (씬당 3~5초)">🎨 스케치</button>` : ""}<button class="btn d" onclick="planDelete('${esc(p.id)}')">삭제</button></div></div>
       <div class="tabs">${tabs.map(([k, v]) => `<button class="tab ${TAB === k ? "on" : ""}" onclick="planTab('${k}')">${v}</button>`).join("")}</div>${body}`;
   }
   window.planDelete = async (id) => { if (!confirm("이 기획안을 지울까요?")) return; await post("/api/plans/" + id + "/delete", {}); location.hash = "#/plan"; };
@@ -249,7 +250,7 @@
       <div class="side-sec"><h3>⚠️ 초보 실수</h3><ul>${(B.tips || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
       ${(plan.pro || {}).questions && plan.pro.questions.length ? `<div class="side-sec warnbox"><h3>❓ 확인해 주세요</h3><ul>${plan.pro.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ul></div>` : ""}</aside>`;
     const scenes = (B.scenes || []).map(s => { const f = s.framing || {}; const g = s.guide || {}; const h = hooks[0] || {};
-      return `<div class="scene"><div class="scene-visual"><span class="scene-no">SCENE ${s.no} <small>${esc(s.sec)}초</small></span>${refFrameImg(p, s.ref_frame)}${sketch(f)}</div>
+      return `<div class="scene"><div class="scene-visual"><span class="scene-no">SCENE ${s.no} <small>${esc(s.sec)}초</small></span>${s.sketch ? `<figure class="sb-ref sk-img"><img src="${esc(s.sketch)}" loading="lazy" title="${esc(s.sketch_prompt || "")}"><figcaption>구도 스케치 (AI) <a href="#" onclick="event.preventDefault();reSketch('${esc(p.id)}', ${s.no})">다시 그리기</a></figcaption></figure>` : sketch(f)}${refFrameImg(p, s.ref_frame)}</div>
         <div class="scene-body"><div class="saybox"><span class="tag">${esc(s.part || (s.no === 1 ? "훅" : s.no === (B.scenes || []).length ? "마무리" : "본문 " + (s.no - 1)))}</span><div class="say">${esc(s.say)}</div><div class="cap">💬 ${esc(s.caption)}${f.text_pos ? ` <span class="muted">(${esc(f.text_pos)})</span>` : ""}</div></div>
         <div class="guidebox"><b>촬영 가이드</b><div><b>구도:</b> ${esc(g.composition || [f.shot, f.camera, s.screen].filter(Boolean).join(" · "))}</div>${g.light ? `<div><b>조명:</b> ${esc(g.light)}</div>` : ""}${g.props ? `<div><b>소품:</b> ${esc(g.props)}</div>` : ""}<div><b>행동:</b> ${esc(g.action || s.screen)}</div></div>
         <div class="editbox"><b>캡컷 편집</b><div class="cchips">${chips(s.capcut) || '<span class="muted">-</span>'}</div>${s.tip ? `<div class="sb-tip">💡 ${esc(s.tip)}</div>` : ""}</div></div></div>`; }).join("");
