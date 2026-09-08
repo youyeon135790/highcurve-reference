@@ -41,7 +41,7 @@
     } else if (s === 3) {
       body = `<h1>핵심 키워드 하나만 적어주세요.</h1>${STATIC ? '<div class="panel warn" style="margin:8px 0">체험판이라 AI 없이 저장소 통계로만 단어를 뽑아요. 사내 서버에서는 AI가 직업·타깃에 맞춰 뽑습니다.</div>' : ""}<p class="muted">이 키워드로 우리 저장소(릴스 ${fmt(META?.stats?.items || 9000)}개)에서 같이 쓰인 단어를 뽑고, 참고 릴스를 찾아요.</p>
       <div class="row"><input id="wiz-kw" class="wiz-input" placeholder="예: 카페 신메뉴, 릴스 만드는 법, 홈트" value="${esc(W.keyword)}" oninput="wizInput('keyword', this)" onkeydown="if(event.key==='Enter')wizSubs()"><button class="btn p" onclick="wizSubs()">✨ 서브 키워드 뽑기</button></div>
-      <div class="wiz-sub">서브 키워드 <small class="muted">${W.subs.length ? `${W.selSubs.length}/${W.subs.length} 선택 · 눌러서 켜고 끄기` : "키워드를 넣고 뽑기를 누르세요 (AI가 5~10초)"}</small></div>
+      <div class="wiz-sub">서브 키워드 ${W.subs.length ? (W.subsSource === "cli" || W.subsSource === "api" ? '<span class="tag ok">🤖 AI가 뽑음</span>' : '<span class="tag">📊 저장소 통계</span>') : ""}<small class="muted">${W.subs.length ? `${W.selSubs.length}/${W.subs.length} 선택 · 눌러서 켜고 끄기` : "키워드를 넣고 뽑기를 누르세요 (AI가 5~10초)"}</small></div>
       <div class="pills" id="wiz-subs">${W.subs.map(k => pill("#" + k, W.selSubs.includes(k), `wizToggle('selSubs','${esc(k)}')`)).join("")}</div>`;
       next = `<button class="btn p big" onclick="${W.keyword ? "wizGo(4)" : "toast('키워드를 적어주세요')"}">참고 릴스 고르기 →</button>`;
     } else if (s === 4) {
@@ -61,7 +61,7 @@
     const box = $("#wiz-subs"); if (box) box.innerHTML = '<span class="muted">뽑는 중…</span>';
     const tgt = [...W.target, W.extra.target_free].filter(Boolean).join(", ");
     const r = await api("/api/plan/subkeywords?q=" + encodeURIComponent(W.keyword) + "&job=" + encodeURIComponent(W.job) + "&target=" + encodeURIComponent(tgt)).catch(() => ({ keywords: [] }));
-    W.subs = r.keywords || []; W.selSubs = W.subs.slice(0, 5); W.refsCache = []; save(); renderWizard();
+    W.subs = r.keywords || []; W.selSubs = W.subs.slice(0, 5); W.refsCache = []; W.subsSource = r.source || (STATIC ? "static" : "db"); save(); renderWizard();
     if (!W.subs.length) toast("같이 쓰인 단어를 못 찾았어요. 키워드만으로 검색합니다");
   };
 
