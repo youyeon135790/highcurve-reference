@@ -93,7 +93,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 6px;b
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1788884790"></script>
+<script src="static_api.js?v=1788884967"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => { const j = await staticApi(p, opt); if (j && j.error) throw new Error(j.error); return j; };
@@ -365,9 +365,9 @@ async function openReel(id) {
       <div class="row" style="margin-top:12px"><button class="btn p" onclick="pickBoard(${id})">보드에 저장</button><button class="btn" onclick="closeAll();openItem(${id})">메모·수정</button><a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">원본 열기 ↗</a></div>
     </div>
     <div class="rstrip"><button class="nav" onclick="${idx > 0 ? `openReel(${list[idx - 1].id})` : ""}" ${idx > 0 ? "" : "disabled"}>‹</button><div class="thumbs">${strip}</div><button class="nav" onclick="${idx < list.length - 1 ? `openReel(${list[idx + 1].id})` : ""}" ${idx < list.length - 1 ? "" : "disabled"}>›</button></div>
-    <div class="rsim" id="rsim"><div class="rcaph">🔎 유사한 릴스 <small style="color:var(--mute);font-weight:400">캡션·해시태그·카테고리 기준</small></div><div class="rsimgrid">불러오는 중…</div></div>`;
+    <div class="rsim" id="rsim"><div class="rcaph">🔎 유사한 릴스 <small style="color:var(--mute);font-weight:400">같은 카테고리 · 캡션·해시태그·썸네일 유사도</small></div><div class="rsimgrid">불러오는 중…</div></div>`;
   try {
-    const sim = await api(`/api/items/${id}/similar?limit=12`);
+    const sim = await api(`/api/items/${id}/similar?limit=36`);
     $("#rsim .rsimgrid").innerHTML = sim.length ? sim.map(x => `<div class="scard" onclick="openReel(${x.id})">${x.thumbnail ? `<img src="${esc(x.thumbnail)}" loading="lazy" onerror="this.remove()">` : ""}<span class="rv">${x.views != null ? "▶ " + fmt(x.views) : "❤ " + fmt(x.likes)}</span><div class="sacc">@${esc(x.account || "-")}</div></div>`).join("") : '<span class="muted">아직 비슷한 릴스가 없어요</span>';
     $("#modal").scrollTop = 0;
   } catch (e) {}

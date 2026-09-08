@@ -45,11 +45,14 @@
   }
   function similar(id, limit) {
     const it = STATIC.items.find(x => x.id === id); if (!it) return [];
-    const toks = [...new Set(((it.caption || "") + " " + (it.tags || []).join(" ")).match(/[가-힣A-Za-z]{2,}/g) || [])].slice(0, 12);
-    const score = (x) => { if (x.id === id || x.platform !== it.platform) return -1; const hay = (x.caption || "") + " " + (x.tags || []).join(" "); let s = toks.reduce((n, t) => n + (hay.includes(t) ? 1 : 0), 0); if (x.industry && x.industry === it.industry) s += 0.5; return s; };
-    const out = STATIC.items.map(x => [score(x), x]).filter(([s]) => s > 0).sort((a, b) => b[0] - a[0] || (b[1].views || 0) - (a[1].views || 0)).map(([, x]) => x);
+    const toks = [...new Set(((it.caption || "") + " " + (it.tags || []).join(" ")).match(/[가-힣A-Za-z]{2,}/g) || [])];
+    const ham = (a, b) => { let n = 0; for (let i = 0; i < 16; i++) { let x = parseInt(a[i], 16) ^ parseInt(b[i], 16); while (x) { n += x & 1; x >>= 1; } } return n; };
+    const out = STATIC.items.filter(x => x.id !== id && x.platform === it.platform && x.kind === it.kind && (it.industry ? x.industry === it.industry : !x.industry)).map(x => {
+      const hay = (x.caption || "") + " " + (x.tags || []).join(" "); let s = toks.reduce((n, t) => n + (hay.includes(t) ? 1 : 0), 0);
+      if (it.phash && x.phash) { const d = ham(it.phash, x.phash); s += d <= 8 ? 6 : d <= 14 ? 3 : 0; }
+      return [s, x]; }).sort((a, b) => b[0] - a[0] || (b[1].views || 0) - (a[1].views || 0)).map(([, x]) => x);
     const cnt = {}, res = [];
-    for (const x of out) { const k = x.account; cnt[k] = (cnt[k] || 0) + 1; if (cnt[k] <= 2) res.push(x); if (res.length >= limit) break; }
+    for (const x of out) { const k = x.account; cnt[k] = (cnt[k] || 0) + 1; if (cnt[k] <= 3) res.push(x); if (res.length >= limit) break; }
     return res;
   }
   function accounts(qs) {
