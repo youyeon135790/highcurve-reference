@@ -174,22 +174,48 @@
       <div class="panel" style="margin-top:10px"><div class="row"><b>프롬프트</b><button class="btn small" onclick="navigator.clipboard.writeText($('#plan-prompt').value);toast('복사됨')">복사</button></div><textarea id="plan-prompt" rows="10" class="wiz-input mono">${esc("[하이커브 기획 원칙]\n" + (p.principles || "") + "\n\n" + (p.prompt || "") + "\n\n위 원칙과 레퍼런스로 하이커브 양식(JSON) 기획안을 만들어줘.")}</textarea></div>
       <div class="panel" style="margin-top:10px"><b>클로드가 준 기획안 JSON 붙여넣기</b><textarea id="plan-json" rows="5" class="wiz-input mono" placeholder='{"title": ...}'></textarea><button class="btn p" style="margin-top:6px" onclick="savePlanJson('${esc(p.id)}')">저장</button></div>`;
   }
+  // 구도 스케치(SVG): 9:16 프레임 + 피사체 실루엣 + 자막 위치
+  function sketch(f) {
+    f = f || {}; const shot = f.shot || "", subj = f.subject || "", pos = f.text_pos || "하단";
+    const W = 90, H = 160; let body = "";
+    if (/화면녹화/.test(shot)) body = `<rect x="14" y="26" width="62" height="100" rx="6" fill="#dfe3ee"/><rect x="20" y="34" width="50" height="8" rx="2" fill="#b9bfd2"/><rect x="20" y="48" width="36" height="6" rx="2" fill="#b9bfd2"/><rect x="20" y="60" width="44" height="6" rx="2" fill="#b9bfd2"/>`;
+    else if (/손|제품|인서트/.test(shot) || /손|제품/.test(subj)) body = `<ellipse cx="45" cy="98" rx="26" ry="14" fill="#cfd4e3"/><rect x="30" y="58" width="30" height="42" rx="6" fill="#b9bfd2"/><path d="M8 130 q20 -30 40 -8 q10 12 30 0" stroke="#8b92a8" stroke-width="6" fill="none" stroke-linecap="round"/>`;
+    else if (/메뉴판|소품|글자/.test(shot + subj)) body = `<rect x="16" y="40" width="58" height="80" rx="4" fill="#dfe3ee"/><rect x="24" y="52" width="42" height="6" rx="2" fill="#8b92a8"/><rect x="24" y="66" width="34" height="5" rx="2" fill="#b9bfd2"/><rect x="24" y="78" width="38" height="5" rx="2" fill="#b9bfd2"/><rect x="24" y="90" width="30" height="5" rx="2" fill="#b9bfd2"/>`;
+    else if (/탑뷰/.test(shot)) body = `<circle cx="45" cy="86" r="28" fill="#dfe3ee"/><circle cx="45" cy="86" r="16" fill="#b9bfd2"/>`;
+    else if (/전신/.test(shot)) body = `<circle cx="45" cy="44" r="9" fill="#b9bfd2"/><rect x="36" y="54" width="18" height="34" rx="6" fill="#cfd4e3"/><rect x="37" y="88" width="7" height="34" rx="3" fill="#b9bfd2"/><rect x="46" y="88" width="7" height="34" rx="3" fill="#b9bfd2"/>`;
+    else if (/클로즈업/.test(shot)) body = `<circle cx="45" cy="80" r="30" fill="#cfd4e3"/><circle cx="35" cy="74" r="3" fill="#8b92a8"/><circle cx="55" cy="74" r="3" fill="#8b92a8"/><path d="M36 92 q9 8 18 0" stroke="#8b92a8" stroke-width="2.5" fill="none"/>`;
+    else body = `<circle cx="45" cy="62" r="14" fill="#b9bfd2"/><path d="M18 130 q27 -50 54 0z" fill="#cfd4e3"/>`;   // 상반신(기본)
+    const ty = pos === "상단" ? 20 : pos === "중앙" ? 78 : 138;
+    const grid = `<path d="M30 0v160M60 0v160M0 53h90M0 107h90" stroke="#eceef5" stroke-width="1"/>`;
+    return `<svg viewBox="0 0 ${W} ${H}" class="sk"><rect width="${W}" height="${H}" rx="10" fill="#f6f7fb" stroke="#e6e8ef"/>${grid}${body}<rect x="10" y="${ty - 6}" width="70" height="12" rx="3" fill="#15171f"/><rect x="16" y="${ty - 2}" width="58" height="4" rx="2" fill="#bffe9e"/></svg>`;
+  }
+  function refFrameImg(p, rf) {
+    if (!rf || !rf.ref) return "";
+    const r = (p.refs || [])[rf.ref - 1]; if (!r) return "";
+    const fr = (r.frames || [])[(rf.frame || 1) - 1] || (r.frames || [])[0];
+    const src = fr ? fr.path : r.thumbnail; if (!src) return "";
+    return `<figure class="sb-ref"><img src="${esc(src)}" loading="lazy"><figcaption>레퍼런스 ${rf.ref} · ${fr ? fr.t + "초" : "썸네일"}${rf.why ? "<br>" + esc(rf.why) : ""}</figcaption></figure>`;
+  }
+  const chips = (c) => c ? [c.text_style && ["🔤", c.text_style], c.transition && ["🔀", c.transition], c.sfx && ["🔊", c.sfx], c.effect && ["✨", c.effect]].filter(Boolean).map(([i, v]) => `<span class="cchip">${i} ${esc(v)}</span>`).join("") : "";
+  let SB_TABLE = false; window.sbToggle = () => { SB_TABLE = !SB_TABLE; renderPlan2(CUR); };
   const cc = (c) => c ? [c.text_style && "🔤 " + c.text_style, c.transition && "🔀 " + c.transition, c.sfx && "🔊 " + c.sfx, c.effect && "✨ " + c.effect].filter(Boolean).map(esc).join("<br>") : "";
   function renderPlanTab(plan, p) {
-    const B = plan.B_plan || {}; const hooks = B.hooks || [];
-    return `<section class="sec"><h2>1. 첫 문장 고르기 <small>3초 안에 멈추게 하는 한마디 — 추천 ${esc(B.recommended_hook)}번: ${esc(B.why || "")}</small></h2>
-      <div class="hooks">${hooks.map((h, i) => `<div class="hook ${i + 1 == B.recommended_hook ? "on" : ""}"><span class="tag">${esc(h.type)}</span><b>${esc(h.line)}</b><div class="muted">첫 화면: ${esc(h.first_screen)} · 첫 자막: ${esc(h.first_caption)}</div></div>`).join("")}</div></section>
-    <section class="sec"><h2>2. 씬표 <small>이 순서대로 찍고, 캡컷에서 이렇게 편집</small></h2>
-      <div class="tablewrap"><table class="scenes"><tr><th>씬</th><th>초</th><th>화면에 보이는 것</th><th>말하는 것</th><th>자막</th><th>캡컷 편집</th><th>팁</th></tr>
-      ${(B.scenes || []).map(s => `<tr><td><b>${s.no}</b></td><td>${esc(s.sec)}</td><td>${esc(s.screen)}</td><td class="say">${esc(s.say)}</td><td class="cap">${esc(s.caption)}</td><td class="capcut">${cc(s.capcut)}</td><td class="muted">${esc(s.tip)}</td></tr>`).join("")}</table></div></section>
-    <div class="two">
-      <section class="panel"><b>3. 마지막 멘트</b><div style="margin-top:6px"><b>${esc((B.cta || {}).say)}</b></div><div class="muted">자막: ${esc((B.cta || {}).caption)}<br>댓글 유도: ${esc((B.cta || {}).comment_question)}</div></section>
-      <section class="panel"><b>4. 게시글 캡션</b><div style="white-space:pre-wrap;margin-top:6px">${esc(B.caption_text)}</div><div class="muted" style="margin-top:6px">🎵 음악: ${esc(B.music)}</div></section>
-    </div>
-    <div class="two" style="margin-top:12px">
-      <section class="panel"><b>5. 찍어야 할 것</b><ul>${(B.shot_list || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul><b>준비물</b><ul>${(B.prep || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>
-      <section class="panel"><b>6. 초보가 자주 하는 실수</b><ul>${(B.tips || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul>${(plan.pro || {}).questions && plan.pro.questions.length ? `<b>❓ 확인해 주세요</b><ul>${plan.pro.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ul>` : ""}</section>
-    </div>`;
+    const B = plan.B_plan || {}; const hooks = B.hooks || []; const rec = B.recommended_hook || 1;
+    const left = `<aside class="plan-side"><div class="title-card"><div class="ph-kicker">내 릴스 기획안</div><h2>${esc(plan.title)}</h2>${plan.thumbnail_text ? `<span class="ttag">썸네일: ${esc(plan.thumbnail_text)}</span>` : ""}${plan.one_line ? `<p>${esc(plan.one_line)}</p>` : ""}</div>
+      <div class="side-sec"><h3>🎣 첫 문장(훅) <small>추천 ${rec}번</small></h3><ol class="hooklist">${hooks.map((h, i) => `<li class="${i + 1 == rec ? "on" : ""}"><span class="tag">${esc(h.type)}</span> ${esc(h.line)}</li>`).join("")}</ol><div class="muted" style="font-size:12px">${esc(B.why || "")}</div></div>
+      <div class="side-sec"><h3>📝 캡션</h3><div class="capbox">${esc(B.caption_text)}</div></div>
+      <div class="side-sec"><h3>🎵 음악</h3><div>${esc(B.music || "-")}</div></div>
+      <div class="side-sec"><h3>🎬 마지막 멘트</h3><div><b>${esc((B.cta || {}).say)}</b></div><div class="muted">자막: ${esc((B.cta || {}).caption)}<br>댓글 유도: ${esc((B.cta || {}).comment_question)}</div></div>
+      <div class="side-sec"><h3>📦 찍을 것·준비물</h3><ul>${(B.shot_list || []).map(x => `<li>${esc(x)}</li>`).join("")}${(B.prep || []).map(x => `<li class="muted">${esc(x)}</li>`).join("")}</ul></div>
+      <div class="side-sec"><h3>⚠️ 초보 실수</h3><ul>${(B.tips || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
+      ${(plan.pro || {}).questions && plan.pro.questions.length ? `<div class="side-sec warnbox"><h3>❓ 확인해 주세요</h3><ul>${plan.pro.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ul></div>` : ""}</aside>`;
+    const scenes = (B.scenes || []).map(s => { const f = s.framing || {}; const g = s.guide || {}; const h = hooks[0] || {};
+      return `<div class="scene"><div class="scene-visual"><span class="scene-no">SCENE ${s.no} <small>${esc(s.sec)}초</small></span>${refFrameImg(p, s.ref_frame)}${sketch(f)}</div>
+        <div class="scene-body"><div class="saybox"><span class="tag">${esc(s.part || (s.no === 1 ? "훅" : s.no === (B.scenes || []).length ? "마무리" : "본문 " + (s.no - 1)))}</span><div class="say">${esc(s.say)}</div><div class="cap">💬 ${esc(s.caption)}${f.text_pos ? ` <span class="muted">(${esc(f.text_pos)})</span>` : ""}</div></div>
+        <div class="guidebox"><b>촬영 가이드</b><div><b>구도:</b> ${esc(g.composition || [f.shot, f.camera, s.screen].filter(Boolean).join(" · "))}</div>${g.light ? `<div><b>조명:</b> ${esc(g.light)}</div>` : ""}${g.props ? `<div><b>소품:</b> ${esc(g.props)}</div>` : ""}<div><b>행동:</b> ${esc(g.action || s.screen)}</div></div>
+        <div class="editbox"><b>캡컷 편집</b><div class="cchips">${chips(s.capcut) || '<span class="muted">-</span>'}</div>${s.tip ? `<div class="sb-tip">💡 ${esc(s.tip)}</div>` : ""}</div></div></div>`; }).join("");
+    return `<div class="plan-layout">${left}<div class="plan-main"><div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">🎬 스토리보드 <small>총 ${(B.scenes || []).length}컷 · ${esc(plan.length_sec)}초</small></h2><button class="btn small" onclick="sbToggle()">${SB_TABLE ? "카드로 보기" : "표로 보기"}</button></div>
+      ${SB_TABLE ? `<div class="tablewrap"><table class="scenes"><tr><th>씬</th><th>초</th><th>화면에 보이는 것</th><th>말하는 것</th><th>자막</th><th>캡컷 편집</th><th>팁</th></tr>${(B.scenes || []).map(s => `<tr><td><b>${s.no}</b></td><td>${esc(s.sec)}</td><td>${esc(s.screen)}</td><td class="say">${esc(s.say)}</td><td class="cap">${esc(s.caption)}</td><td class="capcut">${cc(s.capcut)}</td><td class="muted">${esc(s.tip)}</td></tr>`).join("")}</table></div>` : `<div class="scenes-list">${scenes}</div>`}</div></div>`;
   }
   function renderRefsTab(p) {
     const refs = p.refs || []; const A = ((p.plan || {}).A_refs) || [];
