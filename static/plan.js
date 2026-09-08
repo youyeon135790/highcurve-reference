@@ -6,7 +6,9 @@
   const JOBS = ["카페·베이커리", "식당·요식업", "뷰티샵·네일", "피부과·병원", "헬스·필라테스", "강사·코치", "인플루언서", "쇼핑몰·공동구매", "N잡러·프리랜서", "보험·금융", "부동산·공인중개사", "육아맘·주부", "개발자·IT", "여행·숙박업"];
   const AGES = ["10대", "20대", "30대", "40대", "50대+"]; const LIFE = ["직장인", "자영업 사장님", "학생", "주부", "육아맘", "자취생", "커플·신혼", "운동하는 사람", "창업 준비"];
   const HOOKS = ["질문형", "숫자형", "반전형", "고백형", "금지형", "발견형", "비교형", "경고형"];
-  const STATIC = !!window.staticApi;
+  const STATIC = !!window.staticApi && !(window.apiBase && window.apiBase());
+  const CONNECTED = !!(window.apiBase && window.apiBase());
+  const connectBox = () => STATIC ? `<div class="panel warn" style="margin:8px 0"><b>체험판(배포본)이라 AI·영상 분석·기획안 생성이 안 돼요.</b><div class="muted" style="margin:4px 0 8px">이 맥에서 하이커브 서버(localhost:8787)가 켜져 있으면 아래 버튼으로 연결해 배포본에서도 전부 쓸 수 있어요. 다른 컴퓨터라면 서버 주소를 넣어주세요.</div><div class="row"><button class="btn p small" onclick="connectServer('http://localhost:8787')">🔌 이 맥의 서버 연결</button><input id="srv-url" class="wiz-input" style="max-width:280px;padding:6px 10px;font-size:13px" placeholder="서버 주소 (예: https://내서버:8787)"><button class="btn small" onclick="connectServer($('#srv-url').value)">연결</button></div></div>` : CONNECTED ? `<div class="muted" style="font-size:12px;margin:4px 0">🔌 서버 연결됨: ${esc(window.apiBase())} <a href="#" onclick="event.preventDefault();disconnectServer()">끊기</a></div>` : "";
   const post = (p, body) => api(p, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
   const pill = (v, on, fn, extra = "") => `<button class="pill ${on ? "on" : ""}" onclick="${fn}" ${extra}>${esc(v)}</button>`;
 
@@ -39,7 +41,7 @@
       <label class="wiz-label">직접 적기</label><input class="wiz-input" placeholder="예: 릴스 올려도 조회수 300 나오는 사장님" value="${esc(W.extra.target_free || "")}" oninput="wizExtra('target_free', this)">`;
       next = `<button class="btn p big" onclick="${W.target.length || W.extra.target_free ? "wizGo(3)" : "toast('타깃을 하나 이상 골라주세요')"}">다음</button>`;
     } else if (s === 3) {
-      body = `<h1>핵심 키워드 하나만 적어주세요.</h1>${STATIC ? '<div class="panel warn" style="margin:8px 0">체험판이라 AI 없이 저장소 통계로만 단어를 뽑아요. 사내 서버에서는 AI가 직업·타깃에 맞춰 뽑습니다.</div>' : ""}<p class="muted">이 키워드로 우리 저장소(릴스 ${fmt(META?.stats?.items || 9000)}개)에서 같이 쓰인 단어를 뽑고, 참고 릴스를 찾아요.</p>
+      body = `<h1>핵심 키워드 하나만 적어주세요.</h1>${connectBox()}<p class="muted">이 키워드로 우리 저장소(릴스 ${fmt(META?.stats?.items || 9000)}개)에서 같이 쓰인 단어를 뽑고, 참고 릴스를 찾아요.</p>
       <div class="row"><input id="wiz-kw" class="wiz-input" placeholder="예: 카페 신메뉴, 릴스 만드는 법, 홈트" value="${esc(W.keyword)}" oninput="wizInput('keyword', this)" onkeydown="if(event.key==='Enter')wizSubs()"><button class="btn p" onclick="wizSubs()">✨ 서브 키워드 뽑기</button></div>
       <div class="wiz-sub">서브 키워드 ${W.subs.length ? (W.subsSource === "cli" || W.subsSource === "api" ? '<span class="tag ok">🤖 AI가 뽑음</span>' : '<span class="tag">📊 저장소 통계</span>') : ""}<small class="muted">${W.subs.length ? `${W.selSubs.length}/${W.subs.length} 선택 · 눌러서 켜고 끄기` : "키워드를 넣고 뽑기를 누르세요 (AI가 5~10초)"}</small></div>
       <div class="pills" id="wiz-subs">${W.subs.map(k => pill("#" + k, W.selSubs.includes(k), `wizToggle('selSubs','${esc(k)}')`)).join("")}</div>`;
@@ -49,7 +51,7 @@
       next = `<button class="btn p big" id="wiz-next4" onclick="${W.refs.length ? "wizAnalyzeThenTopics()" : "toast('참고 릴스를 1개 이상 골라주세요')"}">주제 고르기 →</button>`;
     } else {
       body = renderTopicStep();
-      next = `<button class="btn p big" id="wiz-make" onclick="wizMake()">✨ 기획안 만들기</button>`;
+      next = STATIC ? `<button class="btn p big" disabled title="체험판에서는 생성 불가">✨ 기획안 만들기 (서버 연결 필요)</button>` : `<button class="btn p big" id="wiz-make" onclick="wizMake()">✨ 기획안 만들기</button>`;
     }
     $("#main").innerHTML = `<div class="wiz">${head}<div class="wiz-body">${body}</div><div class="wiz-foot"><button class="btn big" onclick="wizGo(${s - 1})" ${s === 1 ? "disabled" : ""}>이전</button>${next}</div></div>`;
     if (s === 4 && !W.refsCache.length && (W.keyword || W.selSubs.length)) wizSearchRefs();
@@ -68,7 +70,7 @@
   async function renderRefsStep() {
     const sel = W.refs;
     const cards = W.refsCache.map(x => refCard(x, sel.includes(x.id))).join("");
-    return `<h1>참고할 릴스를 골라주세요 <small class="muted">(최대 3개)</small></h1>${STATIC ? '<div class="panel warn" style="margin:8px 0">체험판: 키워드 일치로만 찾습니다. 사내 서버에서는 AI가 직업·타깃에 맞는 릴스만 골라 이유와 함께 보여줘요.</div>' : ""}<p class="muted">키워드로 우리 저장소에서 찾은 인기 릴스예요. 고른 릴스의 컷·자막·대사·효과음을 뜯어서 내 기획안에 옮깁니다.</p>
+    return `<h1>참고할 릴스를 골라주세요 <small class="muted">(최대 3개)</small></h1>${connectBox()}<p class="muted">키워드로 우리 저장소에서 찾은 인기 릴스예요. 고른 릴스의 컷·자막·대사·효과음을 뜯어서 내 기획안에 옮깁니다.</p>
     <div class="pills small">${[W.keyword, ...W.selSubs].filter(Boolean).map(k => `<span class="pill on">#${esc(k)}</span>`).join("")}<button class="btn small" onclick="wizSearchRefs()">↻ 다시 찾기</button>${STATIC ? "" : `<button class="btn small" onclick="wizLiveSearch()">🌐 인스타에서 새로 찾기</button>`}</div>
     <div class="wiz-sel">${sel.length ? `선택 ${sel.length}/3 · ` + sel.map(id => `<span class="pill on tiny" onclick="wizPick(${id})">@${esc((W.refsCache.find(x => x.id === id) || {}).account || id)} ✕</span>`).join(" ") : "아직 고른 릴스가 없어요"}</div>
     <div class="refgrid" id="wiz-refs">${cards || '<div class="muted" style="padding:30px;text-align:center" id="wiz-refs-msg">저장소에서 후보를 찾고, AI가 이 직업·타깃에 맞는 것만 고르는 중… (30~40초)</div>'}</div>
@@ -129,7 +131,7 @@
   function renderTopicStep() {
     const t = W.topics || [];
     if (!t.length && !TOPICS_LOADING && W.refs.length && !STATIC) setTimeout(() => wizTopics(), 50);
-    return `<h1>어떤 주제로 찍을까요?</h1><p class="muted">고른 참고 릴스의 구조에서 뽑은 주제예요. 하나 고르거나 직접 적어주세요. 첫 문장(훅)은 ${HOOKS.join("·")} 중 골고루 나옵니다.</p>
+    return `<h1>어떤 주제로 찍을까요?</h1>${connectBox()}<p class="muted">고른 참고 릴스의 구조에서 뽑은 주제예요. 하나 고르거나 직접 적어주세요. 첫 문장(훅)은 ${HOOKS.join("·")} 중 골고루 나옵니다.</p>
     <div class="row" style="margin-bottom:10px"><button class="btn" onclick="wizTopics()">✨ 추천 주제 ${t.length ? "다시 뽑기" : "뽑기"}</button><span id="wiz-topic-msg" class="muted">${!t.length && !STATIC ? "준희 님 노하우(훅 공식·타깃 문제)를 적용해 주제 뽑는 중… (20~30초)" : STATIC ? "체험판에서는 주제 추천이 안 돼요. 직접 적어주세요." : ""}</span></div>
     <div class="topics">${t.map((x, i) => `<div class="topic ${W.topic === x.title ? "on" : ""}" onclick="wizSet('topic','${esc(x.title).replace(/'/g, "\\'")}')"><b>${esc(x.title)}</b><div class="muted">${esc(x.from || "")}${x.hook_type ? ` · <span class="tag">${esc(x.hook_type)}</span>` : ""}</div></div>`).join("")}</div>
     <label class="wiz-label">직접 적기 (비워두면 AI가 레퍼런스 구조에서 정합니다)</label><input class="wiz-input" placeholder="예: 조회수 800 나오던 카페 릴스, 첫 문장 바꿨더니 11만" value="${t.find(x => x.title === W.topic) ? "" : esc(W.topic)}" oninput="wizInput('topic', this)">

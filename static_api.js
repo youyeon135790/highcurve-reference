@@ -117,7 +117,22 @@
     if (items.length) { items.reduce((a, b) => (b.views > a.views ? b : a)).label = "조회수 1위"; const eng = items.filter(x => x.views && x.likes); if (eng.length) { const e = eng.reduce((a, b) => (b.likes / b.views > a.likes / a.views ? b : a)); e.label = e.label || "참여율 1위"; } const n = items.reduce((a, b) => ((b.posted_at || "") > (a.posted_at || "") ? b : a)); n.label = n.label || "가장 최근"; }
     return { items, matched: rows.length };
   }
+  // 서버 연결: localStorage.apiBase(또는 ?api=주소)가 있으면 배포본에서도 실제 서버 API를 쓴다 (같은 맥에서는 http://localhost:8787)
+  try { const u = new URL(location.href); const a = u.searchParams.get("api"); if (a !== null) { if (a) localStorage.setItem("apiBase", a.replace(/\/$/, "")); else localStorage.removeItem("apiBase"); } } catch (e) {}
+  window.apiBase = () => { try { return localStorage.getItem("apiBase") || ""; } catch (e) { return ""; } };
+  window.connectServer = async (base) => {
+    base = (base || "http://localhost:8787").replace(/\/$/, "");
+    try { const r = await fetch(base + "/api/plans", { cache: "no-store" }); if (!r.ok) throw new Error(r.status); await r.json(); }
+    catch (e) { alert("서버에 연결할 수 없어요: " + base + "\n(맥에서 하이커브 서버가 켜져 있어야 하고, 배포본은 같은 맥의 localhost 만 허용됩니다)"); return false; }
+    localStorage.setItem("apiBase", base); location.reload(); return true;
+  };
+  window.disconnectServer = () => { localStorage.removeItem("apiBase"); location.reload(); };
   window.staticApi = async function (p, opt) {
+    const base = window.apiBase();
+    if (base) {
+      const u = new URL(p, location.href); const path = u.pathname.replace(/^.*\/api\//, "/api/") + (u.search || "");
+      const r = await fetch(base + path, opt); const j = await r.json(); if (j && j.error) throw new Error(j.error); return j;
+    }
     await load();
     const method = (opt && opt.method) || "GET";
     if (method !== "GET") throw new Error("체험판(배포본)에서는 여기까지예요. 영상 분석·기획안 생성은 하이커브 서버에서만 됩니다");
