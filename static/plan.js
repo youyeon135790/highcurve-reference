@@ -152,6 +152,7 @@
         <label>촬영 환경 <input class="wiz-input" placeholder="예: 얼굴 노출 OK, 매장, 화면녹화 가능" value="${esc(W.extra.shooting || "")}" oninput="wizExtra('shooting', this)"></label>
         <label>영상 길이(초) <input class="wiz-input" placeholder="30" value="${esc(W.extra.length || "")}" oninput="wizExtra('length', this)"></label>
       </div></details>
+    <div class="row" style="margin:6px 0 10px;gap:8px;align-items:center"><span class="muted" style="font-size:12px">생성 모드</span>${pill("⚡ 빠름 (1~2분)", W.mode === "fast", "wizSet('mode','fast')")}${pill("🎯 정밀 (3~4분, 추천)", W.mode !== "fast", "wizSet('mode','precise')")}</div>
     <div class="wiz-summary"><b>정리</b> ${esc(W.job)} → ${esc(W.target.join(", "))}${W.extra.target_free ? " · " + esc(W.extra.target_free) : ""} · #${esc(W.keyword)} ${W.selSubs.map(k => "#" + esc(k)).join(" ")} · 참고 릴스 ${W.refs.length}개</div>`;
   }
   const brief = () => ({ job: W.job, target: [...W.target, W.extra.target_free].filter(Boolean).join(", "), keyword: [W.keyword, ...W.selSubs].filter(Boolean).join(", "), topic: W.topic, length: W.extra.length || 30, tone: W.extra.tone, scene: W.extra.scene, numbers: W.extra.numbers, cta: W.extra.cta, shooting: W.extra.shooting });
@@ -177,7 +178,8 @@
     }
     b.textContent = "기획안 쓰는 중… (3~6분, 프레임을 하나씩 보고 씁니다)";
     try {
-      const r = await post("/api/plan", { ids: W.refs, brief: brief() });
+      const t0 = Date.now(); const tick = setInterval(() => { const el = $("#wiz-make"); if (el) el.textContent = `기획안 쓰는 중… ${Math.round((Date.now() - t0) / 1000)}초 (${W.mode === "fast" ? "보통 1~2분" : "보통 3~4분"})`; }, 1000);
+      const r = await post("/api/plan", { ids: W.refs, brief: brief(), mode: W.mode || "precise" }).finally(() => clearInterval(tick));
       if (r.error) throw new Error(r.error);
       location.hash = "#/plan/" + r.id;
     } catch (e) { toast("실패: " + e.message); b.disabled = false; b.textContent = "✨ 기획안 만들기"; }
