@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>하이커브 레퍼런스 저장소</title>
+<style>
+:root{--bg:#f6f7fb;--panel:#fff;--line:#e6e8ef;--ink:#15171f;--mute:#7b8194;--brand:#2f54eb;--brand2:#eef2ff;--lime:#bffe9e;--red:#ec1d1d;--r:12px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Pretendard","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:14px}
+a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}input,select,textarea{font-family:inherit;font-size:14px}
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.side{background:var(--panel);border-right:1px solid var(--line);padding:18px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;overflow-y:auto}
+.logo{font-weight:800;letter-spacing:-.02em;font-size:16px;padding:6px 8px 18px;display:flex;align-items:center;gap:8px}.logo i{width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,var(--ink),#3a3f52);display:inline-block;position:relative}.logo i:after{content:"";position:absolute;left:5px;top:5px;width:12px;height:12px;border-radius:4px;background:var(--lime)}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;color:#3b4052;font-weight:500}.nav a.on{background:var(--brand2);color:var(--brand)}.nav a .tag{margin-left:auto;font-size:10px;background:#eef;color:var(--brand);padding:1px 6px;border-radius:5px}
+.nav .sec{font-size:11px;color:var(--mute);padding:14px 10px 4px}.nav .phead{display:flex;align-items:center;gap:8px;padding:10px 10px 4px;font-weight:800;font-size:13px;cursor:pointer;user-select:none}.nav .phead .arr{margin-left:auto;color:var(--mute);font-size:11px}.nav a.cat{padding:6px 10px 6px 34px;font-size:13px;font-weight:500}.nav a.cat.on{background:var(--brand2);color:var(--brand);font-weight:700}.nav .catlist{display:block}.nav .catlist.closed{display:none}
+.side .foot{margin-top:auto;font-size:12px;color:var(--mute);padding:10px}.side .foot b{display:block;color:var(--ink)}
+.main{padding:22px 28px;max-width:1500px}
+.top{display:flex;gap:10px;align-items:center;margin-bottom:14px}
+.search{flex:1;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 16px}.search input{border:0;outline:0;flex:1;font-size:15px;background:transparent}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 16px}.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 12px;font-size:13px;color:#3b4052}.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+select.chip{appearance:none;padding-right:26px;background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M0 0l5 6 5-6z" fill="%237b8194"/></svg>') no-repeat right 10px center}
+h2{font-size:17px;margin:20px 0 10px;display:flex;align-items:center;gap:10px}h2 small{font-weight:400;color:var(--mute);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:.15s;cursor:pointer}.card:hover{box-shadow:0 8px 24px rgba(20,25,60,.08);transform:translateY(-1px)}
+.thumb{aspect-ratio:9/13;background:linear-gradient(160deg,#e9ecf5,#d8dcea);position:relative;display:flex;align-items:flex-end;padding:10px;overflow:hidden}.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.thumb .cap{position:relative;color:#fff;font-weight:700;font-size:13px;text-shadow:0 1px 6px rgba(0,0,0,.6);line-height:1.3;max-height:3.9em;overflow:hidden}
+.thumb .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa0b5;font-size:12px}a.thumb{display:flex;color:inherit}.thumb .open{position:absolute;right:8px;top:8px;background:rgba(0,0,0,.55);color:#fff;border-radius:6px;padding:2px 6px;font-size:12px}.link{display:block;margin-top:6px;font-size:11px;color:var(--brand);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.link:hover{text-decoration:underline}
+.badge{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.94);border-radius:7px;padding:3px 7px 3px 4px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px}.plogo{display:inline-block;vertical-align:middle;border-radius:5px;flex:none}.chip .plogo{margin-right:6px;margin-left:-4px}.psec{display:flex;align-items:center;gap:10px;margin:26px 0 10px}.psec h2{margin:0}.psec .more{margin-left:auto}
+.i-instagram{background:linear-gradient(45deg,#f58529,#dd2a7b,#8134af)}.i-tiktok{background:#000}.i-youtube{background:#f00}.i-meta_ad{background:#0866ff}.i-web{background:#888}
+.body{padding:10px 12px 12px}.acc{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.acc small{color:var(--mute);font-weight:400;margin-left:4px}
+.meta{display:flex;gap:10px;color:var(--mute);font-size:12px;margin-top:4px;flex-wrap:wrap}.meta b{color:var(--ink);font-weight:600}
+.ind{display:inline-block;background:#f0f2f8;color:#4b5168;border-radius:5px;padding:2px 6px;font-size:11px;margin-top:6px}
+.act{display:flex;gap:6px;margin-top:8px}.act button{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px;font-size:12px}.act button.p{background:var(--brand);color:#fff;border-color:var(--brand)}
+.empty{background:var(--panel);border:1px dashed var(--line);border-radius:var(--r);padding:40px;text-align:center;color:var(--mute)}.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:8px}.empty button{margin:12px 6px 0}
+.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 14px;font-size:13px}.btn.p{background:var(--brand);color:#fff;border-color:var(--brand)}.btn.d{color:var(--red)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.drawer{position:fixed;top:0;right:0;width:460px;max-width:100vw;height:100vh;background:#fff;border-left:1px solid var(--line);box-shadow:-10px 0 40px rgba(0,0,0,.08);transform:translateX(100%);transition:.2s;overflow:auto;padding:18px;z-index:20}.drawer.open{transform:none}
+.drawer h3{margin:0 0 6px;font-size:16px}.drawer .x{position:absolute;right:14px;top:12px;border:0;background:#f0f2f8;border-radius:8px;width:30px;height:30px}
+.drawer label{display:block;font-size:12px;color:var(--mute);margin:12px 0 4px}.drawer input,.drawer textarea,.drawer select{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px}.drawer textarea{min-height:70px}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.kv div{background:#f6f7fb;border-radius:8px;padding:8px}.kv b{display:block;font-size:15px}.kv span{font-size:11px;color:var(--mute)}
+.mask{position:fixed;inset:0;background:rgba(10,12,30,.25);display:none;z-index:15}.mask.on{display:block}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;background:#fff;border-radius:14px;padding:18px;z-index:30;display:none}.modal.on{display:block}.modal h3{margin:0 0 10px}
+.list{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto}.list label{display:flex;gap:8px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tabs button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;font-size:13px}.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.bars{display:flex;align-items:flex-end;gap:3px;height:80px;margin-top:8px}.bars div{flex:1;background:var(--brand);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}.bars div:hover{opacity:1}
+.rsearch{display:flex;gap:8px;align-items:center;margin-bottom:10px}.rsearch .search{flex:1}
+.rcats{display:flex;gap:6px;overflow-x:auto;padding:4px 0;scrollbar-width:none;flex:1}.rcatrow{display:flex;align-items:center;gap:10px;margin-bottom:6px}.rlabel{flex:none;width:110px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px}.rcat{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-size:13px;color:#3b4052}.rcat.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.rcount{color:var(--mute);font-size:12px;margin:0 0 10px}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.rcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;transition:.15s}.rcard:hover{box-shadow:0 8px 24px rgba(20,25,60,.08);transform:translateY(-1px)}
+.rthumb{display:block;aspect-ratio:9/16;background:linear-gradient(160deg,#e9ecf5,#d8dcea);position:relative;overflow:hidden}.rthumb img{width:100%;height:100%;object-fit:cover;display:block}.rthumb.nothumb:after{content:"썸네일 없음";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa0b5;font-size:12px}
+.rv{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff;border-radius:6px;padding:2px 7px;font-size:12px;font-weight:600}.rp{position:absolute;right:8px;top:8px;background:#fde8e8;color:#b00;border-radius:6px;padding:2px 6px;font-size:11px}
+.racc{display:flex;justify-content:space-between;align-items:center;padding:8px 10px 0;font-size:12px}.racc b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}.racc span{color:var(--mute);font-size:11px}
+.rmeta{display:flex;gap:8px;flex-wrap:wrap;padding:4px 10px 0;font-size:11px;color:var(--mute)}.rmeta b{color:var(--ink)}.gold{background:#fff7e0;color:#a15c00;border-radius:6px;padding:1px 6px;font-weight:700}.rcap{padding:6px 10px 10px;font-size:12px;color:#3b4052;line-height:1.35}
+.modal.rmodal{width:min(1100px,94vw);height:auto !important;max-height:92vh;overflow:auto;padding:22px;display:grid;align-content:start;grid-template-columns:minmax(260px,380px) 1fr;gap:22px;border-radius:18px}
+.rmodal .x{position:absolute;right:16px;top:14px;border:0;background:#f0f2f8;border-radius:10px;width:36px;height:36px;font-size:16px;display:flex;align-items:center;justify-content:center}.rmodal .x.open{right:60px;color:var(--brand)}
+.rleft img{width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:14px;display:block;background:#e9ecf5}.rleft .ph{aspect-ratio:9/16;background:#e9ecf5;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#9aa0b5}
+.racct{display:flex;align-items:center;gap:10px;margin:6px 0 16px;font-size:16px}.racct .av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}.racct .nm{color:var(--mute);font-size:13px}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.pill{background:#f3f4f8;border-radius:10px;padding:9px 14px;font-size:14px;color:#3b4052}.pill b{margin-left:6px;color:var(--ink)}.pill.muted{color:var(--mute);font-size:12px}
+.rcaph{font-weight:700;margin:18px 0 8px}.rcapbox{background:#f8f9fc;border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.7;max-height:320px;overflow:auto;white-space:normal}.muted{color:var(--mute)}
+.racctrow{display:flex;gap:10px;overflow-x:auto;padding:4px 0 10px}.racct{flex:0 0 200px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-size:12px;display:flex;flex-direction:column;gap:4px}.racct .rh{display:flex;flex-direction:column}.racct a{color:var(--mute);text-decoration:none;font-size:11px}.btn.small{padding:3px 8px;font-size:11px}
+.rsim{grid-column:1/-1;margin-top:6px}.rsimgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}.scard{position:relative;aspect-ratio:9/14;border-radius:10px;overflow:hidden;background:#e9ecf5;cursor:pointer}.scard img{width:100%;height:100%;object-fit:cover;display:block}.scard .rv{font-size:11px;padding:1px 6px}.scard .sacc{position:absolute;left:6px;top:6px;background:rgba(0,0,0,.55);color:#fff;border-radius:6px;padding:1px 6px;font-size:10px;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rstrip{grid-column:1/-1;display:flex;align-items:center;gap:10px;justify-content:center;margin-top:6px}.rstrip .thumbs{display:flex;gap:10px}.rstrip img{width:64px;height:88px;object-fit:cover;border-radius:10px;border:3px solid transparent;cursor:pointer;background:#e9ecf5}.rstrip img.on{border-color:var(--brand)}.rstrip .nav{border:0;background:#f0f2f8;border-radius:50%;width:36px;height:36px;font-size:18px}.rstrip .nav:disabled{opacity:.3}
+@media (max-width:800px){.rmodal{grid-template-columns:1fr}}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.fpanel{margin:-6px 0 16px}.frow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid var(--line)}.frow:last-child{border:0}.frow>label{width:90px;color:var(--mute);font-size:12px;flex:none}.fin{border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:110px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--mute);font-weight:500;font-size:12px}
+.kw{display:flex;gap:6px;flex-wrap:wrap}.kw span{background:#f0f2f8;border-radius:6px;padding:4px 8px;font-size:12px}
+.stat{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat .panel b{font-size:26px;display:block}.stat .panel span{color:var(--mute);font-size:12px}
+.ok{color:#1a9c5b}.no{color:var(--mute)}code{background:#f0f2f8;padding:2px 5px;border-radius:4px;font-size:12px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.2s;z-index:40}.toast.on{opacity:1}
+.avatar{width:44px;height:44px;border-radius:12px;background:#e9ecf5;object-fit:cover}
+</style>
+<style>a[data-r="boards"],a[data-r="plan"],a[data-r="edit"],a[data-r="settings"],#rlive,#rlivemsg,.racct .btn,button[onclick*="pickBoard"],button[onclick*="openItem"]{display:none!important}</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="logo"><i></i>하이커브 레퍼런스</div>
+    <nav class="nav">
+      <div id="catnav"></div>
+      <div class="sec">도구</div>
+      <a href="#/explore" data-r="explore">🔍 탐색 · 필터</a>
+      <a href="#/brands" data-r="brands">🏷️ 브랜드 아카이브</a>
+      <a href="#/trends" data-r="trends">📈 트렌드 <span class="tag">NEW</span></a>
+      <a href="#/boards" data-r="boards">📌 보드</a>
+      <a href="#/plan" data-r="plan">✍️ 기획 스킬 <span class="tag">준비중</span></a>
+      <a href="#/edit" data-r="edit">🎬 편집 스킬 <span class="tag">연결</span></a>
+      <a href="#/settings" data-r="settings">⚙️ 설정 · 수집</a>
+    </nav>
+    <div class="foot"><b id="wsname">하이커브 워크스페이스</b><span id="count">-</span></div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<div class="mask" id="mask" onclick="closeAll()"></div>
+<div class="drawer" id="drawer"></div>
+<div class="modal" id="modal"></div>
+<div class="toast" id="toast"></div>
+<script src="static_api.js"></script>
+<script>
+const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+const api = async (p, opt) => { const j = await staticApi(p, opt); if (j && j.error) throw new Error(j.error); return j; };
+const post = (p, body, method="POST") => api(p, { method, headers: { "content-type": "application/json" }, body: JSON.stringify(body || {}) });
+const fmt = (n) => n == null ? "-" : n >= 1e8 ? (n/1e8).toFixed(1).replace(/\.0$/,"")+"억" : n >= 1e4 ? (n/1e4).toFixed(1).replace(/\.0$/,"")+"만" : n >= 1e3 ? (n/1e3).toFixed(1).replace(/\.0$/,"")+"천" : String(n);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const PLAT = { instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", meta_ad: "Meta 광고", web: "웹" };
+const PLAT_ORDER = ["instagram", "youtube"];   // 화면에 보이는 플랫폼 (틱톡·메타광고는 데이터는 유지, 화면에서 숨김)
+// 플랫폼 로고 (인라인 SVG — 외부 이미지 없이 항상 표시)
+const LOGO = {
+  instagram: (s) => `<svg class="plogo" style="width:${s}px;height:${s}px" width="${s}" height="${s}" viewBox="0 0 24 24"><defs><linearGradient id="igg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#f9ce34"/><stop offset=".5" stop-color="#ee2a7b"/><stop offset="1" stop-color="#6228d7"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#igg)"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" stroke-width="2"/><circle cx="17.3" cy="6.7" r="1.3" fill="#fff"/></svg>`,
+  tiktok: (s) => `<svg class="plogo" style="width:${s}px;height:${s}px" width="${s}" height="${s}" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#000"/><g transform="translate(4.5 4.2) scale(.62)"><path d="M12.53.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" fill="#25f4ee" transform="translate(-1.2 -1)"/><path d="M12.53.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" fill="#fe2c55" transform="translate(1.2 1)"/><path d="M12.53.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" fill="#fff"/></g></svg>`,
+  youtube: (s) => `<svg class="plogo" style="width:${s}px;height:${s}px" width="${s}" height="${s}" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#fff"/><rect x="2" y="5.5" width="20" height="13" rx="4" fill="#ff0000"/><path d="M10 9l5.2 3L10 15z" fill="#fff"/></svg>`,
+  meta_ad: (s) => `<svg class="plogo" style="width:${s}px;height:${s}px" width="${s}" height="${s}" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#fff"/><path d="M3.2 14.6c0-3.6 1.8-6.8 4.1-6.8 1.9 0 3 1.9 4.7 5 1.7-3.1 2.8-5 4.7-5 2.3 0 4.1 3.2 4.1 6.8 0 1.7-.7 2.6-1.9 2.6-1.4 0-2.2-1.5-3.6-4.2l-.9-1.8-.9 1.8c-1.4 2.7-2.2 4.2-3.6 4.2-1.4 0-2.2-1.5-3.6-4.2L5.5 11.2l-.4.8c-.8 1.7-1.2 2.6-1.9 2.6z" fill="none" stroke="#0866ff" stroke-width="2.2" stroke-linejoin="round"/></svg>`,
+  web: (s) => `<svg class="plogo" style="width:${s}px;height:${s}px" width="${s}" height="${s}" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#8a8f9e"/><circle cx="12" cy="12" r="6" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M6 12h12M12 6c2.5 2.5 2.5 9.5 0 12M12 6c-2.5 2.5-2.5 9.5 0 12" fill="none" stroke="#fff" stroke-width="1.3"/></svg>`,
+};
+const logo = (p, s=16) => (LOGO[p] || LOGO.web)(s);
+let META = { industries: [], platforms: [], adapters: {}, config: {} }, state = { q: "", platform: "", industry: "", sort: "date", days: "", source: "", kind: "", creator: "", paid: "", min_views: "", max_views: "", min_likes: "", max_likes: "", min_comments: "", max_comments: "" };
+let filterOpen = false;
+const KINDS = [["reel", "릴스"], ["shorts", "쇼츠"]];
+function activeFilters() { return Object.entries(state).filter(([k, v]) => v && !["q", "sort"].includes(k)).length; }
+const toast = (m) => { const t = $("#toast"); t.textContent = m; t.classList.add("on"); setTimeout(() => t.classList.remove("on"), 2200); };
+function closeAll() { $("#drawer").classList.remove("open"); $("#modal").classList.remove("on"); $("#modal").classList.remove("rmodal"); $("#mask").classList.remove("on"); }
+
+// ---------------- 카드
+function card(it, opts={}) {
+  const ratio = it.followers && it.views ? (it.views / it.followers).toFixed(1) + "x" : null;
+  const short = (u) => { try { const x = new URL(u); return x.hostname.replace("www.", "") + x.pathname.replace(/\/$/, "").slice(0, 28); } catch { return u; } };
+  return `<div class="card" data-id="${it.id}" onclick="openItem(${it.id})">
+    <a class="thumb" href="${esc(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="원본 열기">${it.thumbnail ? `<img src="${esc(it.thumbnail)}" loading="lazy" onerror="this.remove()">` : `<div class="ph">썸네일 없음</div>`}
+      <div class="badge">${logo(it.platform, 16)}${PLAT[it.platform] || it.platform}</div>
+      <div class="cap">${esc((it.caption || "").split("\n")[0].slice(0, 60))}</div><span class="open">↗</span></a>
+    <div class="body">
+      <div class="acc">${esc(it.account_name || it.account || "-")}${it.account ? `<small>@${esc(it.account)}</small>` : ""}</div>
+      <div class="meta"><span>${esc(it.posted_at || "")}</span>${it.platform === "meta_ad" ? `<span>${esc(it.ad_status || "")}</span><span><b>${it.ad_days ?? "-"}</b>일 게재</span>` :
+        `<span>❤ <b>${fmt(it.likes)}</b></span><span>💬 <b>${fmt(it.comments)}</b></span><span>▶ <b>${fmt(it.views)}</b></span>${ratio ? `<span title="팔로워 대비 조회">⚡ <b>${ratio}</b></span>` : ""}`}</div>
+      ${it.industry ? `<span class="ind">${esc(it.industry)}</span>` : ""}${it.kind && it.kind !== "reel" && it.kind !== "shorts" ? `<span class="ind">${({carousel:"캐러셀",image:"이미지",post:"게시물",ad:"광고"})[it.kind] || it.kind}</span>` : ""}${it.creator_type === "brand" ? `<span class="ind" style="background:#fff3e0;color:#a65a00">브랜드</span>` : ""}${it.paid ? `<span class="ind" style="background:#fde8e8;color:#b00">협찬</span>` : ""}
+      <a class="link" href="${esc(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">🔗 ${esc(short(it.url))}</a>
+      <div class="act"><button onclick="event.stopPropagation();pickBoard(${it.id})">보드에 저장</button><a class="btn" style="flex:0;padding:6px 10px;font-size:12px" href="${esc(it.url)}" target="_blank" onclick="event.stopPropagation()">열기 ↗</a></div>
+    </div></div>`;
+}
+function grid(items, emptyMsg) {
+  if (!items.length) return `<div class="empty"><b>${emptyMsg || "아직 저장된 레퍼런스가 없어요"}</b>크롬 클리퍼로 보고 있는 릴스를 저장하거나, 설정에서 수집 어댑터를 연결하세요.<br>
+    <button class="btn" onclick="demo()">샘플 데이터로 화면 보기</button><button class="btn" onclick="location.hash='#/settings'">설정으로</button></div>`;
+  return `<div class="grid">${items.map(card).join("")}</div>`;
+}
+
+// ---------------- 탐색
+async function viewExplore() {
+  const qs = new URLSearchParams(Object.entries(state).filter(([k, v]) => v)).toString();
+  const { items, total } = await api("/api/items?limit=120&" + qs);
+  const chip = (k, v, label) => `<button class="chip ${state[k] === v ? "on" : ""}" onclick="setF('${k}','${v}')">${label}</button>`;
+  $("#main").innerHTML = `
+    <div class="top"><div class="search">🔍 <input id="q" placeholder="미니멀한 카페 인테리어, 사장님 훅, 20대 피부과…  (캡션·AI 설명·태그·계정 검색)" value="${esc(state.q)}"></div>
+      <select class="chip" onchange="setF('sort',this.value)">${[["date","최신순"],["views","조회수순"],["ratio","팔로워 대비"],["likes","좋아요순"],["added","저장순"]].map(([v,l])=>`<option value="${v}" ${state.sort===v?"selected":""}>${l}</option>`).join("")}</select></div>
+    <div class="chips">${chip("platform","","전체")}${PLAT_ORDER.map(p => chip("platform", p, logo(p, 16) + PLAT[p])).join("")}
+      ${KINDS.map(([v, l]) => chip("kind", v, l)).join("")}
+      <button class="chip ${filterOpen ? "on" : ""}" onclick="filterOpen=!filterOpen;viewExplore()">⚙ 필터 ${activeFilters() ? `<b>${activeFilters()}</b>` : ""}</button>
+      ${activeFilters() ? `<button class="chip" onclick="resetFilters()">필터 초기화</button>` : ""}
+      <span style="margin-left:auto;color:var(--mute);font-size:13px;align-self:center" title="설정 · 수집에서 변경">${total}건 · 수집기준 조회 ${fmt(META.config?.min_views)}↑ 좋아요 ${fmt(META.config?.min_likes)}↑</span></div>
+    ${filterOpen ? `<div class="panel fpanel">
+      <div class="frow"><label>게시 일시</label>${[["7","최근 7일"],["30","최근 30일"],["90","최근 90일"],["180","최근 6개월"],["365","최근 1년"]].map(([v,l]) => `<button class="chip ${state.days===v?"on":""}" onclick="state.days=state.days==='${v}'?'':'${v}';viewExplore()">${l}</button>`).join("")}</div>
+      <div class="frow"><label>미디어 유형</label>${KINDS.map(([v,l]) => `<button class="chip ${state.kind===v?"on":""}" onclick="state.kind=state.kind==='${v}'?'':'${v}';viewExplore()">${l}</button>`).join("")}</div>
+      <div class="frow"><label>협찬/광고</label><button class="chip ${state.paid?"on":""}" onclick="state.paid=state.paid?'':'1';viewExplore()">협찬·유료 광고 표시만</button></div>
+      <div class="frow"><label>조회수</label><input class="fin" placeholder="이상 (예: 1만)" value="${esc(state.min_views)}" onchange="state.min_views=this.value;viewExplore()"><span>~</span><input class="fin" placeholder="이하" value="${esc(state.max_views)}" onchange="state.max_views=this.value;viewExplore()"></div>
+      <div class="frow"><label>좋아요</label><input class="fin" placeholder="이상" value="${esc(state.min_likes)}" onchange="state.min_likes=this.value;viewExplore()"><span>~</span><input class="fin" placeholder="이하" value="${esc(state.max_likes)}" onchange="state.max_likes=this.value;viewExplore()"></div>
+      <div class="frow"><label>댓글</label><input class="fin" placeholder="이상" value="${esc(state.min_comments)}" onchange="state.min_comments=this.value;viewExplore()"><span>~</span><input class="fin" placeholder="이하" value="${esc(state.max_comments)}" onchange="state.max_comments=this.value;viewExplore()"></div>
+      <div class="frow" style="align-items:flex-start"><label>업종 카테고리</label><div class="kw">${META.industries.map(i => `<button class="chip ${state.industry===i?"on":""}" onclick="state.industry=state.industry==='${i}'?'':'${i}';viewExplore()">${i}</button>`).join("")}</div></div>
+    </div>` : ""}
+    ${state.q || activeFilters() ? `<h2>${state.q ? `"${esc(state.q)}" 검색 결과` : (state.platform ? logo(state.platform, 22) + " " + PLAT[state.platform] : "필터 결과")} <small>${total}건</small></h2>${grid(items)}`
+      : (total ? await sections() + await platformSections() : grid([]))}`;
+  const q = $("#q"); q.addEventListener("keydown", e => { if (e.key === "Enter") { state.q = q.value.trim(); viewExplore(); } });
+}
+async function sections() {
+  const hot = (await api("/api/items?sort=ratio&days=3&limit=6")).items;
+  const top = (await api("/api/items?sort=views&days=30&limit=6")).items;
+  if (!hot.length && !top.length) return "";
+  return `${hot.length ? `<h2>팔로워 수 대비 인기 영상 <small>최근 3일 업로드 중 팔로워 대비 조회수가 높은 영상</small></h2><div class="grid">${hot.map(card).join("")}</div>` : ""}
+          ${top.length ? `<h2>최근 30일 조회수 TOP</h2><div class="grid">${top.map(card).join("")}</div>` : ""}`;
+}
+async function platformSections() {
+  let html = "";
+  const secs = [["instagram", "Instagram 릴스", "인플루언서·크리에이터", "platform=instagram&kind=reel", () => { state.platform = "instagram"; }],
+                ["youtube", "YouTube 쇼츠", "", "platform=youtube&kind=shorts", () => { state.platform = "youtube"; }]];
+  for (const [p, title, sub, qs, setter] of secs) {
+    const { items, total } = await api(`/api/items?${qs}&sort=views&limit=12`);
+    if (!items.length && !["Instagram 릴스", "YouTube 쇼츠"].includes(title)) continue;
+    window["_sec_" + secs.indexOf(secs.find(x => x[1] === title))] = setter;
+    html += `<div class="psec">${logo(p, 26)}<h2>${title} <small>${total}건${sub ? " · " + sub : ""}</small></h2>${total > 12 ? `<button class="btn more" onclick="window['_sec_${secs.findIndex(x => x[1] === title)}']();viewExplore()">전체 보기 →</button>` : ""}</div>`;
+    html += items.length ? `<div class="grid">${items.map(card).join("")}</div>` : `<div class="empty" style="padding:22px">아직 없어요 · 설정에서 수집하거나 클리퍼로 저장하세요</div>`;
+  }
+  return html;
+}
+function setF(k, v) { state[k] = v; viewExplore(); }
+function resetFilters() { for (const k of Object.keys(state)) if (!["q", "sort"].includes(k)) state[k] = ""; viewExplore(); }
+
+// ---------------- 상세
+async function openItem(id) {
+  const it = await api("/api/items/" + id);
+  const d = $("#drawer");
+  d.innerHTML = `<button class="x" onclick="closeAll()">✕</button>
+    <div class="badge" style="position:static;display:inline-flex;margin-bottom:8px">${logo(it.platform, 18)}${PLAT[it.platform] || it.platform} · ${esc(it.source)}</div>
+    <h3>${esc(it.account_name || it.account || "")} <small style="color:var(--mute);font-weight:400">@${esc(it.account || "")}</small></h3>
+    ${it.thumbnail ? `<img src="${esc(it.thumbnail)}" style="width:100%;max-height:260px;object-fit:cover;border-radius:10px" onerror="this.remove()">` : ""}
+    <div class="kv"><div><b>${fmt(it.views)}</b><span>조회수</span></div><div><b>${fmt(it.likes)}</b><span>좋아요</span></div><div><b>${fmt(it.comments)}</b><span>댓글</span></div><div><b>${fmt(it.followers)}</b><span>팔로워</span></div></div>
+    <label>게시일 / 업종 / 유형 / 계정</label><div class="row"><input id="e_posted" value="${esc(it.posted_at || "")}" style="flex:1"><select id="e_ind" style="flex:1"><option value="">(미분류)</option>${META.industries.map(i => `<option ${it.industry===i?"selected":""}>${i}</option>`).join("")}</select>
+      <select id="e_kind" style="flex:1">${[["reel","릴스"],["shorts","쇼츠"]].map(([v,l]) => `<option value="${v}" ${it.kind===v?"selected":""}>${l}</option>`).join("")}</select>
+      <select id="e_ct" style="flex:1"><option value="creator" ${it.creator_type!=="brand"?"selected":""}>인플루언서</option><option value="brand" ${it.creator_type==="brand"?"selected":""}>브랜드(제외 대상)</option><option value="news" ${it.creator_type==="news"?"selected":""}>뉴스·이슈(제외 대상)</option></select></div>
+    <label>조회수 / 좋아요 / 댓글 / 팔로워 (수정 가능)</label><div class="row"><input id="e_views" value="${it.views ?? ""}" style="flex:1"><input id="e_likes" value="${it.likes ?? ""}" style="flex:1"><input id="e_comments" value="${it.comments ?? ""}" style="flex:1"><input id="e_followers" value="${it.followers ?? ""}" style="flex:1"></div>
+    <label>캡션</label><textarea id="e_caption">${esc(it.caption || "")}</textarea>
+    <label>AI 설명 (검색에 쓰임)</label><textarea id="e_desc" placeholder="예: 정면 토킹, 상단 큰 노란 자막, 첫 3초 숫자 훅">${esc(it.description || "")}</textarea>
+    <label>태그 (쉼표 구분)</label><input id="e_tags" value="${esc((it.tags || []).join(", "))}">
+    <label>메모 (왜 좋은지 · 우리 기획에 어떻게 쓸지)</label><textarea id="e_note">${esc(it.note || "")}</textarea>
+    <label>보드</label><div class="kw">${(it.boards || []).map(b => `<span>${esc(b.name)}</span>`).join("") || '<span style="color:var(--mute)">없음</span>'}</div>
+    <div class="row" style="margin-top:16px"><button class="btn p" onclick="saveItem(${id})">저장</button><button class="btn" onclick="pickBoard(${id})">보드에 담기</button>
+      <button class="btn" onclick="describe(${id})" ${META.adapters.ai_describe ? "" : 'title="ANTHROPIC_API_KEY 필요" disabled'}>AI 설명 생성</button>
+      <a class="btn" href="${esc(it.url)}" target="_blank">원본 열기 ↗</a><button class="btn d" style="margin-left:auto" onclick="delItem(${id})">삭제</button></div>`;
+  d.classList.add("open"); $("#mask").classList.add("on");
+}
+async function saveItem(id) {
+  await post("/api/items/" + id, { posted_at: $("#e_posted").value, industry: $("#e_ind").value, kind: $("#e_kind").value, creator_type: $("#e_ct").value, views: $("#e_views").value, likes: $("#e_likes").value, comments: $("#e_comments").value, followers: $("#e_followers").value,
+    caption: $("#e_caption").value, description: $("#e_desc").value, tags: $("#e_tags").value.split(",").map(s => s.trim()).filter(Boolean), note: $("#e_note").value });
+  toast("저장됨"); closeAll(); route();
+}
+async function delItem(id) { if (!confirm("이 레퍼런스를 삭제할까요?")) return; await post("/api/items/" + id, null, "DELETE"); toast("삭제됨"); closeAll(); route(); }
+async function describe(id) { toast("AI 설명 생성 중…"); try { await post("/api/describe", { ids: [id] }); openItem(id); } catch (e) { toast(e.message); } }
+
+// ---------------- 보드
+async function pickBoard(id) {
+  const boards = await api("/api/boards"); const m = $("#modal");
+  m.innerHTML = `<h3>보드에 저장</h3><div class="list">${boards.map(b => `<label><input type="checkbox" value="${b.id}"> ${esc(b.name)} <small style="color:var(--mute)">${b.count}</small></label>`).join("") || '<div style="color:var(--mute)">보드가 없어요. 아래에서 만드세요.</div>'}</div>
+    <div class="row" style="margin-top:10px"><input id="nb" placeholder="새 보드 이름 (예: 카페 훅 모음)" style="flex:1;border:1px solid var(--line);border-radius:8px;padding:8px"><button class="btn" onclick="newBoard(${id})">만들기</button></div>
+    <div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn" onclick="closeAll()">닫기</button><button class="btn p" onclick="addToBoards(${id})">담기</button></div>`;
+  m.classList.add("on"); $("#mask").classList.add("on");
+}
+async function newBoard(id) { const n = $("#nb").value.trim(); if (!n) return; await post("/api/boards", { name: n }); pickBoard(id); }
+async function addToBoards(id) { for (const c of $$("#modal input:checked")) await post(`/api/boards/${c.value}/items`, { item_id: id }); toast("보드에 담았어요"); closeAll(); }
+async function viewBoards(bid) {
+  const boards = await api("/api/boards");
+  if (bid) {
+    const b = boards.find(x => x.id == bid); const { items } = await api("/api/items?limit=200&board=" + bid);
+    $("#main").innerHTML = `<div class="row" style="margin-bottom:10px"><a class="btn" href="#/boards">← 보드</a><h2 style="margin:0">${esc(b.name)} <small>${items.length}개</small></h2><button class="btn d" style="margin-left:auto" onclick="delBoard(${bid})">보드 삭제</button></div>${grid(items, "이 보드는 비어 있어요")}`; return;
+  }
+  $("#main").innerHTML = `<div class="row" style="margin-bottom:14px"><h2 style="margin:0">보드</h2><input id="nb" placeholder="새 보드 이름" style="border:1px solid var(--line);border-radius:8px;padding:8px;margin-left:auto"><button class="btn p" onclick="post('/api/boards',{name:$('#nb').value}).then(()=>viewBoards())">만들기</button></div>
+    ${boards.length ? `<div class="grid">${boards.map(b => `<div class="card" onclick="location.hash='#/boards/${b.id}'"><div class="thumb" style="aspect-ratio:16/9">${b.cover ? `<img src="${esc(b.cover)}">` : ""}<div class="cap">${esc(b.name)}</div></div><div class="body"><div class="meta"><span><b>${b.count}</b>개</span><span>${esc(b.created_at.slice(0, 10))}</span></div></div></div>`).join("")}</div>` : `<div class="empty"><b>보드가 없어요</b>레퍼런스 카드의 "보드에 저장"으로 첫 보드를 만드세요.</div>`}`;
+}
+async function delBoard(id) { if (!confirm("보드를 삭제할까요? (레퍼런스는 남습니다)")) return; await post("/api/boards/" + id, null, "DELETE"); location.hash = "#/boards"; }
+
+// ---------------- 브랜드 아카이브
+async function viewBrands(handle) {
+  const brands = await api("/api/brands");
+  if (handle) {
+    const b = brands.find(x => x.handle.toLowerCase() === handle.toLowerCase()); const { items } = await api("/api/items?limit=200&sort=date&brand=" + encodeURIComponent(handle));
+    $("#main").innerHTML = `<div class="row" style="margin-bottom:10px"><a class="btn" href="#/brands">← 브랜드</a><h2 style="margin:0">@${esc(handle)} <small>${b ? esc(b.name || "") + " · " + esc(b.industry || "") : ""} · ${items.length}개</small></h2>
+      <button class="btn" style="margin-left:auto" onclick="sync('apify',{handles:['${esc(handle)}'],industry:'${esc(b?.industry || "")}'})" ${META.adapters.apify ? "" : "disabled title='APIFY_TOKEN 필요'"}>벤더로 수집</button>
+      ${b && b.platform === "youtube" ? `<button class="btn p" onclick="sync('youtube',{handle:'@${esc(handle)}',industry:'${esc(b?.industry || "")}'})" ${META.adapters.youtube ? "" : "disabled title='YOUTUBE_API_KEY 필요'"}>유튜브 API로 수집</button>` :
+        `<button class="btn" onclick="sync('instagram_graph',{mode:'discovery',handle:'${esc(handle)}',industry:'${esc(b?.industry || "")}'})" ${META.adapters.instagram_graph ? "" : "disabled title='META_ACCESS_TOKEN·IG_USER_ID 필요'"}>인스타 공식 API로 수집</button>`}</div>${grid(items, "이 계정의 레퍼런스가 아직 없어요")}`; return;
+  }
+  $("#main").innerHTML = `<h2>브랜드 아카이브 <small>추적 중인 계정. 저장하면 어댑터가 이 목록을 보고 새 게시물을 모아요</small></h2>
+    <div class="panel row" style="margin-bottom:14px"><input id="b_handle" placeholder="@계정 (예: cafe_haru)" style="border:1px solid var(--line);border-radius:8px;padding:8px;flex:1"><input id="b_name" placeholder="브랜드 이름" style="border:1px solid var(--line);border-radius:8px;padding:8px;flex:1">
+      <select id="b_plat" class="chip"><option value="instagram">Instagram</option><option value="youtube">YouTube</option></select>
+      <select id="b_ind" class="chip"><option value="">업종</option>${META.industries.map(i => `<option>${i}</option>`).join("")}</select><button class="btn p" onclick="addBrand()">브랜드 저장</button></div>
+    ${brands.length ? `<table><tr><th></th><th>계정</th><th>브랜드</th><th>업종</th><th>플랫폼</th><th>저장된 게시물</th><th>최근 게시</th><th></th></tr>${brands.map(b => `<tr style="cursor:pointer" onclick="location.hash='#/brands/${esc(b.handle)}'">
+      <td>${b.cover ? `<img class="avatar" src="${esc(b.cover)}">` : `<div class="avatar"></div>`}</td><td><b>@${esc(b.handle)}</b></td><td>${esc(b.name || "")}</td><td>${esc(b.industry || "")}</td><td>${logo(b.platform, 16)} ${PLAT[b.platform]}</td><td>${b.count}</td><td>${esc(b.last_post || "-")}</td>
+      <td><button class="btn d" onclick="event.stopPropagation();post('/api/brands/${b.id}',null,'DELETE').then(()=>viewBrands())">삭제</button></td></tr>`).join("")}</table>` : `<div class="empty"><b>추적 중인 브랜드가 없어요</b>레퍼런스로 삼을 계정을 위에서 저장하세요. 클리퍼로 저장한 게시물은 계정별로 자동으로 모입니다.</div>`}`;
+}
+async function addBrand() { const h = $("#b_handle").value.trim(); if (!h) return; await post("/api/brands", { handle: h, name: $("#b_name").value, platform: $("#b_plat").value, industry: $("#b_ind").value }); toast("브랜드 저장"); viewBrands(); }
+
+// ---------------- 업종 트렌드
+let trendInd = "", trendDays = 7, trendPlat = "";
+function tcard(it, extra) {
+  return `<div class="card" onclick="openItem(${it.id})"><a class="thumb" href="${esc(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="aspect-ratio:9/11">${it.thumbnail ? `<img src="${esc(it.thumbnail)}" loading="lazy" onerror="this.remove()">` : `<div class="ph">썸네일 없음</div>`}
+    <div class="badge">${logo(it.platform, 16)}${PLAT[it.platform] || it.platform}</div><div class="cap">${esc((it.caption || "").split("\n")[0].slice(0, 50))}</div>${extra ? `<span class="open" style="background:var(--brand)">${extra}</span>` : ""}</a>
+    <div class="body"><div class="acc">${esc(it.account_name || it.account || "-")}</div><div class="meta"><span>${esc(it.posted_at || "")}</span><span>▶ <b>${fmt(it.views)}</b></span><span>❤ <b>${fmt(it.likes)}</b></span>${it.followers ? `<span>👥 ${fmt(it.followers)}</span>` : ""}</div></div></div>`;
+}
+async function viewTrends() {
+  const t = await api(`/api/trends2?days=${trendDays}&platform=${trendPlat}&industry=${encodeURIComponent(trendInd)}`);
+  const max = Math.max(1, ...t.by_day.map(d => d.views));
+  const sec = (title, sub, items, fn) => items.length ? `<h2>${title} <small>${sub}</small></h2><div class="grid">${items.map(fn).join("")}</div>` : "";
+  $("#main").innerHTML = `<div class="row" style="margin-bottom:12px"><h2 style="margin:0">트렌드</h2>
+      <div class="tabs" style="margin:0 0 0 12px"><button class="${!trendPlat ? "on" : ""}" onclick="trendPlat='';viewTrends()">전체</button>${PLAT_ORDER.map(p => `<button class="${trendPlat === p ? "on" : ""}" onclick="trendPlat='${p}';viewTrends()">${logo(p, 14)} ${PLAT[p]}</button>`).join("")}</div>
+      <div class="tabs" style="margin:0 0 0 12px">${[3, 7, 30].map(d => `<button class="${trendDays === d ? "on" : ""}" onclick="trendDays=${d};viewTrends()">최근 ${d}일</button>`).join("")}</div>
+      <select class="chip" style="margin-left:auto" onchange="trendInd=this.value;viewTrends()"><option value="">업종 전체</option>${META.industries.map(i => `<option ${trendInd === i ? "selected" : ""}>${i}</option>`).join("")}</select></div>
+    ${t.snapshot_days < 2 ? `<div class="panel" style="margin-bottom:12px;color:var(--mute);font-size:13px">📌 급상승은 매일 07:00 수치 스냅샷이 쌓여야 계산돼요. 지금은 첫날이라 내일부터 "어제 대비 얼마나 올랐는지"가 나옵니다.</div>` : ""}
+    ${sec("🔥 급상승", `최근 ${trendDays}일 동안 조회수가 가장 많이 늘어난 콘텐츠`, t.rising, it => tcard(it, "+" + fmt(it.delta) + " (" + it.growth + "%)"))}
+    ${sec("⚡ 골든", "팔로워·구독자 대비 조회수 배수가 높은 것 = 작은 계정이 터진 콘텐츠 힘", t.golden, it => tcard(it, (it.views / it.followers).toFixed(1) + "x"))}
+    ${sec("🏆 이 기간 조회수 TOP", `최근 ${trendDays}일 업로드 기준`, t.new_top, it => tcard(it))}
+    <div class="two" style="margin-top:20px">
+      <div class="panel"><b>📈 뜨는 키워드</b> <small style="color:var(--mute)">이번 ${trendDays}일 vs 직전 ${trendDays}일 언급 증가</small><div class="kw" style="margin-top:8px">${t.keywords.map(k => `<span style="cursor:pointer" onclick="state.q='${esc(k.k)}';location.hash='#/explore'">${esc(k.k)} <b>${k.n}</b><small style="color:${k.up > 0 ? "#1a9c5b" : "var(--mute)"}"> ${k.up > 0 ? "▲" + k.up : k.up < 0 ? "▼" + (-k.up) : "–"}</small></span>`).join("") || '<span style="color:var(--mute)">데이터 없음</span>'}</div></div>
+      <div class="panel"><b>#️⃣ 해시태그 TOP</b><div class="kw" style="margin-top:8px">${t.hashtags.map(h => `<span style="cursor:pointer" onclick="state.q='${esc(h.k)}';location.hash='#/explore'">#${esc(h.k)} <small style="color:var(--mute)">${h.n}</small></span>`).join("") || '<span style="color:var(--mute)">데이터 없음</span>'}</div></div>
+      <div class="panel"><b>📊 업종 요약</b> <small style="color:var(--mute)">최근 30일</small><table style="margin-top:8px"><tr><th>업종</th><th>건수</th><th>평균 조회수</th><th>반응률</th></tr>${t.industries.map(x => `<tr style="cursor:pointer" onclick="trendInd='${esc(x.k)}';viewTrends()"><td>${esc(x.k)}</td><td>${x.n}</td><td>${fmt(x.avg_views)}</td><td>${x.eng}%</td></tr>`).join("")}</table></div>
+      <div class="panel"><b>📅 날짜별 조회수 합계</b><div class="bars">${t.by_day.map(d => `<div style="height:${Math.round(100 * d.views / max)}%" title="${d.k}: ${fmt(d.views)} (${d.n}건)"></div>`).join("") || '<span style="color:var(--mute)">데이터 없음</span>'}</div></div>
+    </div>
+    ${t.accounts.length ? `<h2>👑 계정 랭킹 <small>최근 30일 조회수 합계 · 반응률 = 좋아요÷조회수</small></h2><div class="panel"><table><tr><th></th><th>계정</th><th>플랫폼</th><th>콘텐츠</th><th>조회수 합계</th><th>팔로워</th><th>반응률</th></tr>${t.accounts.map(a => `<tr style="cursor:pointer" onclick="location.hash='#/brands/${esc(a.k)}'"><td>${a.cover ? `<img class="avatar" src="${esc(a.cover)}">` : `<div class="avatar"></div>`}</td><td><b>${esc(a.name || a.k)}</b> <small style="color:var(--mute)">@${esc(a.k)}</small></td><td>${logo(a.platform, 14)} ${PLAT[a.platform]}</td><td>${a.n}</td><td>${fmt(a.views)}</td><td>${fmt(a.followers)}</td><td>${a.eng}%</td></tr>`).join("")}</table></div>` : ""}`;
+}
+
+// ---------------- 릴스 찾기 (인플로우식: 카테고리 탭 · 검색 · 정렬 · 기간)
+let R = { cat: "", q: "", sort: "date", days: "60", plat: "instagram", page: 0, band: "" };
+const BANDS = [["", "전체"], ["0,10000", "0~1만 (급성장)"], ["10000,50000", "1만~5만"], ["50000,100000", "5만~10만"], ["100000,200000", "10만~20만"]];
+function rcard(it) {
+  return `<div class="rcard" onclick="openReel(${it.id})">
+    <a class="rthumb" href="${esc(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${it.thumbnail ? `<img src="${esc(it.thumbnail)}" loading="lazy" onerror="this.parentNode.classList.add('nothumb');this.remove()">` : ""}
+      <span class="rv">${it.views != null ? "▶ " + fmt(it.views) : "❤ " + fmt(it.likes)}</span>${it.paid ? `<span class="rp">협찬</span>` : ""}</a>
+    <div class="racc"><b>${it.platform === "youtube" ? esc(it.account_name || it.account || "-") : "@" + esc(it.account || "-")}</b><span>${it.days_ago != null ? "⏱ " + it.days_ago + "일 전" : "📅 " + esc(it.posted_at || "")}</span></div>
+    <div class="rmeta">${it.platform === "youtube" ? `<span>👥 구독 <b>${fmt(it.followers)}</b></span><span>▶ 조회 <b>${fmt(it.views)}</b></span>${it.daily_views ? `<span>📈 일일 <b>${fmt(it.daily_views)}</b></span>` : ""}${it.golden ? `<span class="gold">★ ${it.golden}</span>` : ""}` : `<span>❤ ${fmt(it.likes)}</span><span>💬 ${fmt(it.comments)}</span>${it.followers ? `<span>👥 ${fmt(it.followers)}</span>` : ""}`}${it.industry ? `<span class="ind">${esc(it.industry)}</span>` : ""}</div>
+    <div class="rcap">${esc((it.caption || "").split("\n")[0].slice(0, 70))}</div></div>`;
+}
+async function viewReels() {
+  const yt = R.plat === "youtube";
+  const cats = yt ? (META.yt_categories || []).map(n => [n, [n]]) : (META.reel_categories || []);
+  const inds = R.cat ? (cats.find(c => c[0] === R.cat) || [null, []])[1].join(",") : "";
+  const [bmin, bmax] = (R.band || ",").split(",");
+  const qs = new URLSearchParams({ platform: R.plat, kind: yt ? "shorts" : "reel", creator: yt ? "" : "creator", sort: R.sort, days: R.days, limit: 60, offset: R.page * 60, industry: inds, q: R.q, min_followers: bmin, max_followers: bmax, classified: R.q ? "" : "1" });
+  const { items, total } = await api("/api/items?" + qs.toString()); R.items = items;
+  $("#main").innerHTML = `<div class="rsearch"><div class="search">🔍 <input id="rq" placeholder="검색어가 포함된 캡션 혹은 해시태그를 가진 영상이 검색됩니다." value="${esc(R.q)}"><button class="btn" onclick="R.q='';R.page=0;viewReels()">✖</button></div>
+      <select class="chip" onchange="R.sort=this.value;R.page=0;viewReels()">${(yt ? [["views","조회수 높은 순"],["daily","일일 조회수 순"],["followers","구독자 많은 순"],["ratio","구독자 대비"],["date","최신순"]] : [["date","최신순"],["views","조회수순"],["likes","좋아요순"],["ratio","팔로워 대비"]]).map(([v,l]) => `<option value="${v}" ${R.sort===v?"selected":""}>${l}</option>`).join("")}</select>
+      ${yt ? `<select class="chip" onchange="R.band=this.value;R.page=0;viewReels()">${BANDS.map(([v,l]) => `<option value="${v}" ${R.band===v?"selected":""}>구독자 ${l}</option>`).join("")}</select>` : ""}
+      <select class="chip" onchange="R.days=this.value;R.page=0;viewReels()">${[["7","최근 7일"],["30","최근 30일"],["60","최근 60일"],["100","최근 100일"],["","전체 기간"]].map(([v,l]) => `<option value="${v}" ${R.days===v?"selected":""}>${l}</option>`).join("")}</select>
+    </div>
+    <div class="rcats" style="margin:2px 0 8px"><button class="rcat ${!R.cat?"on":""}" onclick="location.hash='#/reels/${R.plat}'">전체</button>${cats.map(c => `<button class="rcat ${R.cat===c[0]?"on":""}" onclick="location.hash='#/reels/${R.plat}/'+encodeURIComponent('${c[0]}')">${c[0]}</button>`).join("")}</div>
+    <div class="row" style="margin:6px 0 10px"><button class="rcat ${R.sort==="ratio"&&R.days==="7"?"on":""}" style="border-color:#f59e0b;color:${R.sort==="ratio"&&R.days==="7"?"#fff":"#b45309"};background:${R.sort==="ratio"&&R.days==="7"?"#f59e0b":"#fff"}" onclick="R.sort='ratio';R.days='7';R.page=0;viewReels()">🔥 이번 주 트렌드</button><button class="rcat ${R.sort!=="ratio"?"on":""}" onclick="R.sort=R.plat==='youtube'?'views':'date';R.days='30';R.page=0;viewReels()">기본 정렬</button></div>
+    ${R.q && !yt ? `<div id="raccts"></div>` : ""}
+    <div class="rcount">${total}개 · ${yt ? "구독자 20만 미만 채널의 최근 60일 떡상 쇼츠 (매일 자동 갱신)" : "인플루언서 릴스 · 조회수가 없는 카드는 공식 API 수집분(좋아요 표시)"}${R.q && !yt ? ` · <button class="btn small" id="rlive" onclick="liveSearch()">🌐 인스타에서 더 가져오기 (약 11크레딧)</button> <span id="rlivemsg" class="muted"></span>` : ""}</div>
+    ${items.length ? `<div class="rgrid">${items.map(rcard).join("")}</div>` : `<div class="empty"><b>이 조건의 릴스가 아직 없어요</b>기간을 늘리거나 설정에서 이 카테고리를 수집하세요.</div>`}
+    <div class="row" style="justify-content:center;margin:18px 0">${R.page > 0 ? `<button class="btn" onclick="R.page--;viewReels()">← 이전</button>` : ""}${(R.page + 1) * 60 < total ? `<button class="btn" onclick="R.page++;viewReels();window.scrollTo(0,0)">다음 →</button>` : ""}</div>`;
+  if (R.q && !yt) {   // 스니핏식 계정 줄 + 결과가 적으면 자동으로 외부 수집 1회
+    api("/api/accounts?" + new URLSearchParams({ q: R.q, platform: "instagram", limit: 10 })).then(list => {
+      const el = $("#raccts"); if (!el || !list.length) return;
+      el.innerHTML = `<div class="racctrow">${list.map(a => `<div class="racct"><div class="rh"><b>${esc(a.name || a.handle)}</b><a href="https://www.instagram.com/${esc(a.handle)}/" target="_blank" rel="noopener">@${esc(a.handle)}</a></div><div class="muted">릴스 ${a.count}개${a.max_views ? " · 최고 ▶ " + fmt(a.max_views) : ""}${a.industry ? " · " + esc(a.industry) : ""}</div>${a.saved ? `<span class="muted">✔ 등록됨</span>` : `<button class="btn small" onclick="saveAcct('${esc(a.handle)}','${esc((a.name || "").replace(/'/g, ""))}','${esc(a.industry || "")}',this)">🏷 브랜드 저장</button>`}</div>`).join("")}</div>`;
+    }).catch(() => {});
+    const key = "live:" + R.q; if (total < 30 && !sessionStorage.getItem(key)) { sessionStorage.setItem(key, "1"); liveSearch(); }
+  }
+  const q = $("#rq"); q.addEventListener("keydown", e => { if (e.key === "Enter") {
+    const v = q.value.trim(); const hit = cats.find(c => c[0].replace(/\s|·|\//g, "") === v.replace(/\s|·|\//g, "")) || cats.find(c => c[0].includes(v) && v.length >= 2);
+    if (hit) { location.hash = `#/reels/${R.plat}/${encodeURIComponent(hit[0])}`; return; }   // 카테고리 이름이면 그 카테고리 전체
+    R.q = v; R.page = 0; viewReels(); } });
+}
+
+async function liveSearch() {
+  const b = $("#rlive"), m = $("#rlivemsg"); if (!b || b.disabled) return; b.disabled = true; m.textContent = "인스타에서 긁어오는 중… (10~40초)";
+  try {
+    const r = await api("/api/search/live", { method: "POST", body: JSON.stringify({ q: R.q, pages: 6, top_accounts: 5 }) });
+    if (r.error) { m.textContent = "실패: " + r.error; b.disabled = false; return; }
+    m.textContent = `검색 릴스 ${r.fetched}개 중 신규 ${r.created}개 + 계정 릴스 ${r.reels_new}개 저장 · 크레딧 ${r.credits ?? "-"}`;
+    if ((r.created || 0) + (r.reels_new || 0) > 0) setTimeout(viewReels, 1200);
+  } catch (e) { m.textContent = "실패: " + e; b.disabled = false; }
+}
+async function saveAcct(handle, name, industry, btn) {
+  await api("/api/brands", { method: "POST", body: JSON.stringify({ handle, platform: "instagram", name, industry, note: "검색에서 저장" }) });
+  btn.outerHTML = '<span class="muted">✔ 등록됨</span>';
+}
+
+// ---------------- 릴스 상세 (인플로우식 모달: 큰 썸네일 · 계정 · 지표 · 음원 · 작성일 · 캡션 · 이전/다음 띠)
+async function openReel(id) {
+  const list = R.items || []; const idx = list.findIndex(x => x.id === id);
+  const it = await api("/api/items/" + id);
+  const strip = list.slice(Math.max(0, idx - 2), idx + 3).map(x => `<img src="${esc(x.thumbnail || "")}" class="${x.id === id ? "on" : ""}" onclick="openReel(${x.id})" onerror="this.style.visibility='hidden'">`).join("");
+  const pill = (icon, label, val) => `<span class="pill">${icon} ${label} <b>${val}</b></span>`;
+  $("#modal").className = "modal on rmodal"; $("#mask").classList.add("on");
+  $("#modal").innerHTML = `<button class="x" onclick="closeAll()">✕</button><a class="x open" href="${esc(it.url)}" target="_blank" rel="noopener" title="인스타에서 열기">↗</a>
+    <div class="rleft"><a href="${esc(it.url)}" target="_blank" rel="noopener">${it.thumbnail ? `<img src="${esc(it.thumbnail)}">` : `<div class="ph">썸네일 없음</div>`}</a></div>
+    <div class="rright">
+      <div class="racct"><span class="av">${esc((it.account_name || it.account || "?").slice(0, 1).toUpperCase())}</span><a href="${it.platform === "youtube" ? "https://www.youtube.com/@" + esc(it.account || "") : "https://www.instagram.com/" + esc(it.account || "") + "/"}" target="_blank" rel="noopener"><b>${it.platform === "youtube" ? esc(it.account_name || it.account || "-") : "@" + esc(it.account || "-")}</b></a>${it.account_name ? `<span class="nm">${esc(it.account_name)}</span>` : ""}${it.followers ? `<span class="nm">팔로워 ${fmt(it.followers)}</span>` : ""}</div>
+      <div class="pills">${it.followers ? pill("👥", it.platform === "youtube" ? "구독자" : "팔로워", fmt(it.followers) + "명") : ""}${pill("👁", "조회수", it.views != null ? fmt(it.views) + "회" : "미수집")}${pill("❤️", "좋아요수", fmt(it.likes) + "개")}${pill("💬", "댓글수", fmt(it.comments) + "개")}</div>
+      <div class="pills">${it.days_ago != null ? pill("⏱", "업로드", it.days_ago + "일 전") : ""}${it.daily_views ? pill("📈", "일일 조회수", fmt(it.daily_views) + "회/일") : ""}${it.followers && it.views ? pill("⚡", (it.platform === "youtube" ? "구독자" : "팔로워") + " 대비", (it.views / it.followers).toFixed(1) + "x") : ""}${it.golden ? pill("★", "골든 지수", it.golden) : ""}</div>
+      <div class="pills">${it.music && (it.music.artist || it.music.title) ? pill("🎤", "작곡가", esc(it.music.artist || "-")) + pill("🎵", "음원제목", esc(it.music.title || (it.music.original ? "오리지널 오디오" : "-"))) : `<span class="pill muted">🎵 음원 정보 없음 (벤더 수집분에 표시)</span>`}${pill("📅", "작성일", esc(it.posted_at || "-"))}${it.industry ? pill("🏷", "카테고리", esc(it.industry)) : ""}${it.duration ? pill("⏱", "길이", Math.round(it.duration) + "초") : ""}</div>
+      <div class="rcaph">✏️ 캡션</div><div class="rcapbox">${esc(it.caption || "").replace(/\n/g, "<br>") || '<span class="muted">캡션 없음</span>'}</div>
+      ${it.description ? `<div class="rcaph">🧠 AI 설명</div><div class="rcapbox">${esc(it.description)}</div>` : ""}
+      <div class="row" style="margin-top:12px"><button class="btn p" onclick="pickBoard(${id})">보드에 저장</button><button class="btn" onclick="closeAll();openItem(${id})">메모·수정</button><a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">원본 열기 ↗</a></div>
+    </div>
+    <div class="rstrip"><button class="nav" onclick="${idx > 0 ? `openReel(${list[idx - 1].id})` : ""}" ${idx > 0 ? "" : "disabled"}>‹</button><div class="thumbs">${strip}</div><button class="nav" onclick="${idx < list.length - 1 ? `openReel(${list[idx + 1].id})` : ""}" ${idx < list.length - 1 ? "" : "disabled"}>›</button></div>
+    <div class="rsim" id="rsim"><div class="rcaph">🔎 유사한 릴스 <small style="color:var(--mute);font-weight:400">캡션·해시태그·카테고리 기준</small></div><div class="rsimgrid">불러오는 중…</div></div>`;
+  try {
+    const sim = await api(`/api/items/${id}/similar?limit=12`);
+    $("#rsim .rsimgrid").innerHTML = sim.length ? sim.map(x => `<div class="scard" onclick="openReel(${x.id})">${x.thumbnail ? `<img src="${esc(x.thumbnail)}" loading="lazy" onerror="this.remove()">` : ""}<span class="rv">${x.views != null ? "▶ " + fmt(x.views) : "❤ " + fmt(x.likes)}</span><div class="sacc">@${esc(x.account || "-")}</div></div>`).join("") : '<span class="muted">아직 비슷한 릴스가 없어요</span>';
+    $("#modal").scrollTop = 0;
+  } catch (e) {}
+}
+document.addEventListener("keydown", e => { if (!$("#modal").classList.contains("rmodal") || !$("#modal").classList.contains("on")) return; const list = R.items || []; const cur = Number((($("#modal").querySelector(".thumbs img.on") || {}).getAttribute || (() => null)).call($("#modal").querySelector(".thumbs img.on"), "onclick") || 0); if (e.key === "Escape") closeAll(); });
+
+// ---------------- 설정 · 수집
+async function viewSettings() {
+  const s = await api("/api/stats"); const a = META.adapters;
+  const st = (ok) => ok ? '<span class="ok">● 연결됨</span>' : '<span class="no">○ 키 없음</span>';
+  $("#main").innerHTML = `<h2>설정 · 수집</h2>
+    <div class="stat"><div class="panel"><b>${s.items}</b><span>레퍼런스</span></div><div class="panel"><b>${s.brands}</b><span>추적 브랜드</span></div><div class="panel"><b>${s.boards}</b><span>보드</span></div><div class="panel"><b>${s.by_source.map(x => `${esc(x.k)} ${x.n}`).join(" · ") || "-"}</b><span>출처별</span></div></div>
+    <h2>수집 경로</h2>
+    <div class="two">
+      <div class="panel"><b>1. 크롬 클리퍼</b> <span class="ok">● 키 불필요</span><p style="color:var(--mute);font-size:13px">직원이 인스타·유튜브를 보다가 좋은 게시물에서 버튼 하나로 저장. 자동 크롤링이 아니라 보고 있는 페이지만 읽습니다.</p>
+        <ol style="font-size:13px;padding-left:18px;line-height:1.7"><li>크롬 주소창에 <code>chrome://extensions</code></li><li>오른쪽 위 <b>개발자 모드</b> 켜기</li><li><b>압축해제된 확장 프로그램을 로드</b> → 이 폴더의 <code>extension</code> 선택</li><li>인스타 릴스 페이지에서 확장 아이콘 클릭 → 저장</li></ol></div>
+      <div class="panel"><b>2. 유튜브 공식 API</b> ${st(a.youtube)} <span class="ok" style="font-size:12px">무료 · 남의 채널 조회수까지 합법</span><p style="color:var(--mute);font-size:13px">채널 핸들(@…)의 쇼츠 조회수 상위, 또는 키워드로 최근 쇼츠 검색. 썸네일은 유튜브 고정 주소라 저장하지 않아 유출 부담이 없어요. <code>YOUTUBE_API_KEY</code></p>
+        <div class="row"><input id="yt_q" placeholder="@채널핸들 또는 검색어 (예: 카페 사장 브이로그)" style="border:1px solid var(--line);border-radius:8px;padding:8px;flex:1"><select id="yt_ind" class="chip"><option value="">업종</option>${META.industries.map(i => `<option>${i}</option>`).join("")}</select><button class="btn p" ${a.youtube ? "" : "disabled"} onclick="ytRun()">수집</button></div></div>
+      <div class="panel"><b>3. 메타 광고 라이브러리</b> ${st(a.meta_ads)}<p style="color:var(--mute);font-size:13px">공식 API. 검색어나 페이지로 광고 소재·게재 기간을 가져옵니다. <code>META_ACCESS_TOKEN</code></p>
+        <div class="row"><input id="ma_q" placeholder="검색어 (예: 카페 창업)" style="border:1px solid var(--line);border-radius:8px;padding:8px;flex:1"><select id="ma_ind" class="chip"><option value="">업종</option>${META.industries.map(i => `<option>${i}</option>`).join("")}</select><button class="btn p" ${a.meta_ads ? "" : "disabled"} onclick="sync('meta_ads',{q:$('#ma_q').value,industry:$('#ma_ind').value})">수집</button></div></div>
+      <div class="panel"><b>4. 인스타 공식 API</b> ${st(a.instagram_graph)}<p style="color:var(--mute);font-size:13px">무료·합법. 우리 계정은 조회수·도달·저장·공유까지, 남의 공개 비즈니스 계정은 좋아요·댓글·날짜·캡션(조회수 제외). 브랜드 아카이브의 인스타 계정을 매일 갱신하는 데 씁니다. <code>META_ACCESS_TOKEN</code> <code>IG_USER_ID</code></p>
+        <button class="btn p" ${a.instagram_graph ? "" : "disabled"} onclick="sync('instagram_graph',{mode:'own'})">우리 계정 게시물 + 인사이트 수집</button></div>
+      <div class="panel"><b>5. 데이터 벤더 (Apify) — 유료, 선택</b> ${st(a.apify)}<p style="color:var(--mute);font-size:13px">남의 공개 계정 릴스의 조회수·좋아요·댓글·날짜. 긁는 건 벤더가 합니다. <code>APIFY_TOKEN</code></p>
+        <div class="row"><input id="ap_h" placeholder="계정 여러 개 쉼표 구분, 또는 #해시태그" style="border:1px solid var(--line);border-radius:8px;padding:8px;flex:1"><select id="ap_ind" class="chip"><option value="">업종</option>${META.industries.map(i => `<option>${i}</option>`).join("")}</select><button class="btn p" ${a.apify ? "" : "disabled"} onclick="apifyRun()">수집</button></div>
+        <button class="btn" style="margin-top:8px" ${a.apify ? "" : "disabled"} onclick="syncAllBrands()">추적 브랜드 전체 수집</button></div>
+      <div class="panel"><b>6. AI 설명·태그 — 선택</b> ${st(a.ai_describe)}<p style="color:var(--mute);font-size:13px">스니핏의 "설명으로 검색"에 해당. 캡션·썸네일을 보고 구도·훅 유형·태그를 붙입니다. <code>ANTHROPIC_API_KEY</code> + <code>pip3 install anthropic</code></p>
+        <button class="btn p" ${a.ai_describe ? "" : "disabled"} onclick="sync('ai_describe',{all_missing:true})">설명 없는 항목 50개 처리</button></div>
+      <div class="panel"><b>데이터</b><p style="color:var(--mute);font-size:13px">DB: <code>data/hub.db</code> (SQLite 파일 하나). 백업은 이 파일만 복사하면 됩니다.</p>
+        <div class="row"><a class="btn" href="/api/export.csv" download>CSV 내보내기</a><button class="btn" onclick="demo()">샘플 데이터 넣기</button><button class="btn d" onclick="post('/api/demo/clear').then(()=>{toast('샘플 삭제');route()})">샘플 지우기</button></div></div>
+    </div>
+    <h2>수집 기준 <small>이 기준 아래는 수집 자체를 안 해요 (메타 광고는 조회수가 없어 제외)</small></h2>
+    <div class="panel"><div class="row">
+      <div><label style="font-size:12px;color:var(--mute)">최소 조회수</label><br><input id="c_views" value="${META.config.min_views}" style="border:1px solid var(--line);border-radius:8px;padding:8px;width:120px"></div>
+      <div><label style="font-size:12px;color:var(--mute)">최소 좋아요</label><br><input id="c_likes" value="${META.config.min_likes}" style="border:1px solid var(--line);border-radius:8px;padding:8px;width:120px"></div>
+      <div><label style="font-size:12px;color:var(--mute)">최소 반응률 % (좋아요÷조회수)</label><br><input id="c_eng" value="${META.config.min_engagement}" style="border:1px solid var(--line);border-radius:8px;padding:8px;width:120px"></div>
+      <div><label style="font-size:12px;color:var(--mute)">최소 팔로워 대비 배수</label><br><input id="c_ratio" value="${META.config.min_ratio}" style="border:1px solid var(--line);border-radius:8px;padding:8px;width:120px"></div>
+      <div><label style="font-size:12px;color:var(--mute)">인스타 최소 조회수</label><br><input id="c_igv" value="${META.config.ig_min_views ?? 50000}" style="border:1px solid var(--line);border-radius:8px;padding:8px;width:120px"></div>
+      <div><label style="font-size:12px;color:var(--mute)">인스타 조회수 없을 때 최소 좋아요</label><br><input id="c_igl" value="${META.config.ig_min_likes_no_views ?? 1000}" style="border:1px solid var(--line);border-radius:8px;padding:8px;width:120px"></div>
+      <div><label style="font-size:12px;color:var(--mute)">계정당 최대 노출</label><br><input id="c_cap" value="${META.config.max_per_account ?? 5}" style="border:1px solid var(--line);border-radius:8px;padding:8px;width:100px"></div>
+      <label style="font-size:12px;align-self:flex-end;padding-bottom:10px"><input type="checkbox" id="c_clip" ${META.config.apply_to_clipper ? "checked" : ""}> 클리퍼로 직접 저장할 때도 적용</label>
+      <button class="btn p" style="align-self:flex-end" onclick="saveConfig()">기준 저장</button>
+      <button class="btn d" style="align-self:flex-end" onclick="purgeLow()">기준 미달 항목 지금 정리</button></div>
+      <p style="color:var(--mute);font-size:12px;margin:10px 0 0">예: 조회수 1만·좋아요 100이면 "1만 미만이거나 좋아요 100 미만"은 안 들어와요. 반응률 2%면 좋아요가 조회수의 2% 이상인 것만. 팔로워 대비 3x면 구독자의 3배 이상 터진 영상만.</p></div>
+    <h2>자동 최신화 · 안전 모드</h2><div class="panel" style="font-size:13px;line-height:1.8">
+      <b>매일 07:00 자동 갱신</b> — 터미널에서 한 번: <code>YOUTUBE_API_KEY=… python3 sync_all.py --install</code> (브랜드 아카이브의 계정을 플랫폼별 공식 API로 다시 받아 조회수·좋아요를 갱신)<br>
+      <b>공개 안전 모드</b> ${a.safe_mode ? '<span class="ok">● 켜짐</span>' : '<span class="no">○ 꺼짐</span>'} — <code>HUB_SAFE=1</code> 로 서버를 켜면 공식 API 출처가 아닌 썸네일(클리퍼·벤더)은 파일로 보관하지 않고 링크·수치·우리 메모만 남깁니다. 외부로 새어도 남의 이미지 파일이 없습니다.</div>
+    <h2>키 넣는 법</h2><div class="panel" style="font-size:13px;line-height:1.8">터미널에서 서버를 켤 때 앞에 붙입니다. 한 번 넣어두려면 <code>~/.zshrc</code>에 같은 줄을 추가하세요.<br>
+      <code>YOUTUBE_API_KEY=… META_ACCESS_TOKEN=… IG_USER_ID=… HUB_SAFE=1 python3 server.py</code><br>
+      유튜브 키(무료, 5분): console.cloud.google.com → 새 프로젝트 → API 및 서비스 → 라이브러리에서 YouTube Data API v3 사용 → 사용자 인증 정보 → API 키 만들기.<br>메타 토큰(무료): developers.facebook.com → 앱 만들기 → Instagram Graph API 추가 → 그래프 API 탐색기에서 토큰 발급(instagram_basic, pages_read_engagement) → 장기 토큰으로 교환. IG_USER_ID 는 연결된 인스타 비즈니스 계정 ID.</div>`;
+}
+async function saveConfig() {
+  META.config = await post("/api/config", { min_views: Number($("#c_views").value) || 0, min_likes: Number($("#c_likes").value) || 0, min_engagement: Number($("#c_eng").value) || 0, min_ratio: Number($("#c_ratio").value) || 0, apply_to_clipper: $("#c_clip").checked, max_per_account: Number($("#c_cap").value) || 0, ig_min_views: Number($("#c_igv").value) || 0, ig_min_likes_no_views: Number($("#c_igl").value) || 0 });
+  toast("수집 기준 저장됨 — 다음 수집부터 적용");
+}
+async function purgeLow() { if (!confirm("현재 기준 미달인 레퍼런스를 삭제할까요? (클리퍼 저장분은 옵션에 따라)")) return; const r = await post("/api/purge_low"); toast(`${r.deleted}건 정리`); route(); }
+async function sync(name, params) { toast("수집 중… (수십 초 걸릴 수 있어요)"); try { const r = await post("/api/sync/" + name, params); toast(`${r.count}건 저장 (신규 ${r.created ?? "-"}${r.skipped ? ", 기준 미달 제외 " + r.skipped : ""})`); route(); } catch (e) { toast("실패: " + e.message); } }
+function ytRun() { const v = $('#yt_q').value.trim(); if (!v) return; sync('youtube', v.startsWith('@') ? { handle: v, industry: $('#yt_ind').value } : { q: v, days: 90, industry: $('#yt_ind').value }); }
+function apifyRun() { const v = $("#ap_h").value.trim(); if (!v) return; const p = v.startsWith("#") ? { hashtag: v } : { handles: v.split(",").map(s => s.trim()).filter(Boolean) }; p.industry = $("#ap_ind").value; sync("apify", p); }
+async function syncAllBrands() { const brands = await api("/api/brands"); for (const b of brands.filter(b => b.platform === "instagram")) await sync("apify", { handles: [b.handle], industry: b.industry }); }
+async function demo() { await post("/api/demo"); toast("샘플 24건 추가 (설정에서 지울 수 있어요)"); route(); }
+
+// ---------------- 도구 페이지
+function viewPlan() { $("#main").innerHTML = `<h2>기획 스킬</h2><div class="panel">보드에 모은 레퍼런스와 우리 노하우로 <b>우리 양식의 기획안</b>(훅 5개 · 장면별 대사 · 촬영 가이드 · 캡션)을 뽑는 단계입니다.<br><br>
+  준비물: 지금까지 쓴 기획안 파일들 + 기획안 양식 + 원칙 메모. 이걸 <code>기획스킬/</code> 폴더에 넣으면 클로드 코드에서 "카페 사장님 릴스 기획안 5개"로 호출할 수 있게 연결합니다.<br><br>
+  <span style="color:var(--mute)">여기서는 보드를 고르면 그 보드의 레퍼런스 요약(계정·훅 첫 줄·수치·메모)을 기획 프롬프트용 텍스트로 복사해 줍니다.</span><br><br><button class="btn p" onclick="exportBoardPrompt()">보드 → 기획 프롬프트 복사</button></div>`; }
+async function exportBoardPrompt() {
+  const boards = await api("/api/boards"); if (!boards.length) return toast("보드가 없어요");
+  const name = prompt("어느 보드? " + boards.map(b => b.name).join(" / "), boards[0].name); const b = boards.find(x => x.name === name); if (!b) return;
+  const { items } = await api("/api/items?limit=200&board=" + b.id);
+  const txt = `# 레퍼런스 보드: ${b.name} (${items.length}개)\n` + items.map(i => `- [${PLAT[i.platform]}] @${i.account || "-"} (${i.posted_at || ""}) 조회 ${fmt(i.views)} · 좋아요 ${fmt(i.likes)} · 팔로워 ${fmt(i.followers)}\n  훅: ${(i.caption || "").split("\n")[0].slice(0, 80)}\n  ${i.description ? "설명: " + i.description + "\n  " : ""}${i.note ? "메모: " + i.note : ""}`).join("\n");
+  await navigator.clipboard.writeText(txt); toast("클립보드에 복사됨 — 클로드 코드에 붙여넣으세요");
+}
+function viewEdit() { $("#main").innerHTML = `<h2>편집 스킬</h2><div class="panel">캡컷 러프컷 스킬(<code>~/.claude/skills/capcut-roughcut</code>)이 설치돼 있습니다. 클로드 코드에서 이렇게 부르면 됩니다.<br><br>
+  <code>0907 컷편집해줘</code> · <code>0907 꾹꾹체로 자막 넣어줘</code> · <code>0907 러프컷 돌리고 효과음도 넣어줘</code><br><br>
+  <span style="color:var(--mute)">흐름: 기획안 → 촬영 → 캡컷 자동자막 → 러프컷(컷·자막·효과음 자동) → 편집자가 B롤·강조 자막 20분 → 납품</span></div>`; }
+
+// ---------------- 사이드바 카테고리 트리
+let navOpen = { instagram: true, youtube: true };
+function renderCatNav() {
+  const on = (plat) => curRoute === "reels" && R.plat === plat ? "on" : "";
+  $("#catnav").innerHTML = `<a class="${on("instagram")}" href="#/reels/instagram">${logo("instagram", 18)} 인스타그램 릴스</a><a class="${on("youtube")}" href="#/reels/youtube">${logo("youtube", 18)} 유튜브 쇼츠</a>`;
+}
+let curRoute = "reels";
+
+// ---------------- 라우팅
+async function route() {
+  const h = location.hash.replace(/^#\/?/, "") || "reels"; const parts = h.split("/"); const [r, arg] = parts; curRoute = r;
+  if (r === "reels") { R.plat = parts[1] || R.plat || "instagram"; R.cat = parts[2] ? decodeURIComponent(parts[2]) : ""; R.page = 0; if (R.plat === "youtube" && R.sort === "date") R.sort = "views"; }
+  $$(".nav a[data-r]").forEach(a => a.classList.toggle("on", a.dataset.r === r)); renderCatNav();
+  try {
+    if (r === "explore") await viewExplore(); else if (r === "brands") await viewBrands(arg ? decodeURIComponent(arg) : null); else if (r === "trends") await viewTrends();
+    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "plan") viewPlan(); else if (r === "edit") viewEdit(); else await viewExplore();
+    const s = await api("/api/stats"); $("#count").textContent = `레퍼런스 ${s.items} · 브랜드 ${s.brands} · 보드 ${s.boards}`;
+  } catch (e) { $("#main").innerHTML = `<div class="empty"><b>서버 연결 실패</b>${esc(e.message)}<br>터미널에서 <code>python3 server.py</code> 를 실행하세요.</div>`; }
+}
+window.addEventListener("hashchange", route);
+(async () => { try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
+</script>
+</body>
+</html>
