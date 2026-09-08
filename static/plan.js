@@ -13,9 +13,9 @@
   window.viewPlanWizard = async function (arg) {
     if (arg) { const p = await api("/api/plans/" + arg); CUR = p; return renderPlan2(p); }
     // 릴스 상세창에서 담아둔 바구니 → 참고 릴스에 자동 반영
-    const basket = (window.PLANREFS ? PLANREFS() : []).slice(0, 3);
-    for (const id of basket) if (!W.refs.includes(id) && W.refs.length < 3) W.refs.push(id);
-    renderWizard();
+    const basket = (window.PLANREFS ? PLANREFS() : []).slice(0, 3); W.basketSeen = W.basketSeen || [];
+    for (const id of basket) if (!W.basketSeen.includes(id) && !W.refs.includes(id) && W.refs.length < 3) { W.refs.push(id); W.basketSeen.push(id); }
+    save(); renderWizard();
   };
   window.wizGo = (n) => { W.step = Math.max(1, Math.min(5, n)); save(); renderWizard(); };
   window.wizSet = (k, v) => { W[k] = v; save(); renderWizard(); };
@@ -77,7 +77,7 @@
   }
   function refCard(x, on) {
     return `<div class="refcard ${on ? "on" : ""}" onclick="wizPick(${x.id})">
-      <div class="rc-thumb">${x.thumbnail ? `<img src="${esc(x.thumbnail)}" loading="lazy" onerror="this.remove()">` : ""}${x.label ? `<span class="rc-label">${esc(x.label)}</span>` : ""}<span class="rc-check">${on ? "✓" : ""}</span></div>
+      <div class="rc-thumb">${x.thumbnail ? `<img src="${esc(x.thumbnail)}" loading="lazy" onerror="this.remove()">` : ""}${x.label ? `<span class="rc-label">${esc(x.label)}</span>` : ""}<span class="rc-check">${on ? "✓" : ""}</span>${on ? '<span class="rc-on">선택됨</span>' : ""}</div>
       <div class="rc-body"><div class="rc-acc">@${esc(x.account || "")} ${x.frames ? '<span class="tag">분석됨</span>' : ""}</div><div class="rc-desc">${esc(x.description || (x.caption || "").slice(0, 60))}</div>${x.why ? `<div class="rc-why">🤖 ${esc(x.why)}</div>` : ""}
       <div class="rc-meta">▶ ${fmt(x.views)} · ❤ ${fmt(x.likes)} · ${esc((x.posted_at || "").slice(0, 10))}</div>
       <div class="rc-actions"><a class="btn small" href="${esc(x.url || "https://www.instagram.com/reel/")}" target="_blank" onclick="event.stopPropagation()">원본 ↗</a><button class="btn small" onclick="event.stopPropagation();openReel(${x.id})">자세히</button></div></div></div>`;
@@ -111,10 +111,12 @@
     W.urls = ""; save(); renderWizard();
   };
 
+  let TOPICS_LOADING = false;
   function renderTopicStep() {
     const t = W.topics || [];
+    if (!t.length && !TOPICS_LOADING && W.refs.length && !STATIC) setTimeout(() => wizTopics(), 50);
     return `<h1>어떤 주제로 찍을까요?</h1><p class="muted">고른 참고 릴스의 구조에서 뽑은 주제예요. 하나 고르거나 직접 적어주세요. 첫 문장(훅)은 ${HOOKS.join("·")} 중 골고루 나옵니다.</p>
-    <div class="row" style="margin-bottom:10px"><button class="btn" onclick="wizTopics()">✨ 추천 주제 뽑기</button><span id="wiz-topic-msg" class="muted"></span></div>
+    <div class="row" style="margin-bottom:10px"><button class="btn" onclick="wizTopics()">✨ 추천 주제 ${t.length ? "다시 뽑기" : "뽑기"}</button><span id="wiz-topic-msg" class="muted">${!t.length && !STATIC ? "준희 님 노하우(훅 공식·타깃 문제)를 적용해 주제 뽑는 중… (20~30초)" : STATIC ? "체험판에서는 주제 추천이 안 돼요. 직접 적어주세요." : ""}</span></div>
     <div class="topics">${t.map((x, i) => `<div class="topic ${W.topic === x.title ? "on" : ""}" onclick="wizSet('topic','${esc(x.title).replace(/'/g, "\\'")}')"><b>${esc(x.title)}</b><div class="muted">${esc(x.from || "")}${x.hook_type ? ` · <span class="tag">${esc(x.hook_type)}</span>` : ""}</div></div>`).join("")}</div>
     <label class="wiz-label">직접 적기 (비워두면 AI가 레퍼런스 구조에서 정합니다)</label><input class="wiz-input" placeholder="예: 조회수 800 나오던 카페 릴스, 첫 문장 바꿨더니 11만" value="${t.find(x => x.title === W.topic) ? "" : esc(W.topic)}" oninput="wizInput('topic', this)">
     <details class="wiz-more" ${Object.values(W.extra).some(Boolean) ? "open" : ""}><summary>더 좋은 결과를 원하면 (선택) — 내 재료 넣기</summary>
@@ -130,12 +132,15 @@
   }
   const brief = () => ({ job: W.job, target: [...W.target, W.extra.target_free].filter(Boolean).join(", "), keyword: [W.keyword, ...W.selSubs].filter(Boolean).join(", "), topic: W.topic, length: W.extra.length || 30, tone: W.extra.tone, scene: W.extra.scene, numbers: W.extra.numbers, cta: W.extra.cta, shooting: W.extra.shooting });
   window.wizTopics = async function () {
-    const m = $("#wiz-topic-msg"); m.textContent = "주제 뽑는 중… (20~30초)";
+    if (TOPICS_LOADING) return; TOPICS_LOADING = true;
+    const m = $("#wiz-topic-msg"); if (m) m.textContent = "준희 님 노하우(훅 공식·타깃 문제)를 적용해 주제 뽑는 중… (20~30초)";
     try {
       const r = await post("/api/plan/topics", { ids: W.refs, brief: brief() });
-      if (r.need_key) { m.textContent = "AI 키가 없어 추천은 건너뜁니다. 주제를 직접 적어주세요 (비워도 돼요)"; return; }
-      W.topics = r.topics || []; save(); renderWizard();
-    } catch (e) { m.textContent = "실패: " + e.message; }
+      if (r.need_key) { if (m) m.textContent = "AI 엔진이 없어 추천은 건너뜁니다. 주제를 직접 적어주세요 (비워도 돼요)"; return; }
+      if (r.error) throw new Error(r.error);
+      W.topics = r.topics || []; save(); if (!W.topics.length && m) m.textContent = "추천이 비어 왔어요. 다시 뽑기를 눌러주세요";
+    } catch (e) { if (m) m.textContent = "실패: " + e.message + " — 다시 뽑기를 눌러주세요"; }
+    finally { TOPICS_LOADING = false; if (W.topics.length) renderWizard(); }
   };
   window.wizMake = async function () {
     if (!W.refs.length) return toast("참고 릴스를 골라주세요");
