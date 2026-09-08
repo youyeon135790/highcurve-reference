@@ -71,17 +71,23 @@
   function trends2(qs) {
     const days = Number(qs.get("days") || 7), plat = qs.get("platform") || "", ind = qs.get("industry") || "";
     let rows = STATIC.items.filter(x => (!plat || x.platform === plat) && (!ind || x.industry === ind));
-    const recent = rows.filter(x => x.days_ago <= days), prev = rows.filter(x => x.days_ago > days && x.days_ago <= days * 2);
+    const recent = rows.filter(x => x.days_ago <= days), prev = rows.filter(x => x.days_ago > days && x.days_ago <= days * 2), m30 = rows.filter(x => x.days_ago <= 30);
     const count = (arr, rx) => { const m = {}; for (const x of arr) for (const t of new Set(((x.caption || "").match(rx) || []).map(s => s.replace(/^#/, "")))) m[t] = (m[t] || 0) + 1; return m; };
     const kwR = count(recent, /[가-힣]{2,}/g), kwP = count(prev, /[가-힣]{2,}/g), tgR = count(recent, /#[^\s#]+/g);
-    const keywords = Object.entries(kwR).map(([k, n]) => ({ k, n, up: n - (kwP[k] || 0) })).sort((a, b) => b.up - a.up || b.n - a.n).slice(0, 30);
+    const keywords = Object.entries(kwR).filter(([k]) => k.length >= 2).map(([k, n]) => ({ k, n, up: n - (kwP[k] || 0) })).sort((a, b) => b.up - a.up || b.n - a.n).slice(0, 30);
     const hashtags = Object.entries(tgR).map(([k, n]) => ({ k, n })).sort((a, b) => b.n - a.n).slice(0, 30);
     const acc = {};
-    for (const x of rows.filter(x => x.days_ago <= 30)) { const a = acc[x.account] || (acc[x.account] = { k: x.account, name: x.account_name, platform: x.platform, n: 0, views: 0, likes: 0, followers: x.followers, cover: x.thumbnail }); a.n++; a.views += x.views || 0; a.likes += x.likes || 0; }
-    const accountsRank = Object.values(acc).map(a => ({ ...a, eng: a.views ? (100 * a.likes / a.views).toFixed(1) : "0.0" })).sort((a, b) => b.views - a.views).slice(0, 20);
-    const rising = recent.filter(x => x.views).sort((a, b) => (b.daily_views || 0) - (a.daily_views || 0)).slice(0, 12);
-    const golden = recent.filter(x => x.golden).sort((a, b) => b.golden - a.golden).slice(0, 12);
-    return { keywords, hashtags, accounts: accountsRank, rising, golden, industries: [] };
+    for (const x of m30) { if (!x.account) continue; const a = acc[x.account] || (acc[x.account] = { k: x.account, name: x.account_name, platform: x.platform, n: 0, views: 0, likes: 0, followers: x.followers, cover: x.thumbnail }); a.n++; a.views += x.views || 0; a.likes += x.likes || 0; }
+    const accounts = Object.values(acc).map(a => ({ ...a, eng: a.views ? (100 * a.likes / a.views).toFixed(1) : "0.0" })).sort((a, b) => b.views - a.views).slice(0, 20);
+    const indm = {};
+    for (const x of m30) { if (!x.industry) continue; const i = indm[x.industry] || (indm[x.industry] = { k: x.industry, n: 0, views: 0, likes: 0, nv: 0 }); i.n++; if (x.views) { i.views += x.views; i.nv++; } i.likes += x.likes || 0; }
+    const industries = Object.values(indm).map(i => ({ k: i.k, n: i.n, avg_views: i.nv ? Math.round(i.views / i.nv) : 0, eng: i.views ? (100 * i.likes / i.views).toFixed(1) : "0.0" })).sort((a, b) => b.n - a.n);
+    const bd = {};
+    for (const x of rows.filter(x => x.days_ago <= Math.max(days, 14))) { const k = (x.posted_at || "").slice(0, 10); if (!k) continue; const d = bd[k] || (bd[k] = { k, views: 0, n: 0 }); d.views += x.views || 0; d.n++; }
+    const by_day = Object.values(bd).sort((a, b) => a.k < b.k ? -1 : 1);
+    const new_top = recent.filter(x => x.views).sort((a, b) => b.views - a.views).slice(0, 12);
+    const golden = recent.filter(x => x.views && x.followers).sort((a, b) => (b.views / b.followers) - (a.views / a.followers)).slice(0, 12);
+    return { keywords, hashtags, accounts, industries, by_day, new_top, golden, rising: [], snapshot_days: 0 };
   }
   window.staticApi = async function (p, opt) {
     await load();
