@@ -144,7 +144,7 @@ mark{background:var(--lime);padding:1px 4px;border-radius:4px}
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1788891116"></script>
+<script src="static_api.js?v=1788892966"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => { const j = await staticApi(p, opt); if (j && j.error) throw new Error(j.error); return j; };
@@ -342,7 +342,7 @@ async function viewTrends() {
 }
 
 // ---------------- 릴스 찾기 (인플로우식: 카테고리 탭 · 검색 · 정렬 · 기간)
-let R = { cat: "", q: "", sort: "date", days: "60", plat: "instagram", page: 0, band: "" };
+let R = { cat: "", q: "", sort: "date", days: "30", plat: "instagram", page: 0, band: "" };
 const BANDS = [["", "전체"], ["0,10000", "0~1만 (급성장)"], ["10000,50000", "1만~5만"], ["50000,100000", "5만~10만"], ["100000,200000", "10만~20만"]];
 function rcard(it) {
   return `<div class="rcard" onclick="openReel(${it.id})">
