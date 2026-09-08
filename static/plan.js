@@ -46,7 +46,7 @@
       next = `<button class="btn p big" onclick="${W.keyword ? "wizGo(4)" : "toast('키워드를 적어주세요')"}">참고 릴스 고르기 →</button>`;
     } else if (s === 4) {
       body = await renderRefsStep();
-      next = `<button class="btn p big" onclick="${W.refs.length ? "wizGo(5)" : "toast('참고 릴스를 1개 이상 골라주세요')"}">주제 고르기 →</button>`;
+      next = `<button class="btn p big" id="wiz-next4" onclick="${W.refs.length ? "wizAnalyzeThenTopics()" : "toast('참고 릴스를 1개 이상 골라주세요')"}">주제 고르기 →</button>`;
     } else {
       body = renderTopicStep();
       next = `<button class="btn p big" id="wiz-make" onclick="wizMake()">✨ 기획안 만들기</button>`;
@@ -111,6 +111,20 @@
     W.urls = ""; save(); renderWizard();
   };
 
+  // 4→5: 고른 릴스 중 아직 안 뜯은 것(대본·컷 분석 없음)은 먼저 분석해서 주제가 실제 대본·구조를 보고 나오게
+  window.wizAnalyzeThenTopics = async function () {
+    const b = $("#wiz-next4"); if (b) b.disabled = true;
+    let n = 0;
+    for (const id of W.refs) {
+      const c = W.refsCache.find(x => x.id === id); if (c && c.frames) continue;
+      try {
+        const it = await api("/api/items/" + id); if (it.frames) { if (c) c.frames = true; continue; }
+        n++; if (b) b.textContent = `@${it.account} 영상 뜯는 중… 대본·컷·자막 (20~40초)`;
+        const r = await post("/api/analyze", { url: it.url }); if (r.error) throw new Error(r.error); if (c) c.frames = true;
+      } catch (e) { toast("분석 건너뜀: " + e.message); }
+    }
+    W.topics = []; save(); wizGo(5);
+  };
   let TOPICS_LOADING = false;
   function renderTopicStep() {
     const t = W.topics || [];
