@@ -41,7 +41,7 @@
     } else if (s === 3) {
       body = `<h1>핵심 키워드 하나만 적어주세요.</h1><p class="muted">이 키워드로 우리 저장소(릴스 ${fmt(META?.stats?.items || 9000)}개)에서 같이 쓰인 단어를 뽑고, 참고 릴스를 찾아요.</p>
       <div class="row"><input id="wiz-kw" class="wiz-input" placeholder="예: 카페 신메뉴, 릴스 만드는 법, 홈트" value="${esc(W.keyword)}" oninput="wizInput('keyword', this)" onkeydown="if(event.key==='Enter')wizSubs()"><button class="btn p" onclick="wizSubs()">✨ 서브 키워드 뽑기</button></div>
-      <div class="wiz-sub">서브 키워드 <small class="muted">${W.subs.length ? `${W.selSubs.length}/${W.subs.length} 선택 · 눌러서 켜고 끄기` : "키워드를 넣고 뽑기를 누르세요"}</small></div>
+      <div class="wiz-sub">서브 키워드 <small class="muted">${W.subs.length ? `${W.selSubs.length}/${W.subs.length} 선택 · 눌러서 켜고 끄기` : "키워드를 넣고 뽑기를 누르세요 (AI가 5~10초)"}</small></div>
       <div class="pills" id="wiz-subs">${W.subs.map(k => pill("#" + k, W.selSubs.includes(k), `wizToggle('selSubs','${esc(k)}')`)).join("")}</div>`;
       next = `<button class="btn p big" onclick="${W.keyword ? "wizGo(4)" : "toast('키워드를 적어주세요')"}">참고 릴스 고르기 →</button>`;
     } else if (s === 4) {
@@ -59,7 +59,8 @@
   window.wizSubs = async function () {
     W.keyword = ($("#wiz-kw") || {}).value || W.keyword; if (!W.keyword) return toast("키워드를 적어주세요");
     const box = $("#wiz-subs"); if (box) box.innerHTML = '<span class="muted">뽑는 중…</span>';
-    const r = await api("/api/plan/subkeywords?q=" + encodeURIComponent(W.keyword)).catch(() => ({ keywords: [] }));
+    const tgt = [...W.target, W.extra.target_free].filter(Boolean).join(", ");
+    const r = await api("/api/plan/subkeywords?q=" + encodeURIComponent(W.keyword) + "&job=" + encodeURIComponent(W.job) + "&target=" + encodeURIComponent(tgt)).catch(() => ({ keywords: [] }));
     W.subs = r.keywords || []; W.selSubs = W.subs.slice(0, 5); W.refsCache = []; save(); renderWizard();
     if (!W.subs.length) toast("같이 쓰인 단어를 못 찾았어요. 키워드만으로 검색합니다");
   };
@@ -70,20 +71,22 @@
     return `<h1>참고할 릴스를 골라주세요 <small class="muted">(최대 3개)</small></h1><p class="muted">키워드로 우리 저장소에서 찾은 인기 릴스예요. 고른 릴스의 컷·자막·대사·효과음을 뜯어서 내 기획안에 옮깁니다.</p>
     <div class="pills small">${[W.keyword, ...W.selSubs].filter(Boolean).map(k => `<span class="pill on">#${esc(k)}</span>`).join("")}<button class="btn small" onclick="wizSearchRefs()">↻ 다시 찾기</button>${STATIC ? "" : `<button class="btn small" onclick="wizLiveSearch()">🌐 인스타에서 새로 찾기</button>`}</div>
     <div class="wiz-sel">${sel.length ? `선택 ${sel.length}/3 · ` + sel.map(id => `<span class="pill on tiny" onclick="wizPick(${id})">@${esc((W.refsCache.find(x => x.id === id) || {}).account || id)} ✕</span>`).join(" ") : "아직 고른 릴스가 없어요"}</div>
-    <div class="refgrid" id="wiz-refs">${cards || '<div class="muted" style="padding:30px;text-align:center" id="wiz-refs-msg">찾는 중…</div>'}</div>
+    <div class="refgrid" id="wiz-refs">${cards || '<div class="muted" style="padding:30px;text-align:center" id="wiz-refs-msg">저장소에서 후보를 찾고, AI가 이 직업·타깃에 맞는 것만 고르는 중… (30~40초)</div>'}</div>
     <div class="panel soft" style="margin-top:14px"><b>🔗 링크로 직접 넣기</b> <small class="muted">인스타 릴스 링크를 한 줄에 하나씩 (남은 자리 ${3 - sel.length}개)</small>
     <div class="row" style="margin-top:8px;align-items:flex-start"><textarea class="wiz-input" rows="2" placeholder="https://www.instagram.com/reel/..." oninput="wizInput('urls', this)">${esc(W.urls || "")}</textarea><button class="btn" onclick="wizAddUrls()">분석해서 담기</button></div><div id="wiz-url-msg" class="muted"></div></div>`;
   }
   function refCard(x, on) {
     return `<div class="refcard ${on ? "on" : ""}" onclick="wizPick(${x.id})">
       <div class="rc-thumb">${x.thumbnail ? `<img src="${esc(x.thumbnail)}" loading="lazy" onerror="this.remove()">` : ""}${x.label ? `<span class="rc-label">${esc(x.label)}</span>` : ""}<span class="rc-check">${on ? "✓" : ""}</span></div>
-      <div class="rc-body"><div class="rc-acc">@${esc(x.account || "")} ${x.frames ? '<span class="tag">분석됨</span>' : ""}</div><div class="rc-desc">${esc(x.description || (x.caption || "").slice(0, 60))}</div>
+      <div class="rc-body"><div class="rc-acc">@${esc(x.account || "")} ${x.frames ? '<span class="tag">분석됨</span>' : ""}</div><div class="rc-desc">${esc(x.description || (x.caption || "").slice(0, 60))}</div>${x.why ? `<div class="rc-why">🤖 ${esc(x.why)}</div>` : ""}
       <div class="rc-meta">▶ ${fmt(x.views)} · ❤ ${fmt(x.likes)} · ${esc((x.posted_at || "").slice(0, 10))}</div>
       <div class="rc-actions"><a class="btn small" href="${esc(x.url || "https://www.instagram.com/reel/")}" target="_blank" onclick="event.stopPropagation()">원본 ↗</a><button class="btn small" onclick="event.stopPropagation();openReel(${x.id})">자세히</button></div></div></div>`;
   }
   window.wizPick = (id) => { const i = W.refs.indexOf(id); if (i >= 0) W.refs.splice(i, 1); else { if (W.refs.length >= 3) return toast("참고 릴스는 최대 3개예요"); W.refs.push(id); } save(); renderWizard(); };
   window.wizSearchRefs = async function () {
-    const r = await api("/api/plan/refs?q=" + encodeURIComponent(W.keyword) + "&tags=" + encodeURIComponent(W.selSubs.join(",")) + "&limit=12").catch(() => ({ items: [] }));
+    const m = $("#wiz-refs"); if (m && !W.refsCache.length) m.innerHTML = '<div class="muted" style="padding:30px;text-align:center">저장소에서 후보를 찾고, AI가 이 직업·타깃에 맞는 것만 고르는 중… (30~40초)</div>';
+    const tgt = [...W.target, W.extra.target_free].filter(Boolean).join(", ");
+    const r = await api("/api/plan/refs?q=" + encodeURIComponent(W.keyword) + "&tags=" + encodeURIComponent(W.selSubs.join(",")) + "&job=" + encodeURIComponent(W.job) + "&target=" + encodeURIComponent(tgt) + "&limit=12").catch(() => ({ items: [] }));
     const items = r.items || [];
     for (const it of items) if (!it.url) { try { const full = await api("/api/items/" + it.id); it.url = full.url; } catch (e) {} }
     // 이미 고른 것(바구니 등)은 앞에 유지
@@ -127,7 +130,7 @@
   }
   const brief = () => ({ job: W.job, target: [...W.target, W.extra.target_free].filter(Boolean).join(", "), keyword: [W.keyword, ...W.selSubs].filter(Boolean).join(", "), topic: W.topic, length: W.extra.length || 30, tone: W.extra.tone, scene: W.extra.scene, numbers: W.extra.numbers, cta: W.extra.cta, shooting: W.extra.shooting });
   window.wizTopics = async function () {
-    const m = $("#wiz-topic-msg"); m.textContent = "주제 뽑는 중… (10초)";
+    const m = $("#wiz-topic-msg"); m.textContent = "주제 뽑는 중… (20~30초)";
     try {
       const r = await post("/api/plan/topics", { ids: W.refs, brief: brief() });
       if (r.need_key) { m.textContent = "AI 키가 없어 추천은 건너뜁니다. 주제를 직접 적어주세요 (비워도 돼요)"; return; }
@@ -143,7 +146,7 @@
       try { const it = await api("/api/items/" + id); if (it.frames) continue; b.textContent = `@${it.account} 영상 뜯는 중… (20~40초)`; await post("/api/analyze", { url: it.url }); }
       catch (e) { toast("분석 건너뜀: " + e.message); }
     }
-    b.textContent = "기획안 쓰는 중… (1~2분)";
+    b.textContent = "기획안 쓰는 중… (3~6분, 프레임을 하나씩 보고 씁니다)";
     try {
       const r = await post("/api/plan", { ids: W.refs, brief: brief() });
       if (r.error) throw new Error(r.error);
