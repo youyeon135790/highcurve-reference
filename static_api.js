@@ -131,7 +131,9 @@
     const base = window.apiBase();
     if (base) {
       const u = new URL(p, location.href); const path = u.pathname.replace(/^.*\/api\//, "/api/") + (u.search || "");
-      const r = await fetch(base + path, opt); const j = await r.json(); if (j && j.error) throw new Error(j.error); return j;
+      const r = await fetch(base + path, opt); const j = await r.json();
+      if (j && j.need_login) { if (typeof toast === "function") toast(j.error); location.hash = "#/login"; throw new Error(j.error); }
+      if (j && j.error) throw new Error(j.error); return j;
     }
     await load();
     const method = (opt && opt.method) || "GET";
@@ -146,6 +148,8 @@
     if (path === "/api/brands") return STATIC.brands;
     if (path === "/api/boards") return [];
     if (path === "/api/plans") return [];
+    if (path === "/api/auth/me") return { user: null, open: false, plans: {}, categories: [] };
+    if (path === "/api/inquiries") return [];
     if (path === "/api/plan/subkeywords") return planSubkeywords(qs.get("q") || "");
     if (path === "/api/plan/refs") return planRefs(qs.get("q") || "", qs.get("tags") || "", Number(qs.get("limit") || 12));
     if (path === "/api/trends2") return trends2(qs);

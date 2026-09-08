@@ -132,6 +132,22 @@ mark{background:var(--lime);padding:1px 4px;border-radius:4px}
 .title-card{background:#12141c;position:relative;overflow:hidden}.title-card:before{content:"";position:absolute;inset:-60%;background:radial-gradient(circle at 30% 30%,rgba(191,254,158,.35),transparent 40%),radial-gradient(circle at 80% 70%,rgba(109,124,255,.45),transparent 45%);filter:blur(30px)}.title-card>*{position:relative}
 /* 편집 가능 필드 */
 .edit{outline:0;border-radius:6px;transition:.15s;cursor:text}.edit:hover{background:rgba(47,84,235,.06);box-shadow:0 0 0 2px rgba(47,84,235,.15)}.edit:focus{background:#fff;box-shadow:0 0 0 2px var(--ink)}.edit.inline{display:inline}.edit.strong{font-weight:800}
+.acct{padding:8px 10px;border-top:1px solid var(--line);margin-top:8px}.acct-card{display:block;background:#f6f7fb;border-radius:10px;padding:8px 10px;font-size:12px}.acct-card b{font-size:13px;margin-right:6px}
+.auth-wrap{display:flex;justify-content:center;padding:30px 0}.auth-card{width:min(420px,94vw);background:#fff;border:1.5px solid var(--line);border-radius:22px;padding:28px 26px;box-shadow:0 20px 50px rgba(20,25,60,.08)}.auth-card h1{margin:2px 0 4px}
+.faq{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:8px}.faq summary{cursor:pointer;font-weight:700}.faq div{margin-top:6px;color:#3b4052;line-height:1.55}
+.reply{background:#f3f6ff;border-left:3px solid #2f54eb;border-radius:0 10px 10px 0;padding:8px 12px;margin-top:8px}
+.pricegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.pricecard{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:20px}.pricecard.hot{border-color:var(--ink);box-shadow:0 14px 34px rgba(20,25,60,.12)}.pricecard .price{font-size:26px;font-weight:800;margin:6px 0 2px}.pricecard .price small{font-size:13px;color:var(--mute);font-weight:500}.pricecard ul{padding-left:18px;margin:10px 0 14px;line-height:1.7;font-size:13px}
+.topbar{display:none}
+@media(max-width:820px){
+  .topbar{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}.topbar b{flex:1}
+  .app{grid-template-columns:1fr}.side{position:fixed;left:0;top:0;bottom:0;width:260px;z-index:60;transform:translateX(-100%);transition:.25s;box-shadow:0 0 40px rgba(0,0,0,.2)}body.nav-open .side{transform:none}
+  .main{padding:14px 12px}.two{grid-template-columns:1fr}.plan-home .hero{padding:22px 18px}.plan-home .hero h1{font-size:22px}
+  .wiz{max-width:none}.wiz-foot{padding:10px 0}.refgrid{grid-template-columns:repeat(2,1fr);gap:8px}.pills .pill{padding:9px 14px;font-size:13px}
+  .plan-hero{padding:14px}.plan-hero h1{font-size:19px}.ph-actions{flex-wrap:wrap}.tabs{overflow-x:auto}.tab{white-space:nowrap;padding:8px 10px;font-size:13px}
+  .scene{grid-template-columns:1fr}.scene-visual{flex-direction:row}.scene-visual>*{flex:1;min-width:0}.saybox .say{font-size:15px}
+  .wait-card{padding:24px 18px}.pricegrid{grid-template-columns:1fr}
+}
+.kakao{background:#fee500!important;color:#191919!important;border-color:#fee500!important;display:inline-block;margin:6px 0 12px}
 table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table.kv th{text-align:left;color:var(--mute);font-weight:600;width:90px;padding:5px 0;vertical-align:top}table.kv td{padding:5px 0;border-top:1px solid var(--line)}
 @media(max-width:1000px){.plan-layout{grid-template-columns:1fr}.plan-side{position:static;max-height:none}.scene{grid-template-columns:1fr}.scene-visual{flex-direction:row}.scene-visual>*{flex:1}}
 @media(max-width:900px){.plan-home .hero{grid-template-columns:1fr}.hero-art{display:none}.plan-hero{flex-direction:column}}
@@ -139,6 +155,7 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table
 <style>a[data-r="boards"],a[data-r="settings"],#rlive,#rlivemsg,.racct .btn,button[onclick*="pickBoard"],button[onclick*="openItem"]{display:none!important}</style>
 </head>
 <body>
+<div class="topbar"><button class="btn ghost" onclick="document.body.classList.toggle('nav-open')">☰</button><b>하이커브</b><a class="btn small" href="#/plan/new">+ 기획</a></div>
 <div class="app">
   <aside class="side">
     <div class="logo"><i></i>하이커브 레퍼런스</div>
@@ -151,8 +168,11 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table
       <a href="#/boards" data-r="boards">📌 보드</a>
       <a href="#/plan" data-r="plan">✍️ 기획</a>
       <a href="#/edit" data-r="edit">🎬 편집</a>
+      <a href="#/support" data-r="support">💬 고객센터</a>
+      <a href="#/pricing" data-r="pricing">💳 요금제</a>
       <a href="#/settings" data-r="settings">⚙️ 설정 · 수집</a>
     </nav>
+    <div id="acct" class="acct"></div>
     <div class="foot"><b id="wsname">하이커브 워크스페이스</b><span id="count">-</span></div>
   </aside>
   <main class="main" id="main"></main>
@@ -161,10 +181,15 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1788895094"></script>
+<script src="static_api.js?v=1788896341"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
-const api = async (p, opt) => { const j = await staticApi(p, opt); if (j && j.error) throw new Error(j.error); return j; };
+const api = async (p, opt) => {
+  opt = opt || {}; try { const t = localStorage.getItem("hc_token"); if (t) opt.headers = { ...(opt.headers || {}), Authorization: "Bearer " + t }; } catch (e) {}
+  if (window.staticApi) return window.staticApi(p, opt);
+  const j = await staticApi(p, opt);
+  if (j && j.need_login) { if (typeof toast === "function") toast(j.error); location.hash = "#/login"; throw new Error(j.error); }
+  if (j && j.error) throw new Error(j.error); return j; };
 const post = (p, body, method="POST") => api(p, { method, headers: { "content-type": "application/json" }, body: JSON.stringify(body || {}) });
 const fmt = (n) => n == null ? "-" : n >= 1e8 ? (n/1e8).toFixed(1).replace(/\.0$/,"")+"억" : n >= 1e4 ? (n/1e4).toFixed(1).replace(/\.0$/,"")+"만" : n >= 1e3 ? (n/1e3).toFixed(1).replace(/\.0$/,"")+"천" : String(n);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -542,13 +567,15 @@ async function route() {
   $$(".nav a[data-r]").forEach(a => a.classList.toggle("on", a.dataset.r === r)); renderCatNav();
   try {
     if (r === "explore") await viewExplore(); else if (r === "brands") await viewBrands(arg ? decodeURIComponent(arg) : null); else if (r === "trends") await viewTrends();
-    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "plan") await viewPlan(arg); else if (r === "edit") viewEdit(); else await viewExplore();
+    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "plan") await viewPlan(arg); else if (r === "edit") viewEdit(); else if (r === "login") viewLogin(arg); else if (r === "account") await viewAccount(); else if (r === "support") await viewSupport(); else if (r === "pricing") await viewPricing(); else if (r === "admin") await viewAdmin(); else await viewExplore();
     const s = await api("/api/stats"); $("#count").textContent = `레퍼런스 ${s.items} · 브랜드 ${s.brands} · 보드 ${s.boards}`;
   } catch (e) { $("#main").innerHTML = `<div class="empty"><b>서버 연결 실패</b>${esc(e.message)}<br>터미널에서 <code>python3 server.py</code> 를 실행하세요.</div>`; }
 }
-window.addEventListener("hashchange", route);
+window.addEventListener("hashchange", () => { document.body.classList.remove("nav-open"); route(); });
 (async () => { try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=18"></script>
+<script src="static/plan.js?v=19"></script>
+<script src="static/account.js?v=2"></script>
+<script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
 </body>
 </html>
