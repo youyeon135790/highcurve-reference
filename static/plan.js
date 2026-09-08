@@ -73,28 +73,36 @@
     return `<h1>참고할 릴스를 골라주세요 <small class="muted">(최대 3개)</small></h1>${connectBox()}<p class="muted">키워드로 우리 저장소에서 찾은 인기 릴스예요. 고른 릴스의 컷·자막·대사·효과음을 뜯어서 내 기획안에 옮깁니다.</p>
     <div class="pills small">${[W.keyword, ...W.selSubs].filter(Boolean).map(k => `<span class="pill on">#${esc(k)}</span>`).join("")}<button class="btn small" onclick="wizSearchRefs()">↻ 다시 찾기</button>${STATIC ? "" : `<button class="btn small" onclick="wizLiveSearch()">🌐 인스타에서 새로 찾기</button>`}</div>
     <div class="wiz-sel">${sel.length ? `선택 ${sel.length}/3 · ` + sel.map(id => `<span class="pill on tiny" onclick="wizPick(${id})">@${esc((W.refsCache.find(x => x.id === id) || {}).account || id)} ✕</span>`).join(" ") : "아직 고른 릴스가 없어요"}</div>
-    <div class="refgrid" id="wiz-refs">${cards || '<div class="muted" style="padding:30px;text-align:center" id="wiz-refs-msg">저장소에서 후보를 찾고, AI가 이 직업·타깃에 맞는 것만 고르는 중… (30~40초)</div>'}</div>
+    <div id="wiz-refs-note" class="muted" style="font-size:12px;margin:2px 0 8px">${W.refsCache.length ? (W.refsSource && W.refsSource !== "db" ? "🤖 AI 추천순 · 카드의 파란 글은 고른 이유" : "📊 저장소 기본 순서 · AI가 곧 다시 정렬합니다") : ""}</div>
+    <div class="refgrid" id="wiz-refs">${cards || '<div class="muted" style="padding:30px;text-align:center" id="wiz-refs-msg">저장소에서 찾는 중… (1~2초)</div>'}</div>
     <div class="panel soft" style="margin-top:14px"><b>🔗 링크로 직접 넣기</b> <small class="muted">인스타 릴스 링크를 한 줄에 하나씩 (남은 자리 ${3 - sel.length}개)</small>
     <div class="row" style="margin-top:8px;align-items:flex-start"><textarea class="wiz-input" rows="2" placeholder="https://www.instagram.com/reel/..." oninput="wizInput('urls', this)">${esc(W.urls || "")}</textarea><button class="btn" onclick="wizAddUrls()">분석해서 담기</button></div><div id="wiz-url-msg" class="muted"></div></div>`;
   }
   function refCard(x, on) {
     return `<div class="refcard ${on ? "on" : ""}" onclick="wizPick(${x.id})">
-      <div class="rc-thumb">${x.thumbnail ? `<img src="${esc(x.thumbnail)}" loading="lazy" onerror="this.remove()">` : ""}${x.label ? `<span class="rc-label">${esc(x.label)}</span>` : ""}<span class="rc-check">${on ? "✓" : ""}</span>${on ? '<span class="rc-on">선택됨</span>' : ""}</div>
+      <div class="rc-thumb">${x.thumbnail ? `<img src="${esc(x.thumbnail)}" loading="lazy" onerror="this.remove()">` : ""}${x.label ? `<span class="rc-label">${esc(x.label)}</span>` : x.fill ? `<span class="rc-label soft">같은 카테고리</span>` : ""}<span class="rc-check">${on ? "✓" : ""}</span>${on ? '<span class="rc-on">선택됨</span>' : ""}</div>
       <div class="rc-body"><div class="rc-acc">@${esc(x.account || "")} ${x.frames ? '<span class="tag">분석됨</span>' : ""}</div><div class="rc-desc">${esc(x.description || (x.caption || "").slice(0, 60))}</div>${x.why ? `<div class="rc-why">🤖 ${esc(x.why)}</div>` : ""}
       <div class="rc-meta">▶ ${fmt(x.views)} · ❤ ${fmt(x.likes)} · ${esc((x.posted_at || "").slice(0, 10))}</div>
       <div class="rc-actions"><a class="btn small" href="${esc(x.url || "https://www.instagram.com/reel/")}" target="_blank" onclick="event.stopPropagation()">원본 ↗</a><button class="btn small" onclick="event.stopPropagation();openReel(${x.id})">자세히</button></div></div></div>`;
   }
   window.wizPick = (id) => { const i = W.refs.indexOf(id); if (i >= 0) W.refs.splice(i, 1); else { if (W.refs.length >= 3) return toast("참고 릴스는 최대 3개예요"); W.refs.push(id); } save(); renderWizard(); };
+  let REFS_SEQ = 0;
   window.wizSearchRefs = async function () {
-    const m = $("#wiz-refs"); if (m && !W.refsCache.length) m.innerHTML = '<div class="muted" style="padding:30px;text-align:center">저장소에서 후보를 찾고, AI가 이 직업·타깃에 맞는 것만 고르는 중… (30~40초)</div>';
-    const tgt = [...W.target, W.extra.target_free].filter(Boolean).join(", ");
-    const r = await api("/api/plan/refs?q=" + encodeURIComponent(W.keyword) + "&tags=" + encodeURIComponent(W.selSubs.join(",")) + "&job=" + encodeURIComponent(W.job) + "&target=" + encodeURIComponent(tgt) + "&limit=12").catch(() => ({ items: [] }));
-    const items = r.items || [];
-    for (const it of items) if (!it.url) { try { const full = await api("/api/items/" + it.id); it.url = full.url; } catch (e) {} }
-    // 이미 고른 것(바구니 등)은 앞에 유지
-    for (const id of W.refs) if (!items.find(x => x.id === id)) { try { const full = await api("/api/items/" + id); items.unshift({ ...full, frames: !!full.frames }); } catch (e) {} }
-    W.refsCache = items; save(); renderWizard();
-    if (!items.length) toast("맞는 릴스가 없어요. 키워드를 바꾸거나 링크를 직접 넣어주세요");
+    const seq = ++REFS_SEQ; const tgt = [...W.target, W.extra.target_free].filter(Boolean).join(", ");
+    const qsBase = "q=" + encodeURIComponent(W.keyword) + "&tags=" + encodeURIComponent(W.selSubs.join(",")) + "&job=" + encodeURIComponent(W.job) + "&target=" + encodeURIComponent(tgt) + "&limit=24";
+    const keepSelected = async (items) => { for (const id of W.refs) if (!items.find(x => x.id === id)) { try { const full = await api("/api/items/" + id); items.unshift({ ...full, frames: !!full.frames }); } catch (e) {} } return items; };
+    // 1단계: 저장소에서 바로 (1초)
+    try {
+      const r = await api("/api/plan/refs?fast=1&" + qsBase); if (seq !== REFS_SEQ) return;
+      W.refsCache = await keepSelected(r.items || []); W.refsSource = "db"; save(); renderWizard();
+    } catch (e) {}
+    if (STATIC) return;
+    // 2단계: AI가 직업·타깃에 맞게 골라 이유 붙임 (30~40초) — 끝나면 교체
+    const note = $("#wiz-refs-note"); if (note) note.textContent = "🤖 AI가 이 직업·타깃에 맞는 순서로 고르는 중… (30~40초, 먼저 뜬 목록은 저장소 기본 순서)";
+    try {
+      const r = await api("/api/plan/refs?" + qsBase); if (seq !== REFS_SEQ) return;
+      if ((r.items || []).length) { W.refsCache = await keepSelected(r.items); W.refsSource = r.source || "ai"; save(); renderWizard(); }
+    } catch (e) { const n = $("#wiz-refs-note"); if (n) n.textContent = "AI 정렬 실패: " + e.message; }
   };
   window.wizLiveSearch = async function () {
     toast("인스타에서 새로 찾는 중… (30초)");

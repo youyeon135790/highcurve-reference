@@ -84,7 +84,7 @@ h1{font-size:26px;letter-spacing:-.03em;line-height:1.25;margin:0 0 6px}
 .pills{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}.pills.small{gap:6px;margin:8px 0}.pill{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:11px 18px;font-size:14px;font-weight:600;color:#2c3040;transition:.15s;cursor:pointer}.pill:hover{border-color:#b9bfd2;transform:translateY(-1px)}.pill.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 6px 16px rgba(21,23,31,.2)}.pill.tiny{padding:4px 10px;font-size:12px}.pills.small .pill{padding:6px 12px;font-size:12px}
 .wiz-sel{font-size:13px;color:var(--mute);margin:6px 0 12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .refgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}.refcard{background:#fff;border:1.5px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:.15s;position:relative}.refcard:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(20,25,60,.12)}.refcard.on{border-color:var(--ink);box-shadow:0 0 0 3px rgba(21,23,31,.12)}
-.rc-thumb{position:relative;aspect-ratio:9/12;background:#eceef5}.rc-thumb img{width:100%;height:100%;object-fit:cover;display:block}.rc-label{position:absolute;left:8px;top:8px;background:var(--lime);color:var(--ink);font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px}.rc-check{position:absolute;right:8px;top:8px;width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(255,255,255,.8);background:transparent;display:flex;align-items:center;justify-content:center;color:var(--ink);font-weight:900;font-size:13px;opacity:.7}.refcard.on .rc-check{background:var(--lime);border-color:var(--lime);opacity:1}.refcard.on .rc-thumb:after{content:"";position:absolute;inset:0;border:3px solid var(--lime);pointer-events:none}.rc-on{position:absolute;right:8px;bottom:8px;background:var(--lime);color:var(--ink);font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px}
+.rc-thumb{position:relative;aspect-ratio:9/12;background:#eceef5}.rc-thumb img{width:100%;height:100%;object-fit:cover;display:block}.rc-label.soft{background:#eceef5;color:#3b4052}.rc-label{position:absolute;left:8px;top:8px;background:var(--lime);color:var(--ink);font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px}.rc-check{position:absolute;right:8px;top:8px;width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(255,255,255,.8);background:transparent;display:flex;align-items:center;justify-content:center;color:var(--ink);font-weight:900;font-size:13px;opacity:.7}.refcard.on .rc-check{background:var(--lime);border-color:var(--lime);opacity:1}.refcard.on .rc-thumb:after{content:"";position:absolute;inset:0;border:3px solid var(--lime);pointer-events:none}.rc-on{position:absolute;right:8px;bottom:8px;background:var(--lime);color:var(--ink);font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px}
 .rc-body{padding:10px 12px 12px}.rc-acc{font-weight:800;font-size:13px}.rc-desc{font-size:12px;color:#3b4052;margin:4px 0;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.rc-meta{font-size:11px;color:var(--mute)}.rc-why{font-size:11px;color:#1d4ed8;background:#eef2ff;border-radius:8px;padding:4px 7px;margin:4px 0;line-height:1.4}.rc-actions{display:flex;gap:4px;margin-top:8px}
 .topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin:8px 0 14px}.topic{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:14px 16px;cursor:pointer;transition:.15s}.topic:hover{border-color:#b9bfd2}.topic.on{border-color:var(--ink);background:#15171f;color:#fff}.topic.on .muted{color:#c9cddb}.topic b{display:block;font-size:15px;margin-bottom:4px}
 .wiz-more{margin:16px 0;border:1.5px dashed var(--line);border-radius:14px;padding:10px 14px}.wiz-more summary{cursor:pointer;font-weight:700;color:#3b4052}.wiz-more .two{margin-top:10px;gap:10px}.wiz-more label{font-size:12px;color:var(--mute);font-weight:600}
@@ -144,7 +144,7 @@ mark{background:var(--lime);padding:1px 4px;border-radius:4px}
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1788893053"></script>
+<script src="static_api.js?v=1788893565"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => { const j = await staticApi(p, opt); if (j && j.error) throw new Error(j.error); return j; };
@@ -532,6 +532,6 @@ async function route() {
 window.addEventListener("hashchange", route);
 (async () => { try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=12"></script>
+<script src="static/plan.js?v=13"></script>
 </body>
 </html>
