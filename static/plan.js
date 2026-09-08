@@ -17,6 +17,24 @@
   const post = (p, body) => api(p, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
   const pill = (v, on, fn, extra = "") => `<button class="pill ${on ? "on" : ""}" onclick="${fn}" ${extra}>${esc(v)}</button>`;
 
+  // ---------- 기다리는 화면: 퍼센트 + 준희 님 노하우 글귀
+  const QUOTES = ["터진 훅에 숫자 없는 훅이 없다. 5개·3가지·3배·한 달.", "훅은 소유물이 아니라 공용 패턴이다. 남의 훅 구조를 그대로 써도 된다.", "뼈대는 고정, 소재만 교체. 레퍼런스의 순서와 속도를 바꾸지 마라.", "첫 3초에 '이거 내 얘기잖아'가 나와야 한다.", "한 씬에 메시지 하나. 3~5초마다 컷.", "자막은 말과 동시에, 한 줄 10자.", "'하세요'보다 '하지 마세요'가 더 멈춘다.", "훅은 2버전 찍어라. 오프닝 3초만 두 번, 본문은 한 번.", "댓글 수가 좋아요를 넘으면 퍼널을 설계할 때다.", "타깃의 겉 고민 말고 속마음을 건드려라.", "비주얼 훅의 상한이 제일 높다. 첫 프레임에 '보여줄 것'을 두어라.", "지어낸 사실은 [확인 필요]로 남긴다. 신뢰가 곧 조회수다.", "캡션 첫 줄이 두 번째 훅이다.", "'안녕하세요'로 시작하는 순간 넘어간다."];
+  let WAIT = null;
+  window.showWait = (title, expectSec, sub) => {
+    hideWait(); const t0 = Date.now(); let qi = Math.floor(Math.random() * QUOTES.length);
+    const el = document.createElement("div"); el.className = "wait"; el.innerHTML = `<div class="wait-bg"><i></i><i></i><i></i></div><div class="wait-card"><div class="wait-orb"></div><div class="wait-title">${esc(title)}</div><div class="wait-sub" id="wait-sub">${esc(sub || "")}</div><div class="wait-bar"><i id="wait-bar"></i></div><div class="wait-pct"><span id="wait-pct">0%</span><span id="wait-eta">예상 ${expectSec}초</span></div><div class="wait-quote" id="wait-quote">“${esc(QUOTES[qi])}”</div></div>`;
+    document.body.appendChild(el);
+    WAIT = { el, t0, expectSec, real: null, timer: setInterval(() => {
+      const elapsed = (Date.now() - t0) / 1000; const fake = Math.min(96, 100 * (1 - Math.exp(-elapsed / (expectSec * 0.9)))); const pct = WAIT.real != null ? Math.max(WAIT.real, Math.min(fake, WAIT.real + 8)) : fake;
+      const b = $("#wait-bar"); if (b) b.style.width = pct.toFixed(0) + "%"; const pe = $("#wait-pct"); if (pe) pe.textContent = pct.toFixed(0) + "%";
+      const eta = $("#wait-eta"); if (eta) eta.textContent = `${Math.round(elapsed)}초 지남 · 예상 ${expectSec}초`;
+      if (Math.round(elapsed) % 7 === 0) { qi = (qi + 1) % QUOTES.length; const q = $("#wait-quote"); if (q) { q.style.opacity = 0; setTimeout(() => { q.textContent = "“" + QUOTES[qi] + "”"; q.style.opacity = 1; }, 300); } }
+    }, 1000) };
+    return WAIT;
+  };
+  window.setWait = (pct, sub) => { if (!WAIT) return; if (pct != null) WAIT.real = pct; if (sub) { const e = $("#wait-sub"); if (e) e.textContent = sub; } };
+  window.hideWait = () => { if (WAIT) { clearInterval(WAIT.timer); WAIT.el.remove(); WAIT = null; } };
+
   window.viewPlanWizard = async function (arg) {
     if (arg) { const p = await api("/api/plans/" + arg); CUR = p; return renderPlan2(p); }
     // 릴스 상세창에서 담아둔 바구니 → 참고 릴스에 자동 반영
@@ -129,16 +147,20 @@
   // 4→5: 고른 릴스 중 아직 안 뜯은 것(대본·컷 분석 없음)은 먼저 분석해서 주제가 실제 대본·구조를 보고 나오게
   window.wizAnalyzeThenTopics = async function () {
     const b = $("#wiz-next4"); if (b) b.disabled = true;
-    let n = 0;
-    for (const id of W.refs) {
-      const c = W.refsCache.find(x => x.id === id); if (c && c.frames) continue;
+    const need = [];
+    for (const id of W.refs) { const c = W.refsCache.find(x => x.id === id); if (!(c && c.frames)) need.push(id); }
+    if (need.length) showWait("참고 릴스 뜯는 중", 30 * need.length, "영상을 받아서 컷·자막·대사·효과음을 뽑고 있어요");
+    let i = 0;
+    for (const id of need) {
+      const c = W.refsCache.find(x => x.id === id);
       try {
-        const it = await api("/api/items/" + id); if (it.frames) { if (c) c.frames = true; continue; }
-        n++; if (b) b.textContent = `@${it.account} 영상 뜯는 중… 대본·컷·자막 (20~40초)`;
+        const it = await api("/api/items/" + id); if (it.frames) { if (c) c.frames = true; i++; continue; }
+        setWait(Math.round(100 * i / need.length), `@${it.account} — 영상 받는 중 → 컷 감지 → 자막 읽기 → 대사 받아쓰기`);
         const r = await post("/api/analyze", { url: it.url }); if (r.error) throw new Error(r.error); if (c) c.frames = true;
       } catch (e) { toast("분석 건너뜀: " + e.message); }
+      i++;
     }
-    W.topics = []; save(); wizGo(5);
+    hideWait(); W.topics = []; save(); wizGo(5);
   };
   let TOPICS_LOADING = false;
   function renderTopicStep() {
@@ -163,31 +185,42 @@
   const brief = () => ({ job: W.job, target: [...W.target, W.extra.target_free].filter(Boolean).join(", "), keyword: [W.keyword, ...W.selSubs].filter(Boolean).join(", "), topic: W.topic, length: W.extra.length || 30, tone: W.extra.tone, scene: W.extra.scene, numbers: W.extra.numbers, cta: W.extra.cta, shooting: W.extra.shooting });
   window.wizTopics = async function () {
     if (TOPICS_LOADING) return; TOPICS_LOADING = true;
-    const m = $("#wiz-topic-msg"); if (m) m.textContent = "준희 님 노하우(훅 공식·타깃 문제)를 적용해 주제 뽑는 중… (20~30초)";
+    const m = $("#wiz-topic-msg"); if (m) m.textContent = "주제 뽑는 중…"; showWait("주제 뽑는 중", 28, "참고 릴스 구조 + 훅 공식으로 8개를 만들고 있어요");
     try {
       const r = await post("/api/plan/topics", { ids: W.refs, brief: brief() });
       if (r.need_key) { if (m) m.textContent = "AI 엔진이 없어 추천은 건너뜁니다. 주제를 직접 적어주세요 (비워도 돼요)"; return; }
       if (r.error) throw new Error(r.error);
       W.topics = r.topics || []; save(); if (!W.topics.length && m) m.textContent = "추천이 비어 왔어요. 다시 뽑기를 눌러주세요";
     } catch (e) { if (m) m.textContent = "실패: " + e.message + " — 다시 뽑기를 눌러주세요"; }
-    finally { TOPICS_LOADING = false; if (W.topics.length) renderWizard(); }
+    finally { TOPICS_LOADING = false; hideWait(); if (W.topics.length) renderWizard(); }
   };
   window.wizMake = async function () {
     if (!W.refs.length) return toast("참고 릴스를 골라주세요");
-    const b = $("#wiz-make"); b.disabled = true; b.textContent = "준비 중…";
-    // 아직 분석 안 된 참고 릴스는 먼저 분석(컷·자막·대사·효과음)
+    const b = $("#wiz-make"); b.disabled = true;
     for (const id of W.refs) {
       const c = W.refsCache.find(x => x.id === id); if (c && c.frames) continue;
-      try { const it = await api("/api/items/" + id); if (it.frames) continue; b.textContent = `@${it.account} 영상 뜯는 중… (20~40초)`; await post("/api/analyze", { url: it.url }); }
-      catch (e) { toast("분석 건너뜀: " + e.message); }
+      try { const it = await api("/api/items/" + id); if (it.frames) continue; showWait("참고 릴스 뜯는 중", 35, `@${it.account} 영상을 받아 컷·자막·대사를 뽑는 중`); await post("/api/analyze", { url: it.url }); hideWait(); }
+      catch (e) { hideWait(); toast("분석 건너뜀: " + e.message); }
     }
-    b.textContent = "기획안 쓰는 중… (3~6분, 프레임을 하나씩 보고 씁니다)";
+    const fast = W.mode === "fast"; const expect = fast ? 150 : 330;
+    showWait("기획안 만드는 중", expect, "레퍼런스 프레임을 한 장씩 보면서 씬표를 쓰고 있어요");
     try {
-      const t0 = Date.now(); const tick = setInterval(() => { const el = $("#wiz-make"); if (el) el.textContent = `기획안 쓰는 중… ${Math.round((Date.now() - t0) / 1000)}초 (${W.mode === "fast" ? "보통 1~2분" : "보통 3~4분"})`; }, 1000);
-      const r = await post("/api/plan", { ids: W.refs, brief: brief(), mode: W.mode || "precise" }).finally(() => clearInterval(tick));
+      const r = await post("/api/plan", { ids: W.refs, brief: brief(), mode: W.mode || "precise" });
       if (r.error) throw new Error(r.error);
-      location.hash = "#/plan/" + r.id;
-    } catch (e) { toast("실패: " + e.message); b.disabled = false; b.textContent = "✨ 기획안 만들기"; }
+      const pid = r.id;
+      if (!r.queued) { hideWait(); location.hash = "#/plan/" + pid; return; }
+      const STAGES = { plan: "기획안 쓰는 중 — 훅·씬표·촬영 가이드", sketch: "씬마다 구도 스케치 그리는 중", brief: "편집 외주서 쓰는 중 — 폰트·효과음·컷", done: "완성" };
+      await new Promise((resolve, reject) => {
+        const iv = setInterval(async () => {
+          try {
+            const pr = await api("/api/plans/" + pid + "/progress");
+            setWait(pr.pct, STAGES[pr.stage] || pr.message || "");
+            if (pr.done) { clearInterval(iv); pr.error ? reject(new Error(pr.error)) : resolve(); }
+          } catch (e) {}
+        }, 2000);
+      });
+      hideWait(); location.hash = "#/plan/" + pid;
+    } catch (e) { hideWait(); toast("실패: " + e.message); b.disabled = false; b.textContent = "✨ 기획안 만들기"; }
   };
 
   // ---------------- 결과 화면: [내 릴스 기획안] [레퍼런스 뜯어보기] [전문가용]
@@ -198,7 +231,7 @@
     CUR = p;
     const plan = p.plan || null; const refs = p.refs || []; const done = !!plan;
     const title = plan ? plan.title : ((p.brief || {}).topic || ((p.brief || {}).keyword || "기획 준비").split(",")[0]);
-    const tabs = [["plan", "✅ 내 릴스 기획안"], ["refs", "🔍 레퍼런스 뜯어보기"], ["pro", "🧠 전문가용"]];
+    const tabs = [["plan", "✅ 내 릴스 기획안"], ["refs", "🔍 레퍼런스 뜯어보기"], ["pro", "🎬 편집 외주용"]];
     let body = "";
     if (TAB === "refs") body = renderRefsTab(p);
     else if (TAB === "pro") body = done ? renderProTab(plan, p) : promptBox(p);
@@ -238,22 +271,30 @@
   const chips = (c) => c ? [c.text_style && ["🔤", c.text_style], c.transition && ["🔀", c.transition], c.sfx && ["🔊", c.sfx], c.effect && ["✨", c.effect]].filter(Boolean).map(([i, v]) => `<span class="cchip">${i} ${esc(v)}</span>`).join("") : "";
   let SB_TABLE = false; window.sbToggle = () => { SB_TABLE = !SB_TABLE; renderPlan2(CUR); };
   const cc = (c) => c ? [c.text_style && "🔤 " + c.text_style, c.transition && "🔀 " + c.transition, c.sfx && "🔊 " + c.sfx, c.effect && "✨ " + c.effect].filter(Boolean).map(esc).join("<br>") : "";
+  const ed = (path, val, cls = "", tag = "div") => `<${tag} class="edit ${cls}" contenteditable="true" spellcheck="false" data-path="${esc(path)}" onblur="editSave(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey&&this.tagName!=='DIV'){event.preventDefault();this.blur()}">${esc(val || "")}</${tag}>`;
+  let SAVE_T = null;
+  window.editSave = (el) => {
+    const path = el.dataset.path.split("."); let o = CUR.plan; for (let i = 0; i < path.length - 1; i++) { const k = isNaN(path[i]) ? path[i] : Number(path[i]); o = o[k]; }
+    const last = path[path.length - 1]; const v = el.innerText.replace(/\n+$/, ""); if (o[isNaN(last) ? last : Number(last)] === v) return; o[isNaN(last) ? last : Number(last)] = v;
+    clearTimeout(SAVE_T); SAVE_T = setTimeout(async () => { try { await post("/api/plans/" + CUR.id + "/save", { plan: CUR.plan }); toast("저장됨"); } catch (e) { toast("저장 실패: " + e.message); } }, 400);
+  };
   function renderPlanTab(plan, p) {
     const B = plan.B_plan || {}; const hooks = B.hooks || []; const rec = B.recommended_hook || 1;
     const left = `<aside class="plan-side"><div class="title-card"><div class="ph-kicker">내 릴스 기획안</div><h2>${esc(plan.title)}</h2>${plan.thumbnail_text ? `<span class="ttag">썸네일: ${esc(plan.thumbnail_text)}</span>` : ""}${plan.one_line ? `<p>${esc(plan.one_line)}</p>` : ""}</div>
-      <div class="side-sec"><h3>🎣 첫 문장(훅) <small>누르면 씬 1에 바로 적용 · 지금 ${rec}번</small></h3><ol class="hooklist">${hooks.map((h, i) => `<li class="${i + 1 == rec ? "on" : ""}" onclick="applyHook('${esc(p.id)}', ${i + 1})" title="이 훅으로 바꾸기"><span class="tag">${esc(h.type)}</span> ${esc(h.line)}${h.generated ? ' <span class="tag ok">new</span>' : ""}</li>`).join("")}</ol><div class="muted" style="font-size:12px">${esc(B.why || "")}</div>
-        <div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap"><select id="hook-formula" class="chip" style="max-width:170px">${HOOK_FORMULAS.map(f => `<option>${f}</option>`).join("")}</select><button class="btn small" onclick="genHooks('${esc(p.id)}')">✨ 이 공식으로 3개 더</button><button class="btn small" onclick="rewriteOpening('${esc(p.id)}', ${rec})" title="고른 훅에 맞춰 씬 1~2를 AI가 다시 씀 (30초)">🪄 훅에 맞춰 씬 1~2 다시 쓰기</button><span id="hook-msg" class="muted" style="font-size:12px"></span></div></div>
-      <div class="side-sec"><h3>📝 캡션</h3><div class="capbox">${esc(B.caption_text)}</div></div>
+      <div class="side-sec"><h3>🎣 첫 문장(훅) <small>누르면 씬 1에 바로 적용 · 지금 ${rec}번</small></h3><ol class="hooklist">${hooks.map((h, i) => `<li class="${i + 1 == rec ? "on" : ""}"><span class="tag" onclick="applyHook('${esc(p.id)}', ${i + 1})" title="이 훅으로 바꾸기" style="cursor:pointer">${esc(h.type)} ${i + 1 == rec ? "✓" : "→ 적용"}</span> ${ed("B_plan.hooks." + i + ".line", h.line, "inline", "span")}${h.generated ? ' <span class="tag ok">new</span>' : ""}</li>`).join("")}</ol><div class="muted" style="font-size:12px">${esc(B.why || "")}</div>
+        <div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap"><select id="hook-formula" class="chip" style="max-width:170px">${HOOK_FORMULAS.map(f => `<option>${f}</option>`).join("")}</select><button class="btn small" onclick="genHooks('${esc(p.id)}')">✨ 이 공식으로 3개 더</button><button class="btn small" onclick="rewriteOpening('${esc(p.id)}', ${rec})" title="고른 훅에 맞춰 씬 1~2를 AI가 다시 씀 (30초)">🪄 훅에 맞춰 씬 1~2 다시 쓰기</button><button class="btn small" onclick="humanize('${esc(p.id)}')" title="대사·훅·캡션을 내 말투로">🗣 내 말투로 다듬기</button><span id="hook-msg" class="muted" style="font-size:12px"></span></div></div>
+      <div class="side-sec"><h3>📝 캡션 <small>눌러서 고치기</small></h3>${ed("B_plan.caption_text", B.caption_text, "capbox")}</div>
       <div class="side-sec"><h3>🎵 음악</h3><div>${esc(B.music || "-")}</div></div>
-      <div class="side-sec"><h3>🎬 마지막 멘트</h3><div><b>${esc((B.cta || {}).say)}</b></div><div class="muted">자막: ${esc((B.cta || {}).caption)}<br>댓글 유도: ${esc((B.cta || {}).comment_question)}</div></div>
+      <div class="side-sec"><h3>🎬 마지막 멘트</h3>${ed("B_plan.cta.say", (B.cta || {}).say, "strong")}<div class="muted">자막: ${ed("B_plan.cta.caption", (B.cta || {}).caption, "inline", "span")}<br>댓글 유도: ${ed("B_plan.cta.comment_question", (B.cta || {}).comment_question, "inline", "span")}</div></div>
       <div class="side-sec"><h3>📦 찍을 것·준비물</h3><ul>${(B.shot_list || []).map(x => `<li>${esc(x)}</li>`).join("")}${(B.prep || []).map(x => `<li class="muted">${esc(x)}</li>`).join("")}</ul></div>
       <div class="side-sec"><h3>⚠️ 초보 실수</h3><ul>${(B.tips || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
       ${(plan.pro || {}).questions && plan.pro.questions.length ? `<div class="side-sec warnbox"><h3>❓ 확인해 주세요</h3><ul>${plan.pro.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ul></div>` : ""}</aside>`;
     const scenes = (B.scenes || []).map(s => { const f = s.framing || {}; const g = s.guide || {}; const h = hooks[0] || {};
-      return `<div class="scene"><div class="scene-visual"><span class="scene-no">SCENE ${s.no} <small>${esc(s.sec)}초</small></span>${s.sketch ? `<figure class="sb-ref sk-img"><img src="${esc(s.sketch)}" loading="lazy" title="${esc(s.sketch_prompt || "")}"><figcaption>구도 스케치 (AI) <a href="#" onclick="event.preventDefault();reSketch('${esc(p.id)}', ${s.no})">다시 그리기</a></figcaption></figure>` : sketch(f)}${refFrameImg(p, s.ref_frame)}</div>
-        <div class="scene-body"><div class="saybox"><span class="tag">${esc(s.part || (s.no === 1 ? "훅" : s.no === (B.scenes || []).length ? "마무리" : "본문 " + (s.no - 1)))}</span><div class="say">${esc(s.say)}</div><div class="cap">💬 ${esc(s.caption)}${f.text_pos ? ` <span class="muted">(${esc(f.text_pos)})</span>` : ""}</div></div>
-        <div class="guidebox"><b>촬영 가이드</b><div><b>구도:</b> ${esc(g.composition || [f.shot, f.camera, s.screen].filter(Boolean).join(" · "))}</div>${g.light ? `<div><b>조명:</b> ${esc(g.light)}</div>` : ""}${g.props ? `<div><b>소품:</b> ${esc(g.props)}</div>` : ""}<div><b>행동:</b> ${esc(g.action || s.screen)}</div></div>
-        <div class="editbox"><b>캡컷 편집</b><div class="cchips">${chips(s.capcut) || '<span class="muted">-</span>'}</div>${s.tip ? `<div class="sb-tip">💡 ${esc(s.tip)}</div>` : ""}</div></div></div>`; }).join("");
+        const si = (B.scenes || []).indexOf(s);
+        return `<div class="scene"><div class="scene-visual"><span class="scene-no">SCENE ${s.no} <small>${esc(s.sec)}초</small></span>${s.sketch ? `<figure class="sb-ref sk-img"><img src="${esc(s.sketch)}" loading="lazy" title="${esc(s.sketch_prompt || "")}"><figcaption>구도 스케치 (AI) <a href="#" onclick="event.preventDefault();reSketch('${esc(p.id)}', ${s.no})">다시 그리기</a></figcaption></figure>` : sketch(f)}${refFrameImg(p, s.ref_frame)}</div>
+        <div class="scene-body"><div class="saybox"><span class="tag">${esc(s.part || (s.no === 1 ? "훅" : s.no === (B.scenes || []).length ? "마무리" : "본문 " + (s.no - 1)))}</span><small class="muted" style="margin-left:6px">눌러서 고치기</small>${ed("B_plan.scenes." + si + ".say", s.say, "say")}<div class="cap">💬 ${ed("B_plan.scenes." + si + ".caption", s.caption, "inline", "span")}${f.text_pos ? ` <span class="muted">(${esc(f.text_pos)})</span>` : ""}</div></div>
+        <div class="guidebox"><b>촬영 가이드</b><div><b>구도:</b> ${esc(g.composition || [f.shot, f.camera, s.screen].filter(Boolean).join(" · "))}</div>${g.light ? `<div><b>조명:</b> ${esc(g.light)}</div>` : ""}${g.props ? `<div><b>소품:</b> ${esc(g.props)}</div>` : ""}<div><b>행동:</b> ${ed("B_plan.scenes." + si + ".screen", g.action || s.screen, "inline", "span")}</div></div>
+        <div class="editbox"><b>캡컷 편집</b><div class="cchips">${chips(s.capcut) || '<span class="muted">-</span>'}</div><div class="sb-tip">💡 ${ed("B_plan.scenes." + si + ".tip", s.tip, "inline", "span")}</div></div></div></div>`; }).join("");
     return `<div class="plan-layout">${left}<div class="plan-main"><div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">🎬 스토리보드 <small>총 ${(B.scenes || []).length}컷 · ${esc(plan.length_sec)}초</small></h2><button class="btn small" onclick="sbToggle()">${SB_TABLE ? "카드로 보기" : "표로 보기"}</button></div>
       ${SB_TABLE ? `<div class="tablewrap"><table class="scenes"><tr><th>씬</th><th>초</th><th>화면에 보이는 것</th><th>말하는 것</th><th>자막</th><th>캡컷 편집</th><th>팁</th></tr>${(B.scenes || []).map(s => `<tr><td><b>${s.no}</b></td><td>${esc(s.sec)}</td><td>${esc(s.screen)}</td><td class="say">${esc(s.say)}</td><td class="cap">${esc(s.caption)}</td><td class="capcut">${cc(s.capcut)}</td><td class="muted">${esc(s.tip)}</td></tr>`).join("")}</table></div>` : `<div class="scenes-list">${scenes}</div>`}</div></div>`;
   }
@@ -273,12 +314,27 @@
     }).join("") || '<div class="muted">레퍼런스가 없어요</div>';
   }
   function renderProTab(plan, p) {
-    const pro = plan.pro || {}; const t = pro.target || {};
-    return `<div class="two"><section class="panel"><b>타깃(가상 인물)</b><div><b>${esc(t.persona)}</b></div><div class="muted">겉 고민: ${esc(t.surface_problem)}<br>속마음: ${esc(t.inner_problem)}</div></section>
-    <section class="panel"><b>자가검증</b><table class="scenes">${(pro.self_check || []).map(c => `<tr><td>${c.ok ? "✅" : "❌"}</td><td>${esc(c.q)}</td><td class="muted">${esc(c.why)}</td></tr>`).join("")}</table></section></div>
-    <div class="two" style="margin-top:12px"><section class="panel"><b>다음 소재</b><ul>${(pro.next_topics || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul></section><section class="panel"><b>편집자 메모</b><div>${esc(pro.notes || "")}</div><b style="display:block;margin-top:8px">입력값</b><div class="muted" style="font-size:12px">${esc(JSON.stringify(p.brief || {}))}</div></section></div>
-    <details class="wiz-more"><summary>AI에 보낸 프롬프트 보기</summary><textarea rows="12" class="wiz-input mono">${esc(p.prompt || "")}</textarea></details>`;
+    const eb = (plan.pro || {}).edit_brief; const pro = plan.pro || {};
+    if (!eb) return `<div class="panel warn"><b>편집 외주서가 아직 없어요.</b> 기획안의 씬표를 바탕으로 폰트·효과음·컷·전환·색감·납품 규격까지 편집자에게 그대로 넘길 문서를 만듭니다 (1~2분).<div style="margin-top:8px"><button class="btn p" onclick="makeBrief('${esc(p.id)}')">🎬 편집 외주서 만들기</button></div></div>`;
+    const f = eb.fonts || {}; const m = f.main || {}; const ac = f.accent || {}; const sd = eb.sound || {}; const bg = sd.bgm || {}; const dv = eb.deliverable || {}; const col = eb.color || {}; const pc = eb.pacing || {}; const en = eb.ending || {};
+    return `<div class="row" style="justify-content:space-between;margin-bottom:8px"><div class="muted">${esc(eb.summary || "")}</div><div class="row"><button class="btn small" onclick="navigator.clipboard.writeText(briefText());toast('편집 외주서 복사됨 — 카톡·노션에 붙여넣기')">📋 텍스트 복사</button><button class="btn small" onclick="makeBrief('${esc(p.id)}')">↻ 다시 만들기</button></div></div>
+    <div class="two">
+      <section class="panel"><b>📦 납품 규격</b><table class="kv"><tr><th>비율·해상도</th><td>${esc(dv.ratio)}</td></tr><tr><th>프레임</th><td>${esc(dv.fps)}</td></tr><tr><th>길이</th><td>${esc(dv.length)}</td></tr><tr><th>내보내기</th><td>${esc(dv.export)}</td></tr><tr><th>세이프존</th><td>${esc(dv.safe_zone)}</td></tr></table></section>
+      <section class="panel"><b>🔤 폰트</b><table class="kv"><tr><th>메인</th><td><b>${esc(m.name)}</b> · ${esc(m.size)} · ${esc(m.color)} · 외곽선 ${esc(m.stroke)} · ${esc(m.position)}<div class="muted">${esc(m.why)}</div></td></tr><tr><th>강조</th><td><b>${esc(ac.name)}</b> · ${esc(ac.use)} · ${esc(ac.color)}</td></tr></table><ul>${(f.rules || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>
+    </div>
+    <div class="two" style="margin-top:12px">
+      <section class="panel"><b>🎵 음악·효과음</b><div>BGM: <b>${esc(bg.mood)}</b> · 캡컷 검색: ${esc(bg.capcut_search)} · ${esc(bg.volume)}</div><table class="scenes" style="min-width:0;margin-top:8px"><tr><th>초</th><th>씬</th><th>효과음</th><th>이유</th></tr>${(sd.sfx || []).map(x => `<tr><td>${esc(x.t)}</td><td>${esc(x.scene)}</td><td><b>${esc(x.name)}</b></td><td class="muted">${esc(x.why)}</td></tr>`).join("")}</table></section>
+      <section class="panel"><b>🎨 색감 · ⏱ 속도</b><div>${esc(col.look)}<div class="muted">캡컷: ${esc(col.capcut)}</div></div><div style="margin-top:8px">컷: ${esc(pc.cut_rule)}<br>전환: ${esc(pc.transitions)}<br>속도: ${esc(pc.speed)}</div><div style="margin-top:8px"><b>엔딩</b> ${esc(en.last_frame)} · CTA 자막 "${esc(en.cta_text)}"${en.no_black ? " · 검은 화면 없음" : ""}</div></section>
+    </div>
+    <h2 style="margin:16px 0 8px">씬별 편집 지시</h2>
+    <div class="tablewrap"><table class="scenes"><tr><th>씬</th><th>초</th><th>컷</th><th>자막(문구·등장·위치)</th><th>전환</th><th>효과음</th><th>효과</th><th>B롤</th><th>주의</th></tr>${(eb.scenes || []).map(x => `<tr><td><b>${esc(x.no)}</b></td><td>${esc(x.sec)}</td><td>${esc(x.cut)}</td><td>${esc(x.text)}</td><td>${esc(x.transition)}</td><td>${esc(x.sfx)}</td><td>${esc(x.effect)}</td><td>${esc(x.broll)}</td><td class="muted">${esc(x.note)}</td></tr>`).join("")}</table></div>
+    <div class="two" style="margin-top:12px"><section class="panel"><b>✅ 납품 전 체크리스트</b><ul>${(eb.checklist || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul></section><section class="panel"><b>❓ 편집자가 물어볼 것</b><ul>${(eb.questions || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul>${pro.notes ? `<div class="muted" style="margin-top:6px">메모: ${esc(pro.notes)}</div>` : ""}</section></div>`;
   }
+  window.briefText = () => { const eb = ((CUR.plan || {}).pro || {}).edit_brief || {}; const f = eb.fonts || {}; const sd = eb.sound || {}; const dv = eb.deliverable || {};
+    return [`[편집 외주서] ${CUR.plan.title}`, eb.summary, `납품: ${dv.ratio} / ${dv.fps}fps / ${dv.length} / ${dv.export} / ${dv.safe_zone}`, `폰트: 메인 ${(f.main || {}).name} (${(f.main || {}).size}, ${(f.main || {}).color}, 외곽선 ${(f.main || {}).stroke}, ${(f.main || {}).position}) · 강조 ${(f.accent || {}).name} ${(f.accent || {}).color}`, ...(f.rules || []).map(x => " - " + x), `BGM: ${(sd.bgm || {}).mood} / 검색 ${(sd.bgm || {}).capcut_search} / ${(sd.bgm || {}).volume}`, "효과음:", ...(sd.sfx || []).map(x => ` - ${x.t}s 씬${x.scene} ${x.name} (${x.why})`), `색감: ${(eb.color || {}).look} / ${(eb.color || {}).capcut}`, `속도: ${(eb.pacing || {}).cut_rule} / ${(eb.pacing || {}).transitions} / ${(eb.pacing || {}).speed}`, "씬별:", ...(eb.scenes || []).map(x => ` ${x.no}) ${x.sec}s 컷:${x.cut} | 자막:${x.text} | 전환:${x.transition} | 효과음:${x.sfx} | 효과:${x.effect} | B롤:${x.broll} | 주의:${x.note}`), "체크리스트:", ...(eb.checklist || []).map(x => " - " + x)].join("\n"); };
+  window.makeBrief = async (pid) => { showWait("편집 외주서 쓰는 중", 90, "폰트·효과음·컷·전환·색감·납품 규격을 정리하고 있어요"); try { const r = await post("/api/plans/" + pid + "/edit_brief", {}); if (r.error) throw new Error(r.error); CUR = r; TAB = "pro"; renderPlan2(r); } catch (e) { toast("실패: " + e.message); } finally { hideWait(); } };
+  window.humanize = async (pid) => { const tone = prompt("내 말투를 적어주세요 (예: 존댓말, 담백하게, '아니 여러분'으로 가끔 시작 / 반말, 텐션 높게). 비워도 돼요", ((CUR.brief || {}).tone) || ""); if (tone === null) return; showWait("말투 다듬는 중", 60, "대사·훅·CTA·캡션을 사람 말로 바꾸고 있어요"); try { const r = await post("/api/plans/" + pid + "/humanize", { tone }); if (r.error) throw new Error(r.error); CUR = r; renderPlan2(r); toast("말투를 다듬었어요"); } catch (e) { toast("실패: " + e.message); } finally { hideWait(); } };
+
   window.savePlanJson = async function (pid) {
     let j; try { j = JSON.parse($("#plan-json").value); } catch (e) { return toast("JSON 형식이 아니에요"); }
     await post("/api/plans/" + pid + "/save", { plan: j }); CUR = await api("/api/plans/" + pid); TAB = "plan"; renderPlan2(CUR);

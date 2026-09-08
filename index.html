@@ -116,6 +116,23 @@ mark{background:var(--lime);padding:1px 4px;border-radius:4px}
 .saybox{border-left:4px solid #2f54eb;background:#f3f6ff;border-radius:0 12px 12px 0;padding:12px 14px;margin-bottom:10px}.saybox .say{font-size:17px;font-weight:800;line-height:1.4;margin:6px 0 4px;letter-spacing:-.01em}.saybox .cap{color:#1d4ed8;font-weight:700;font-size:13px}
 .guidebox{border-left:4px solid #ec1d1d;background:#fff4f3;border-radius:0 12px 12px 0;padding:12px 14px;font-size:13px;line-height:1.55;margin-bottom:10px}.guidebox>b{display:block;color:#b91c1c;font-size:12px;margin-bottom:4px}
 .editbox{border-left:4px solid #15171f;background:#f6f7fb;border-radius:0 12px 12px 0;padding:12px 14px;font-size:13px}.editbox>b{display:block;font-size:12px;margin-bottom:6px}
+
+/* 대기 오버레이 — 오로라 */
+.wait{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(10,12,20,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.wait-bg{position:absolute;inset:0;overflow:hidden}.wait-bg i{position:absolute;width:60vmax;height:60vmax;border-radius:50%;filter:blur(90px);opacity:.55;animation:drift 14s ease-in-out infinite}.wait-bg i:nth-child(1){background:#bffe9e;left:-20vmax;top:-20vmax}.wait-bg i:nth-child(2){background:#6d7cff;right:-25vmax;top:10vmax;animation-delay:-5s}.wait-bg i:nth-child(3){background:#ff8ad1;left:20vmax;bottom:-30vmax;animation-delay:-9s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(8vmax,-6vmax) scale(1.15)}66%{transform:translate(-6vmax,8vmax) scale(.95)}}
+.wait-card{position:relative;width:min(520px,92vw);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:26px;padding:34px 30px;color:#fff;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.wait-orb{width:74px;height:74px;border-radius:50%;margin:0 auto 18px;background:conic-gradient(from 0deg,#bffe9e,#6d7cff,#ff8ad1,#bffe9e);animation:spin 3s linear infinite;position:relative}.wait-orb:after{content:"";position:absolute;inset:8px;border-radius:50%;background:#12141c}@keyframes spin{to{transform:rotate(360deg)}}
+.wait-title{font-size:22px;font-weight:800;letter-spacing:-.02em}.wait-sub{color:#c9cddb;margin:6px 0 18px;font-size:13px;min-height:18px}
+.wait-bar{height:8px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden}.wait-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#bffe9e,#6d7cff,#ff8ad1);background-size:200% 100%;animation:flow 2.5s linear infinite;transition:width 1s ease}@keyframes flow{to{background-position:200% 0}}
+.wait-pct{display:flex;justify-content:space-between;font-size:12px;color:#c9cddb;margin-top:8px}.wait-pct span:first-child{font-size:20px;font-weight:800;color:#fff}
+.wait-quote{margin-top:22px;font-size:14px;line-height:1.6;color:#e6e8ef;font-style:italic;transition:opacity .3s;min-height:44px}
+/* 히어로 오로라 */
+.plan-home .hero{background:#12141c;position:relative}.plan-home .hero:before{content:"";position:absolute;inset:-40%;background:radial-gradient(circle at 20% 30%,rgba(191,254,158,.45),transparent 40%),radial-gradient(circle at 80% 20%,rgba(109,124,255,.5),transparent 45%),radial-gradient(circle at 60% 90%,rgba(255,138,209,.4),transparent 40%);filter:blur(40px);animation:drift 18s ease-in-out infinite}.plan-home .hero>*{position:relative}
+.title-card{background:#12141c;position:relative;overflow:hidden}.title-card:before{content:"";position:absolute;inset:-60%;background:radial-gradient(circle at 30% 30%,rgba(191,254,158,.35),transparent 40%),radial-gradient(circle at 80% 70%,rgba(109,124,255,.45),transparent 45%);filter:blur(30px)}.title-card>*{position:relative}
+/* 편집 가능 필드 */
+.edit{outline:0;border-radius:6px;transition:.15s;cursor:text}.edit:hover{background:rgba(47,84,235,.06);box-shadow:0 0 0 2px rgba(47,84,235,.15)}.edit:focus{background:#fff;box-shadow:0 0 0 2px var(--ink)}.edit.inline{display:inline}.edit.strong{font-weight:800}
+table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table.kv th{text-align:left;color:var(--mute);font-weight:600;width:90px;padding:5px 0;vertical-align:top}table.kv td{padding:5px 0;border-top:1px solid var(--line)}
 @media(max-width:1000px){.plan-layout{grid-template-columns:1fr}.plan-side{position:static;max-height:none}.scene{grid-template-columns:1fr}.scene-visual{flex-direction:row}.scene-visual>*{flex:1}}
 @media(max-width:900px){.plan-home .hero{grid-template-columns:1fr}.hero-art{display:none}.plan-hero{flex-direction:column}}
 </style>
@@ -144,7 +161,7 @@ mark{background:var(--lime);padding:1px 4px;border-radius:4px}
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1788894496"></script>
+<script src="static_api.js?v=1788895094"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => { const j = await staticApi(p, opt); if (j && j.error) throw new Error(j.error); return j; };
@@ -413,7 +430,7 @@ async function openReel(id) {
       <div class="pills">${it.music && (it.music.artist || it.music.title) ? pill("🎤", "작곡가", esc(it.music.artist || "-")) + pill("🎵", "음원제목", esc(it.music.title || (it.music.original ? "오리지널 오디오" : "-"))) : `<span class="pill muted">🎵 음원 정보 없음 (벤더 수집분에 표시)</span>`}${pill("📅", "작성일", esc(it.posted_at || "-"))}${it.industry ? pill("🏷", "카테고리", esc(it.industry)) : ""}${it.duration ? pill("⏱", "길이", Math.round(it.duration) + "초") : ""}</div>
       <div class="rcaph">✏️ 캡션</div><div class="rcapbox">${esc(it.caption || "").replace(/\n/g, "<br>") || '<span class="muted">캡션 없음</span>'}</div>
       ${it.description ? `<div class="rcaph">🧠 AI 설명</div><div class="rcapbox">${esc(it.description)}</div>` : ""}
-      <div class="row" style="margin-top:12px"><button class="btn p" onclick="pickBoard(${id})">보드에 저장</button><button class="btn" onclick="closeAll();openItem(${id})">메모·수정</button><button class="btn" id="planbtn-${id}" onclick="togglePlanRef(${id})">${PLANREFS().includes(id) ? "✅ 담김" : "✍️ 기획에 담기"}</button><a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">원본 열기 ↗</a></div>
+      <div class="row" style="margin-top:12px"><button class="btn p" onclick="pickBoard(${id})">보드에 저장</button><button class="btn" onclick="closeAll();openItem(${id})">메모·수정</button>${it.platform === "instagram" ? `<button class="btn" id="planbtn-${id}" onclick="togglePlanRef(${id})">${PLANREFS().includes(id) ? "✅ 담김" : "✍️ 기획에 담기"}</button>` : ""}<a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">원본 열기 ↗</a></div>
     </div>
     <div class="rstrip"><button class="nav" onclick="${idx > 0 ? `openReel(${list[idx - 1].id})` : ""}" ${idx > 0 ? "" : "disabled"}>‹</button><div class="thumbs">${strip}</div><button class="nav" onclick="${idx < list.length - 1 ? `openReel(${list[idx + 1].id})` : ""}" ${idx < list.length - 1 ? "" : "disabled"}>›</button></div>
     <div class="rsim" id="rsim"><div class="rcaph">🔎 유사한 릴스 <small style="color:var(--mute);font-weight:400">같은 카테고리 · 캡션·해시태그·썸네일 유사도</small></div><div class="rsimgrid">불러오는 중…</div></div>`;
@@ -532,6 +549,6 @@ async function route() {
 window.addEventListener("hashchange", route);
 (async () => { try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=16"></script>
+<script src="static/plan.js?v=18"></script>
 </body>
 </html>
