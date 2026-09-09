@@ -13,7 +13,7 @@
     })();
     return STATIC.ready;
   }
-  const num = (v) => (v == null || v === "" ? null : Number(v));
+  const num = (v) => { if (v == null || v === "") return null; const t = String(v).replace(/,/g, "").trim(); const m = t.match(/^([\d.]+)\s*(억|천만|백만|만|천|k|K|m|M)?$/); if (!m) return isNaN(Number(t)) ? null : Number(t); const mul = { "억": 1e8, "천만": 1e7, "백만": 1e6, "만": 1e4, "천": 1e3, k: 1e3, K: 1e3, m: 1e6, M: 1e6 }[m[2]] || 1; return Number(m[1]) * mul; };
   function listItems(qs) {
     let rows = STATIC.items;
     const g = (k) => qs.get(k) || "";

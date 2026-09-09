@@ -151,6 +151,7 @@ mark{background:var(--lime);padding:1px 4px;border-radius:4px}
 .kakao{background:#fee500!important;color:#191919!important;border-color:#fee500!important;display:inline-block;margin:6px 0 12px}
 table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table.kv th{text-align:left;color:var(--mute);font-weight:600;width:90px;padding:5px 0;vertical-align:top}table.kv td{padding:5px 0;border-top:1px solid var(--line)}
 
+.fpanel{display:flex;flex-wrap:wrap;gap:14px 22px;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;margin:4px 0 10px;align-items:flex-start}.fgroup{display:flex;flex-direction:column;gap:6px;min-width:200px}.fgroup>b{font-size:12px;color:var(--mute)}.fquick{display:flex;gap:6px;flex-wrap:wrap}.fquick .chip{padding:5px 10px;font-size:12px;cursor:pointer}.frange{display:flex;align-items:center;gap:6px}.frange .fin{width:110px;border:1.5px solid var(--line);border-radius:9px;padding:7px 9px;font-size:13px}.rcat.fbtn{border-style:dashed}
 /* 기획안 가독성 */
 .plan-layout{font-size:15px}.plan-side{gap:12px}.title-card h2{font-size:21px;line-height:1.35}.tc-meta{margin-top:10px;font-size:12px;color:#c9cddb}
 .side-sec h3{font-size:15px;display:flex;align-items:baseline;gap:6px}.side-sec h3 small{font-size:12px;font-weight:500}
@@ -210,7 +211,7 @@ ul.checks{list-style:none;margin:0;padding:0}ul.checks li{padding:6px 0;border-t
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1788948497"></script>
+<script src="static_api.js?v=1788948612"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => {
@@ -413,7 +414,13 @@ async function viewTrends() {
 }
 
 // ---------------- 릴스 찾기 (인플로우식: 카테고리 탭 · 검색 · 정렬 · 기간)
-let R = { cat: "", q: "", sort: "date", days: "30", plat: "instagram", page: 0, band: "" };
+let R = { cat: "", q: "", sort: "date", days: "30", plat: "instagram", page: 0, band: "", f: {}, fopen: false };
+try { R.f = JSON.parse(localStorage.getItem("reelFilters") || "{}"); } catch (e) {}
+const saveRF = () => { try { localStorage.setItem("reelFilters", JSON.stringify(R.f)); } catch (e) {} };
+window.rf = (k, v) => { if (v === "" || v == null) delete R.f[k]; else R.f[k] = v; saveRF(); R.page = 0; viewReels(); };
+window.rfQuick = (obj) => { Object.assign(R.f, obj); for (const k in obj) if (obj[k] === "") delete R.f[k]; saveRF(); R.page = 0; viewReels(); };
+window.rfReset = () => { R.f = {}; saveRF(); R.page = 0; viewReels(); };
+const rfCount = () => Object.keys(R.f).length;
 const BANDS = [["", "전체"], ["0,10000", "0~1만 (급성장)"], ["10000,50000", "1만~5만"], ["50000,100000", "5만~10만"], ["100000,200000", "10만~20만"]];
 function rcard(it) {
   return `<div class="rcard" onclick="openReel(${it.id})">
@@ -428,14 +435,23 @@ async function viewReels() {
   const cats = yt ? (META.yt_categories || []).map(n => [n, [n]]) : (META.reel_categories || []);
   const inds = R.cat ? (cats.find(c => c[0] === R.cat) || [null, []])[1].join(",") : "";
   const [bmin, bmax] = (R.band || ",").split(",");
-  const qs = new URLSearchParams({ platform: R.plat, kind: yt ? "shorts" : "reel", creator: yt ? "" : "creator", sort: R.sort, days: R.days, limit: 60, offset: R.page * 60, industry: inds, q: R.q, min_followers: bmin, max_followers: bmax, classified: R.q ? "" : "1" });
+  const F = R.f || {};
+  const qs = new URLSearchParams({ platform: R.plat, kind: yt ? "shorts" : "reel", creator: yt ? "" : (F.creator === "all" ? "" : "creator"), sort: R.sort, days: R.days, limit: 60, offset: R.page * 60, industry: inds, q: R.q, min_followers: F.min_followers || bmin, max_followers: F.max_followers || bmax, classified: R.q ? "" : "1", min_views: F.min_views || "", max_views: F.max_views || "", min_likes: F.min_likes || "", max_likes: F.max_likes || "", min_comments: F.min_comments || "", max_comments: F.max_comments || "", paid: F.paid ? "1" : "" });
   const { items, total } = await api("/api/items?" + qs.toString()); R.items = items;
   $("#main").innerHTML = `<div class="rsearch"><div class="search">🔍 <input id="rq" placeholder="검색어가 포함된 캡션 혹은 해시태그를 가진 영상이 검색됩니다." value="${esc(R.q)}"><button class="btn" onclick="R.q='';R.page=0;viewReels()">✖</button></div>
       <select class="chip" onchange="R.sort=this.value;R.page=0;viewReels()">${(yt ? [["views","조회수 높은 순"],["daily","일일 조회수 순"],["followers","구독자 많은 순"],["ratio","구독자 대비"],["date","최신순"]] : [["date","최신순"],["views","조회수순"],["likes","좋아요순"],["ratio","팔로워 대비"]]).map(([v,l]) => `<option value="${v}" ${R.sort===v?"selected":""}>${l}</option>`).join("")}</select>
       ${yt ? `<select class="chip" onchange="R.band=this.value;R.page=0;viewReels()">${BANDS.map(([v,l]) => `<option value="${v}" ${R.band===v?"selected":""}>구독자 ${l}</option>`).join("")}</select>` : ""}
       <select class="chip" onchange="R.days=this.value;R.page=0;viewReels()">${[["7","최근 7일"],["30","최근 30일"],["60","최근 60일"],["100","최근 100일"],["","전체 기간"]].map(([v,l]) => `<option value="${v}" ${R.days===v?"selected":""}>${l}</option>`).join("")}</select>
     </div>
-    <div class="rcats" style="margin:2px 0 8px"><button class="rcat ${!R.cat?"on":""}" onclick="location.hash='#/reels/${R.plat}'">전체</button>${cats.map(c => `<button class="rcat ${R.cat===c[0]?"on":""}" onclick="location.hash='#/reels/${R.plat}/'+encodeURIComponent('${c[0]}')">${c[0]}</button>`).join("")}</div>
+    <div class="rcats" style="margin:2px 0 8px"><button class="rcat fbtn ${R.fopen || rfCount() ? "on" : ""}" onclick="R.fopen=!R.fopen;viewReels()">⚙ 필터${rfCount() ? " " + rfCount() : ""}</button><button class="rcat ${!R.cat?"on":""}" onclick="location.hash='#/reels/${R.plat}'">전체</button>${cats.map(c => `<button class="rcat ${R.cat===c[0]?"on":""}" onclick="location.hash='#/reels/${R.plat}/'+encodeURIComponent('${c[0]}')">${c[0]}</button>`).join("")}</div>
+    ${R.fopen ? `<div class="fpanel">
+      <div class="fgroup"><b>조회수</b><div class="fquick">${[["1만↑","10000"],["10만↑","100000"],["50만↑","500000"],["100만↑","1000000"]].map(([l,v]) => `<button class="chip ${F.min_views==v?"on":""}" onclick="rfQuick({min_views:'${F.min_views==v?"":v}',max_views:''})">${l}</button>`).join("")}</div><div class="frange"><input class="fin" placeholder="이상 (예: 5만)" value="${esc(F.min_views||"")}" onchange="rf('min_views',this.value)"><span>~</span><input class="fin" placeholder="이하" value="${esc(F.max_views||"")}" onchange="rf('max_views',this.value)"></div></div>
+      <div class="fgroup"><b>${yt ? "구독자" : "팔로워"}</b><div class="fquick">${[["1만 미만","","10000"],["1~10만","10000","100000"],["10~50만","100000","500000"],["50만↑","500000",""]].map(([l,a,b]) => `<button class="chip ${F.min_followers==a&&F.max_followers==b&&(a||b)?"on":""}" onclick="rfQuick({min_followers:'${a}',max_followers:'${b}'})">${l}</button>`).join("")}</div><div class="frange"><input class="fin" placeholder="이상" value="${esc(F.min_followers||"")}" onchange="rf('min_followers',this.value)"><span>~</span><input class="fin" placeholder="이하" value="${esc(F.max_followers||"")}" onchange="rf('max_followers',this.value)"></div></div>
+      <div class="fgroup"><b>좋아요</b><div class="frange"><input class="fin" placeholder="이상" value="${esc(F.min_likes||"")}" onchange="rf('min_likes',this.value)"><span>~</span><input class="fin" placeholder="이하" value="${esc(F.max_likes||"")}" onchange="rf('max_likes',this.value)"></div></div>
+      <div class="fgroup"><b>댓글</b><div class="frange"><input class="fin" placeholder="이상" value="${esc(F.min_comments||"")}" onchange="rf('min_comments',this.value)"><span>~</span><input class="fin" placeholder="이하" value="${esc(F.max_comments||"")}" onchange="rf('max_comments',this.value)"></div></div>
+      ${yt ? "" : `<div class="fgroup"><b>계정</b><div class="fquick"><button class="chip ${F.creator!=="all"?"on":""}" onclick="rfQuick({creator:''})">인플루언서만</button><button class="chip ${F.creator==="all"?"on":""}" onclick="rfQuick({creator:'all'})">브랜드 포함</button><button class="chip ${F.paid?"on":""}" onclick="rfQuick({paid:'${F.paid?"":"1"}'})">협찬·광고만</button></div></div>`}
+      <div class="fgroup" style="align-self:flex-end"><button class="btn small" onclick="rfReset()">필터 초기화</button> <button class="btn small" onclick="R.fopen=false;viewReels()">닫기</button></div>
+    </div>` : ""}
     <div class="row" style="margin:6px 0 10px"><button class="rcat ${R.sort==="ratio"&&R.days==="7"?"on":""}" style="border-color:#f59e0b;color:${R.sort==="ratio"&&R.days==="7"?"#fff":"#b45309"};background:${R.sort==="ratio"&&R.days==="7"?"#f59e0b":"#fff"}" onclick="R.sort='ratio';R.days='7';R.page=0;viewReels()">🔥 이번 주 트렌드</button><button class="rcat ${R.sort!=="ratio"?"on":""}" onclick="R.sort=R.plat==='youtube'?'views':'date';R.days='30';R.page=0;viewReels()">기본 정렬</button></div>
     ${R.q && !yt ? `<div id="raccts"></div>` : ""}
     <div class="rcount">${total}개 · ${yt ? "구독자 20만 미만 채널의 최근 60일 떡상 쇼츠 (매일 자동 갱신)" : "인플루언서 릴스 · 조회수가 없는 카드는 공식 API 수집분(좋아요 표시)"}${R.q && !yt ? ` · <button class="btn small" id="rlive" onclick="liveSearch()">🌐 인스타에서 더 가져오기 (약 11크레딧)</button> <span id="rlivemsg" class="muted"></span>` : ""}</div>
