@@ -47,6 +47,7 @@
   window.wizToggle = (k, v, max) => { const a = W[k]; const i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else { if (max && a.length >= max) return toast(`최대 ${max}개까지`); a.push(v); } save(); renderWizard(); };
   window.wizInput = (k, el) => { W[k] = el.value; save(); };
   window.wizExtra = (k, el) => { W.extra[k] = el.value; save(); };
+  window.wizExtraSet = (k, v) => { W.extra[k] = v; save(); renderWizard(); };
 
   async function renderWizard() {
     const s = W.step; const pct = (s / 5) * 100;
@@ -166,7 +167,10 @@
   function renderTopicStep() {
     const t = W.topics || [];
     if (!t.length && !TOPICS_LOADING && W.refs.length && !STATIC) setTimeout(() => wizTopics(), 50);
-    return `<h1>어떤 주제로 찍을까요?</h1>${connectBox()}<p class="muted">고른 참고 릴스의 구조에서 뽑은 주제예요. 하나 고르거나 직접 적어주세요. 첫 문장(훅)은 ${HOOKS.join("·")} 중 골고루 나옵니다.</p>
+    const LEN = ["15", "30", "45", "60", "90"]; if (!W.extra.length) W.extra.length = "30";
+    return `<h1>어떤 주제로 찍을까요?</h1>${connectBox()}
+    <div class="wiz-sub">영상 길이 <small class="muted">기승전결이 다 들어가는 기준으로 씬을 나눕니다</small></div>
+    <div class="pills">${LEN.map(l => pill(l + "초", String(W.extra.length) === l, `wizExtraSet('length','${l}')`)).join("")}</div><p class="muted">고른 참고 릴스의 구조에서 뽑은 주제예요. 하나 고르거나 직접 적어주세요. 첫 문장(훅)은 ${HOOKS.join("·")} 중 골고루 나옵니다.</p>
     <div class="row" style="margin-bottom:10px"><button class="btn" onclick="wizTopics()">✨ 추천 주제 ${t.length ? "다시 뽑기" : "뽑기"}</button><span id="wiz-topic-msg" class="muted">${!t.length && !STATIC ? "준희 님 노하우(훅 공식·타깃 문제)를 적용해 주제 뽑는 중… (20~30초)" : STATIC ? "체험판에서는 주제 추천이 안 돼요. 직접 적어주세요." : ""}</span></div>
     <div class="topics">${t.map((x, i) => `<div class="topic ${W.topic === x.title ? "on" : ""}" onclick="wizSet('topic','${esc(x.title).replace(/'/g, "\\'")}')"><b>${esc(x.title)}</b><div class="muted">${esc(x.from || "")}${x.hook_type ? ` · <span class="tag">${esc(x.hook_type)}</span>` : ""}</div></div>`).join("")}</div>
     <label class="wiz-label">직접 적기 (비워두면 AI가 레퍼런스 구조에서 정합니다)</label><input class="wiz-input" placeholder="예: 조회수 800 나오던 카페 릴스, 첫 문장 바꿨더니 11만" value="${t.find(x => x.title === W.topic) ? "" : esc(W.topic)}" oninput="wizInput('topic', this)">
@@ -177,10 +181,10 @@
         <label>쓸 수 있는 숫자·사례 <input class="wiz-input" placeholder="예: 3년, 손님 1만 명, 조회수 11만" value="${esc(W.extra.numbers || "")}" oninput="wizExtra('numbers', this)"></label>
         <label>마지막에 시키고 싶은 것 <input class="wiz-input" placeholder="저장 / 댓글 / 팔로우 / DM / 프로필 링크" value="${esc(W.extra.cta || "")}" oninput="wizExtra('cta', this)"></label>
         <label>촬영 환경 <input class="wiz-input" placeholder="예: 얼굴 노출 OK, 매장, 화면녹화 가능" value="${esc(W.extra.shooting || "")}" oninput="wizExtra('shooting', this)"></label>
-        <label>영상 길이(초) <input class="wiz-input" placeholder="30" value="${esc(W.extra.length || "")}" oninput="wizExtra('length', this)"></label>
+
       </div></details>
     <div class="row" style="margin:6px 0 10px;gap:8px;align-items:center"><span class="muted" style="font-size:12px">생성 모드</span>${pill("⚡ 빠름 (1~2분)", W.mode === "fast", "wizSet('mode','fast')")}${pill("🎯 정밀 (3~4분, 추천)", W.mode !== "fast", "wizSet('mode','precise')")}</div>
-    <div class="wiz-summary"><b>정리</b> ${esc(W.job)} → ${esc(W.target.join(", "))}${W.extra.target_free ? " · " + esc(W.extra.target_free) : ""} · #${esc(W.keyword)} ${W.selSubs.map(k => "#" + esc(k)).join(" ")} · 참고 릴스 ${W.refs.length}개</div>`;
+    <div class="wiz-summary"><b>정리</b> ${esc(W.job)} → ${esc(W.target.join(", "))}${W.extra.target_free ? " · " + esc(W.extra.target_free) : ""} · #${esc(W.keyword)} ${W.selSubs.map(k => "#" + esc(k)).join(" ")} · 참고 릴스 ${W.refs.length}개 · ${esc(W.extra.length || 30)}초</div>`;
   }
   const brief = () => ({ job: W.job, target: [...W.target, W.extra.target_free].filter(Boolean).join(", "), keyword: [W.keyword, ...W.selSubs].filter(Boolean).join(", "), topic: W.topic, length: W.extra.length || 30, tone: W.extra.tone, scene: W.extra.scene, numbers: W.extra.numbers, cta: W.extra.cta, shooting: W.extra.shooting });
   window.wizTopics = async function () {
@@ -209,7 +213,7 @@
       if (r.error) throw new Error(r.error);
       const pid = r.id;
       if (!r.queued) { hideWait(); location.hash = "#/plan/" + pid; return; }
-      const STAGES = { plan: "기획안 쓰는 중 — 훅·씬표·촬영 가이드", sketch: "씬마다 구도 스케치 그리는 중", brief: "편집 외주서 쓰는 중 — 폰트·효과음·컷", done: "완성" };
+      const STAGES = { plan: "기획안 쓰는 중 — 훅·씬표·촬영 가이드", polish: "대사 완결·기승전결 다듬는 중", sketch: "씬마다 구도 스케치 그리는 중", brief: "편집 외주서 쓰는 중 — 폰트·효과음·컷", done: "완성" };
       await new Promise((resolve, reject) => {
         const iv = setInterval(async () => {
           try {
@@ -292,7 +296,7 @@
     const scenes = (B.scenes || []).map(s => { const f = s.framing || {}; const g = s.guide || {}; const h = hooks[0] || {};
         const si = (B.scenes || []).indexOf(s);
         return `<div class="scene"><div class="scene-visual"><span class="scene-no">SCENE ${s.no} <small>${esc(s.sec)}초</small></span>${s.sketch ? `<figure class="sb-ref sk-img"><img src="${esc(s.sketch)}" loading="lazy" title="${esc(s.sketch_prompt || "")}"><figcaption>구도 스케치 (AI) <a href="#" onclick="event.preventDefault();reSketch('${esc(p.id)}', ${s.no})">다시 그리기</a></figcaption></figure>` : sketch(f)}${refFrameImg(p, s.ref_frame)}</div>
-        <div class="scene-body"><div class="saybox"><span class="tag">${esc(s.part || (s.no === 1 ? "훅" : s.no === (B.scenes || []).length ? "마무리" : "본문 " + (s.no - 1)))}</span><small class="muted" style="margin-left:6px">눌러서 고치기</small>${ed("B_plan.scenes." + si + ".say", s.say, "say")}<div class="cap">💬 ${ed("B_plan.scenes." + si + ".caption", s.caption, "inline", "span")}${f.text_pos ? ` <span class="muted">(${esc(f.text_pos)})</span>` : ""}</div></div>
+        <div class="scene-body"><div class="saybox"><span class="tag part-${esc(s.part || "")}">${esc(s.part ? ({기: "기 · 상황", 승: "승 · 전개", 전: "전 · 반전", 결: "결 · 마무리"}[s.part] || s.part) : (s.no === 1 ? "훅" : s.no === (B.scenes || []).length ? "마무리" : "본문 " + (s.no - 1)))}</span><small class="muted" style="margin-left:6px">눌러서 고치기</small>${ed("B_plan.scenes." + si + ".say", s.say, "say")}<div class="cap">💬 ${ed("B_plan.scenes." + si + ".caption", s.caption, "inline", "span")}${f.text_pos ? ` <span class="muted">(${esc(f.text_pos)})</span>` : ""}</div></div>
         <div class="guidebox"><b>촬영 가이드</b><div><b>구도:</b> ${esc(g.composition || [f.shot, f.camera, s.screen].filter(Boolean).join(" · "))}</div>${g.light ? `<div><b>조명:</b> ${esc(g.light)}</div>` : ""}${g.props ? `<div><b>소품:</b> ${esc(g.props)}</div>` : ""}<div><b>행동:</b> ${ed("B_plan.scenes." + si + ".screen", g.action || s.screen, "inline", "span")}</div></div>
         <div class="editbox"><b>캡컷 편집</b><div class="cchips">${chips(s.capcut) || '<span class="muted">-</span>'}</div><div class="sb-tip">💡 ${ed("B_plan.scenes." + si + ".tip", s.tip, "inline", "span")}</div></div></div></div>`; }).join("");
     return `<div class="plan-layout">${left}<div class="plan-main"><div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">🎬 스토리보드 <small>총 ${(B.scenes || []).length}컷 · ${esc(plan.length_sec)}초</small></h2><button class="btn small" onclick="sbToggle()">${SB_TABLE ? "카드로 보기" : "표로 보기"}</button></div>

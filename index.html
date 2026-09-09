@@ -147,6 +147,7 @@ mark{background:var(--lime);padding:1px 4px;border-radius:4px}
   .scene{grid-template-columns:1fr}.scene-visual{flex-direction:row}.scene-visual>*{flex:1;min-width:0}.saybox .say{font-size:15px}
   .wait-card{padding:24px 18px}.pricegrid{grid-template-columns:1fr}
 }
+.tag.part-기{background:#e0f2ff;color:#0b5cad}.tag.part-승{background:#e9f9e3;color:#1d6b1d}.tag.part-전{background:#fff0d6;color:#8a4b00}.tag.part-결{background:#f1e6ff;color:#5b1fa8}
 .kakao{background:#fee500!important;color:#191919!important;border-color:#fee500!important;display:inline-block;margin:6px 0 12px}
 table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table.kv th{text-align:left;color:var(--mute);font-weight:600;width:90px;padding:5px 0;vertical-align:top}table.kv td{padding:5px 0;border-top:1px solid var(--line)}
 @media(max-width:1000px){.plan-layout{grid-template-columns:1fr}.plan-side{position:static;max-height:none}.scene{grid-template-columns:1fr}.scene-visual{flex-direction:row}.scene-visual>*{flex:1}}
@@ -181,7 +182,7 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1788896341"></script>
+<script src="static_api.js?v=1788924540"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => {
@@ -574,7 +575,7 @@ async function route() {
 window.addEventListener("hashchange", () => { document.body.classList.remove("nav-open"); route(); });
 (async () => { try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=19"></script>
+<script src="static/plan.js?v=20"></script>
 <script src="static/account.js?v=2"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
 </body>
