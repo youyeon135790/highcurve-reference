@@ -150,7 +150,21 @@ mark{background:var(--lime);padding:1px 4px;border-radius:4px}
 .tag.part-기{background:#e0f2ff;color:#0b5cad}.tag.part-승{background:#e9f9e3;color:#1d6b1d}.tag.part-전{background:#fff0d6;color:#8a4b00}.tag.part-결{background:#f1e6ff;color:#5b1fa8}
 .kakao{background:#fee500!important;color:#191919!important;border-color:#fee500!important;display:inline-block;margin:6px 0 12px}
 table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table.kv th{text-align:left;color:var(--mute);font-weight:600;width:90px;padding:5px 0;vertical-align:top}table.kv td{padding:5px 0;border-top:1px solid var(--line)}
-@media(max-width:1000px){.plan-layout{grid-template-columns:1fr}.plan-side{position:static;max-height:none}.scene{grid-template-columns:1fr}.scene-visual{flex-direction:row}.scene-visual>*{flex:1}}
+
+/* 기획안 가독성 */
+.plan-layout{font-size:15px}.plan-side{gap:12px}.title-card h2{font-size:21px;line-height:1.35}.tc-meta{margin-top:10px;font-size:12px;color:#c9cddb}
+.side-sec h3{font-size:15px;display:flex;align-items:baseline;gap:6px}.side-sec h3 small{font-size:12px;font-weight:500}
+.hooklist li{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;font-size:14px;line-height:1.5}.hook-pick{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:4px 8px;font-size:12px;font-weight:700;cursor:pointer}.hooklist li.on .hook-pick{background:var(--lime);border-color:var(--lime)}
+.capbox.script{font-size:15px;line-height:1.75;background:#fff;border:1.5px solid var(--line)}
+.todo{margin:0;padding-left:20px;line-height:1.8;font-size:14px}.side-sec.fold{padding:10px 14px}.side-sec.fold>summary{cursor:pointer;font-weight:700;font-size:14px}.side-sec.fold>*:not(summary){margin-top:8px}.wiz-more.small{padding:6px 10px;margin:8px 0 0}.wiz-more.small summary{font-size:12px}
+.plan-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;flex-wrap:wrap}.seg{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}.seg button{border:0;background:transparent;padding:7px 14px;font-weight:700;color:var(--mute);cursor:pointer}.seg button.on{background:var(--ink);color:#fff}
+.scene{display:block;padding:0;overflow:hidden}.scene-head{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#f6f7fb;border-bottom:1px solid var(--line);font-size:13px}.scene-head .scene-no{position:static;width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;padding:0}.scene-sec{font-weight:800}
+.scene-grid{display:grid;grid-template-columns:190px 1fr;gap:16px;padding:14px 16px}.scene.v-simple .scene-grid{grid-template-columns:130px 1fr}.scene.v-simple .scene-visual .sk{display:none}.scene.v-simple .sb-ref figcaption{display:none}
+.say-big{font-size:19px;font-weight:800;line-height:1.45;letter-spacing:-.01em;margin:2px 0 8px}.say-big .edit{display:block}
+.cap-line{font-size:14px;color:#1d4ed8;font-weight:700;margin-bottom:6px}.screen-line{font-size:14px;color:#3b4052;line-height:1.55;margin-bottom:10px}
+.scene-more{margin-top:4px}.scene-more summary{cursor:pointer;font-size:13px;color:var(--mute);font-weight:700;margin-bottom:8px}.scene-more[open] summary{color:var(--ink)}
+.guidebox{font-size:13px;line-height:1.6}.guidebox>div{display:grid;grid-template-columns:44px 1fr;gap:6px}.guidebox>div>b{color:#b91c1c;font-weight:700}.editbox{font-size:13px}
+@media(max-width:1000px){.plan-layout{grid-template-columns:1fr}.plan-side{position:static;max-height:none}.scene-grid{grid-template-columns:1fr}.scene-visual{flex-direction:row}.scene-visual>*{flex:1}.say-big{font-size:17px}}
 @media(max-width:900px){.plan-home .hero{grid-template-columns:1fr}.hero-art{display:none}.plan-hero{flex-direction:column}}
 </style>
 <style>a[data-r="boards"],a[data-r="settings"],#rlive,#rlivemsg,.racct .btn,button[onclick*="pickBoard"],button[onclick*="openItem"]{display:none!important}</style>
@@ -182,7 +196,7 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1788926991"></script>
+<script src="static_api.js?v=1788928176"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => {
@@ -575,7 +589,7 @@ async function route() {
 window.addEventListener("hashchange", () => { document.body.classList.remove("nav-open"); route(); });
 (async () => { try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=22"></script>
+<script src="static/plan.js?v=23"></script>
 <script src="static/account.js?v=2"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
 </body>
