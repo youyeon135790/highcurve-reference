@@ -293,6 +293,7 @@
       <div class="side-sec"><h3>🎬 마지막 멘트</h3>${ed("B_plan.cta.say", (B.cta || {}).say, "strong")}<div class="muted">자막: ${ed("B_plan.cta.caption", (B.cta || {}).caption, "inline", "span")}<br>댓글 유도: ${ed("B_plan.cta.comment_question", (B.cta || {}).comment_question, "inline", "span")}</div></div>
       <div class="side-sec"><h3>📦 찍을 것·준비물</h3><ul>${(B.shot_list || []).map(x => `<li>${esc(x)}</li>`).join("")}${(B.prep || []).map(x => `<li class="muted">${esc(x)}</li>`).join("")}</ul></div>
       <div class="side-sec"><h3>⚠️ 초보 실수</h3><ul>${(B.tips || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
+      <div class="side-sec"><h3>✅ 다음에 할 일</h3><ol style="margin:0;padding-left:18px;line-height:1.7;font-size:13px"><li>[확인 필요] 자리를 내 숫자로 채우기</li><li>씬표 순서대로 폰으로 촬영 (씬당 2번씩)</li><li>편집 외주용 탭을 편집자에게 보내거나 캡컷에서 그대로 따라 편집</li><li>캡션 복사해서 올리고, 댓글 질문에 답하기</li></ol></div>
       ${(plan.pro || {}).questions && plan.pro.questions.length ? `<div class="side-sec warnbox"><h3>❓ 확인해 주세요</h3><ul>${plan.pro.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ul></div>` : ""}</aside>`;
     const scenes = (B.scenes || []).map(s => { const f = s.framing || {}; const g = s.guide || {}; const h = hooks[0] || {};
         const si = (B.scenes || []).indexOf(s);
@@ -349,6 +350,7 @@
   window.viewPlanHome = async function () {
     const plans = await api("/api/plans").catch(() => []);
     $("#main").innerHTML = `<div class="plan-home"><div class="hero"><div><div class="ph-kicker">릴스 기획</div><h1>5단계만 고르면<br>씬별 대본과 캡컷 편집표까지.</h1><p>직업 → 타깃 → 키워드 → 참고 릴스(최대 3개) → 주제. 참고 릴스는 컷·자막·대사·효과음까지 뜯어서 내 기획안에 옮깁니다.</p><button class="btn p big" onclick="wizStart()">+ 새 기획 만들기</button> ${W.job ? `<button class="btn big ghost2" onclick="wizResume()">이어서 하기 (STEP ${W.step})</button>` : ""}</div><div class="hero-art"><i></i><i></i><i></i></div></div>
+    <div class="panel soft" style="margin-bottom:14px"><b>처음이세요? 이렇게 됩니다 (5분)</b><ol style="margin:6px 0 0 18px;line-height:1.8"><li>하는 일과 보여줄 사람을 버튼으로 고릅니다</li><li>키워드 하나 적으면 참고할 릴스가 뜹니다. 마음에 드는 걸 1~3개 누르세요</li><li>주제를 고르면 30초짜리 대본이 기·승·전·결로 나옵니다. 씬마다 무엇을 찍고 뭐라고 말할지 그림과 함께</li><li>마음에 안 드는 문장은 눌러서 고치고, 엑셀로 받아 편집자에게 넘기면 끝</li></ol></div>
     <h2>내 기획 <small>${plans.length}개</small></h2>
     ${plans.length ? `<div class="plangrid">${plans.map(p => `<div class="plancard" onclick="location.hash='#/plan/${p.id}'"><div class="pc-cover">${p.cover ? `<img src="${esc(p.cover)}" onerror="this.remove()">` : ""}<span class="tag ${p.status === "done" ? "ok" : ""}">${p.status === "done" ? "완성" : "프롬프트만"}</span></div><div class="pc-body"><b>${esc(p.title || "(제목 없음)")}</b><div class="muted">${esc(p.job || "")} · 참고 ${p.refs}개 · ${esc(p.created_at || "")}</div></div></div>`).join("")}</div>` : `<div class="empty"><b>아직 만든 기획이 없어요</b>새 기획 만들기로 첫 기획안을 만들어보세요.</div>`}</div>`;
   };
