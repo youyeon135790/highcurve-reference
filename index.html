@@ -68,6 +68,17 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 6px;b
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.2s;z-index:40}.toast.on{opacity:1}
 .avatar{width:44px;height:44px;border-radius:12px;background:#e9ecf5;object-fit:cover}
 
+/* ---- 하이커브 아이덴티티 */
+body{background:radial-gradient(1200px 600px at 8% -10%,rgba(191,254,158,.28),transparent 60%),radial-gradient(900px 500px at 100% 0%,rgba(109,124,255,.10),transparent 55%),var(--bg);background-attachment:fixed}
+.side{background:rgba(255,255,255,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-right:1px solid rgba(21,23,31,.06)}
+.logo{font-size:17px;letter-spacing:-.03em}.logo i{width:26px;height:26px;border-radius:9px;background:var(--ink);position:relative}.logo i:after{content:"";position:absolute;left:5px;top:5px;width:16px;height:16px;border-radius:50% 50% 50% 0;background:var(--lime);transform:rotate(-45deg)}
+.nav a{border-radius:11px;position:relative}.nav a.on{background:var(--ink);color:#fff}.nav a.on:before{content:"";position:absolute;left:-14px;top:50%;width:6px;height:22px;border-radius:0 6px 6px 0;background:var(--lime);transform:translateY(-50%)}
+h1,.plan-home .hero h1,.title-card h2{font-family:"Pretendard Variable",Pretendard,sans-serif;letter-spacing:-.035em;font-weight:850}
+h2{position:relative}h2:after{content:"";display:inline-block;width:22px;height:8px;margin-left:8px;border-radius:0 0 22px 22px;border:3px solid var(--lime);border-top:0;vertical-align:middle;opacity:.9}
+.panel,.rcard,.refcard,.scene,.bcard,.refsec,.side-sec,.pricecard,.auth-card,.cutcard,.ecard{border-radius:18px;border-color:rgba(21,23,31,.08)}
+.btn.p{box-shadow:0 6px 16px rgba(21,23,31,.18)}.btn.p:active{transform:translateY(1px)}
+.hc-curve{position:fixed;right:-120px;bottom:-140px;width:520px;height:520px;border-radius:50%;border:90px solid rgba(191,254,158,.18);pointer-events:none;z-index:0}
+.main{position:relative;z-index:1}
 /* ---- 디자인 리프레시 + 기획 위저드 */
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
 body{font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;-webkit-font-smoothing:antialiased}
@@ -117,16 +128,16 @@ mark{background:var(--lime);padding:1px 4px;border-radius:4px}
 .guidebox{border-left:4px solid #ec1d1d;background:#fff4f3;border-radius:0 12px 12px 0;padding:12px 14px;font-size:13px;line-height:1.55;margin-bottom:10px}.guidebox>b{display:block;color:#b91c1c;font-size:12px;margin-bottom:4px}
 .editbox{border-left:4px solid #15171f;background:#f6f7fb;border-radius:0 12px 12px 0;padding:12px 14px;font-size:13px}.editbox>b{display:block;font-size:12px;margin-bottom:6px}
 
-/* 대기 오버레이 — 오로라 */
-.wait{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(10,12,20,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.wait-bg{position:absolute;inset:0;overflow:hidden}.wait-bg i{position:absolute;width:60vmax;height:60vmax;border-radius:50%;filter:blur(90px);opacity:.55;animation:drift 14s ease-in-out infinite}.wait-bg i:nth-child(1){background:#bffe9e;left:-20vmax;top:-20vmax}.wait-bg i:nth-child(2){background:#6d7cff;right:-25vmax;top:10vmax;animation-delay:-5s}.wait-bg i:nth-child(3){background:#ff8ad1;left:20vmax;bottom:-30vmax;animation-delay:-9s}
+/* 대기 화면 — 흰 바탕 + 구 파티클 */
+.wait{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(250,251,254,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.wait-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}.wait-bg i{position:absolute;width:70vmax;height:70vmax;border-radius:50%;filter:blur(110px);opacity:.35;animation:drift 16s ease-in-out infinite}.wait-bg i:nth-child(1){background:#bffe9e;left:-25vmax;top:-30vmax}.wait-bg i:nth-child(2){background:#c7ccff;right:-30vmax;bottom:-35vmax;animation-delay:-7s}
 @keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(8vmax,-6vmax) scale(1.15)}66%{transform:translate(-6vmax,8vmax) scale(.95)}}
-.wait-card{position:relative;width:min(520px,92vw);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:26px;padding:34px 30px;color:#fff;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.4)}
-.wait-orb{width:74px;height:74px;border-radius:50%;margin:0 auto 18px;background:conic-gradient(from 0deg,#bffe9e,#6d7cff,#ff8ad1,#bffe9e);animation:spin 3s linear infinite;position:relative}.wait-orb:after{content:"";position:absolute;inset:8px;border-radius:50%;background:#12141c}@keyframes spin{to{transform:rotate(360deg)}}
-.wait-title{font-size:22px;font-weight:800;letter-spacing:-.02em}.wait-sub{color:#c9cddb;margin:6px 0 18px;font-size:13px;min-height:18px}
-.wait-bar{height:8px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden}.wait-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#bffe9e,#6d7cff,#ff8ad1);background-size:200% 100%;animation:flow 2.5s linear infinite;transition:width 1s ease}@keyframes flow{to{background-position:200% 0}}
-.wait-pct{display:flex;justify-content:space-between;font-size:12px;color:#c9cddb;margin-top:8px}.wait-pct span:first-child{font-size:20px;font-weight:800;color:#fff}
-.wait-quote{margin-top:22px;font-size:14px;line-height:1.6;color:#e6e8ef;font-style:italic;transition:opacity .3s;min-height:44px}
+.wait-card{position:relative;width:min(520px,92vw);background:rgba(255,255,255,.75);border:1px solid rgba(21,23,31,.08);border-radius:28px;padding:22px 30px 30px;color:var(--ink);text-align:center;box-shadow:0 30px 80px rgba(20,25,60,.12)}
+.wait-canvas{width:260px;height:260px;display:block;margin:0 auto 4px}
+.wait-title{font-size:22px;font-weight:800;letter-spacing:-.02em}.wait-sub{color:var(--mute);margin:6px 0 18px;font-size:13px;min-height:18px}
+.wait-bar{height:8px;background:#eceef5;border-radius:99px;overflow:hidden}.wait-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#15171f,#6d7cff,#bffe9e);background-size:200% 100%;animation:flow 2.5s linear infinite;transition:width 1s ease}@keyframes flow{to{background-position:200% 0}}
+.wait-pct{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-top:8px}.wait-pct span:first-child{font-size:20px;font-weight:800;color:var(--ink)}
+.wait-quote{margin-top:22px;font-size:14px;line-height:1.6;color:#3b4052;font-style:italic;transition:opacity .3s;min-height:44px}
 /* 히어로 오로라 */
 .plan-home .hero{background:#12141c;position:relative}.plan-home .hero:before{content:"";position:absolute;inset:-40%;background:radial-gradient(circle at 20% 30%,rgba(191,254,158,.45),transparent 40%),radial-gradient(circle at 80% 20%,rgba(109,124,255,.5),transparent 45%),radial-gradient(circle at 60% 90%,rgba(255,138,209,.4),transparent 40%);filter:blur(40px);animation:drift 18s ease-in-out infinite}.plan-home .hero>*{position:relative}
 .title-card{background:#12141c;position:relative;overflow:hidden}.title-card:before{content:"";position:absolute;inset:-60%;background:radial-gradient(circle at 30% 30%,rgba(191,254,158,.35),transparent 40%),radial-gradient(circle at 80% 70%,rgba(109,124,255,.45),transparent 45%);filter:blur(30px)}.title-card>*{position:relative}
@@ -187,6 +198,7 @@ ul.checks{list-style:none;margin:0;padding:0}ul.checks li{padding:6px 0;border-t
 </head>
 <body>
 <div class="topbar"><button class="btn ghost" onclick="document.body.classList.toggle('nav-open')">☰</button><b>하이커브</b><a class="btn small" href="#/plan/new">+ 기획</a></div>
+<div class="hc-curve"></div>
 <div class="app">
   <aside class="side">
     <div class="logo"><i></i>하이커브 레퍼런스</div>
@@ -212,7 +224,7 @@ ul.checks{list-style:none;margin:0;padding:0}ul.checks li{padding:6px 0;border-t
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789039172"></script>
+<script src="static_api.js?v=1789039908"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => {
@@ -625,7 +637,7 @@ async function route() {
 window.addEventListener("hashchange", () => { document.body.classList.remove("nav-open"); route(); });
 (async () => { try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=31"></script>
+<script src="static/plan.js?v=32"></script>
 <script src="static/account.js?v=3"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
 </body>

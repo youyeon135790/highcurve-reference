@@ -23,8 +23,9 @@
   let WAIT = null;
   window.showWait = (title, expectSec, sub) => {
     hideWait(); const t0 = Date.now(); let qi = Math.floor(Math.random() * QUOTES.length);
-    const el = document.createElement("div"); el.className = "wait"; el.innerHTML = `<div class="wait-bg"><i></i><i></i><i></i></div><div class="wait-card"><div class="wait-orb"></div><div class="wait-title">${esc(title)}</div><div class="wait-sub" id="wait-sub">${esc(sub || "")}</div><div class="wait-bar"><i id="wait-bar"></i></div><div class="wait-pct"><span id="wait-pct">0%</span><span id="wait-eta">예상 ${expectSec}초</span></div><div class="wait-quote" id="wait-quote">“${esc(QUOTES[qi])}”</div></div>`;
+    const el = document.createElement("div"); el.className = "wait"; el.innerHTML = `<div class="wait-bg"><i></i><i></i></div><div class="wait-card"><canvas class="wait-canvas" width="360" height="360"></canvas><div class="wait-title">${esc(title)}</div><div class="wait-sub" id="wait-sub">${esc(sub || "")}</div><div class="wait-bar"><i id="wait-bar"></i></div><div class="wait-pct"><span id="wait-pct">0%</span><span id="wait-eta">예상 ${expectSec}초</span></div><div class="wait-quote" id="wait-quote">“${esc(QUOTES[qi])}”</div></div>`;
     document.body.appendChild(el);
+    startOrb(el.querySelector(".wait-canvas"));
     WAIT = { el, t0, expectSec, real: null, timer: setInterval(() => {
       const elapsed = (Date.now() - t0) / 1000; const fake = Math.min(96, 100 * (1 - Math.exp(-elapsed / (expectSec * 0.9)))); const pct = WAIT.real != null ? Math.max(WAIT.real, Math.min(fake, WAIT.real + 8)) : fake;
       const b = $("#wait-bar"); if (b) b.style.width = pct.toFixed(0) + "%"; const pe = $("#wait-pct"); if (pe) pe.textContent = pct.toFixed(0) + "%";
@@ -33,8 +34,35 @@
     }, 1000) };
     return WAIT;
   };
+  // 구(球) 파티클: 모였다(구) → 흩어졌다(먼지) → 다시 모임. 잉크 점 + 라임 점 몇 개
+  let ORB = null;
+  function startOrb(cv) {
+    if (!cv) return; const ctx = cv.getContext("2d"); const N = 720, R = 96, cx = 180, cy = 180;
+    const pts = []; const gold = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < N; i++) { const y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = gold * i; pts.push({ x: Math.cos(th) * r, y, z: Math.sin(th) * r, sx: (Math.random() - .5) * 2.6, sy: (Math.random() - .5) * 2.6, sz: (Math.random() - .5) * 2.6, lime: Math.random() < 0.08, s: 0.8 + Math.random() * 1.4 }); }
+    const ease = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    let start = performance.now(); ORB && cancelAnimationFrame(ORB);
+    const frame = (now) => {
+      const t = ((now - start) / 6000) % 1;            // 6초 주기
+      const spread = t < .35 ? 0 : t < .5 ? ease((t - .35) / .15) : t < .7 ? 1 : t < .9 ? 1 - ease((t - .7) / .2) : 0;
+      const rot = (now - start) / 4000, rot2 = (now - start) / 9000;
+      ctx.clearRect(0, 0, 360, 360);
+      const g = ctx.createRadialGradient(cx, cy, 10, cx, cy, 170); g.addColorStop(0, "rgba(191,254,158,.35)"); g.addColorStop(.6, "rgba(109,124,255,.10)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, 360, 360);
+      const order = [];
+      for (const p of pts) {
+        const x0 = p.x * (1 - spread) + p.sx * spread, y0 = p.y * (1 - spread) + p.sy * spread, z0 = p.z * (1 - spread) + p.sz * spread;
+        const x1 = x0 * Math.cos(rot) - z0 * Math.sin(rot), z1 = x0 * Math.sin(rot) + z0 * Math.cos(rot);
+        const y2 = y0 * Math.cos(rot2) - z1 * Math.sin(rot2), z2 = y0 * Math.sin(rot2) + z1 * Math.cos(rot2);
+        const persp = 1 / (1.9 - z2 * 0.6); order.push({ X: cx + x1 * R * persp, Y: cy + y2 * R * persp, z: z2, p, persp });
+      }
+      order.sort((a, b) => a.z - b.z);
+      for (const o of order) { const a = 0.25 + 0.75 * (o.z + 1) / 2; ctx.beginPath(); ctx.arc(o.X, o.Y, o.p.s * o.persp * (1 + spread * .4), 0, Math.PI * 2); ctx.fillStyle = o.p.lime ? `rgba(120,200,60,${a})` : `rgba(21,23,31,${a * (0.9 - spread * .35)})`; ctx.fill(); }
+      ORB = requestAnimationFrame(frame);
+    };
+    ORB = requestAnimationFrame(frame);
+  }
   window.setWait = (pct, sub) => { if (!WAIT) return; if (pct != null) WAIT.real = pct; if (sub) { const e = $("#wait-sub"); if (e) e.textContent = sub; } };
-  window.hideWait = () => { if (WAIT) { clearInterval(WAIT.timer); WAIT.el.remove(); WAIT = null; } };
+  window.hideWait = () => { if (WAIT) { clearInterval(WAIT.timer); WAIT.el.remove(); WAIT = null; } if (ORB) { cancelAnimationFrame(ORB); ORB = null; } };
 
   window.viewPlanWizard = async function (arg) {
     if (arg) { const p = await api("/api/plans/" + arg); CUR = p; return renderPlan2(p); }
