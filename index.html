@@ -111,7 +111,7 @@ mark{background:var(--lime);padding:1px 4px;border-radius:4px}
 .title-card{background:linear-gradient(135deg,#15171f,#2a2f45);color:#fff;border-radius:18px;padding:20px}.title-card h2{color:#fff;font-size:20px;margin:6px 0 8px;line-height:1.3}.title-card p{color:#c9cddb;font-size:13px;margin:8px 0 0;line-height:1.5}.ttag{display:inline-block;background:var(--lime);color:var(--ink);font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px}
 .side-sec{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}.side-sec h3{margin:0 0 8px;font-size:14px}.side-sec h3 small{color:var(--mute);font-weight:500}.side-sec ul{margin:0;padding-left:18px;font-size:13px;line-height:1.55}.side-sec.warnbox{background:#fff8e1;border-color:#f3e2a0}
 .hooklist{margin:0;padding-left:0;list-style:none}.hooklist li{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:13px;font-weight:600;line-height:1.4}.hooklist li{cursor:pointer}.hooklist li:hover{border-color:#b9bfd2}.hooklist li.on{border-color:var(--ink);background:#f6f7fb}.capbox{white-space:pre-wrap;font-size:13px;line-height:1.55;background:#f6f7fb;border-radius:10px;padding:10px}
-.scenes-list{display:flex;flex-direction:column;gap:14px}.scene{display:grid;grid-template-columns:230px 1fr;gap:16px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:14px}.scene-visual{position:relative;display:flex;flex-direction:column;gap:8px}.scene-visual .sk{width:62%;margin:0 auto;opacity:.9}.scene-visual .sb-ref img{aspect-ratio:9/14}.scene-visual .sk-img img{aspect-ratio:1/1;object-fit:cover;border:1.5px solid var(--line)}
+.scenes-list{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.plan-main .scene.v-detail{grid-column:1/-1}.scene{display:grid;grid-template-columns:230px 1fr;gap:16px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:14px}.scene-visual{position:relative;display:flex;flex-direction:column;gap:8px}.scene-visual .sk{width:62%;margin:0 auto;opacity:.9}.scene-visual .sb-ref img{aspect-ratio:9/14}.scene-visual .sk-img img{aspect-ratio:1/1;object-fit:cover;border:1.5px solid var(--line)}
 .scene-no{position:absolute;left:8px;top:8px;z-index:2;background:rgba(21,23,31,.85);color:#fff;font-size:11px;font-weight:800;padding:4px 9px;border-radius:8px}.scene-no small{color:#bffe9e;font-weight:700}
 .saybox{border-left:4px solid #2f54eb;background:#f3f6ff;border-radius:0 12px 12px 0;padding:12px 14px;margin-bottom:10px}.saybox .say{font-size:17px;font-weight:800;line-height:1.4;margin:6px 0 4px;letter-spacing:-.01em}.saybox .cap{color:#1d4ed8;font-weight:700;font-size:13px}
 .guidebox{border-left:4px solid #ec1d1d;background:#fff4f3;border-radius:0 12px 12px 0;padding:12px 14px;font-size:13px;line-height:1.55;margin-bottom:10px}.guidebox>b{display:block;color:#b91c1c;font-size:12px;margin-bottom:4px}
@@ -160,11 +160,11 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table
 .todo{margin:0;padding-left:20px;line-height:1.8;font-size:14px}.side-sec.fold{padding:10px 14px}.side-sec.fold>summary{cursor:pointer;font-weight:700;font-size:14px}.side-sec.fold>*:not(summary){margin-top:8px}.wiz-more.small{padding:6px 10px;margin:8px 0 0}.wiz-more.small summary{font-size:12px}
 .plan-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;flex-wrap:wrap}.seg{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}.seg button{border:0;background:transparent;padding:7px 14px;font-weight:700;color:var(--mute);cursor:pointer}.seg button.on{background:var(--ink);color:#fff}
 .scene{display:block;padding:0;overflow:hidden}.scene-head{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#f6f7fb;border-bottom:1px solid var(--line);font-size:13px}.scene-head .scene-no{position:static;width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;padding:0}.scene-sec{font-weight:800}
-.scene-grid{display:grid;grid-template-columns:190px 1fr;gap:16px;padding:14px 16px}.scene.v-simple .scene-grid{grid-template-columns:130px 1fr}.scene.v-simple .scene-visual .sk{display:none}.scene.v-simple .sb-ref figcaption{display:none}
+.scene-grid{display:grid;grid-template-columns:190px 1fr;gap:16px;padding:14px 16px}.scene.v-simple .scene-grid{grid-template-columns:1fr;padding:12px}.scene.v-simple .scene-visual{flex-direction:row;gap:8px}.scene.v-simple .scene-visual>*{flex:1;min-width:0}.scene.v-simple .scene-visual .sk{display:none}.scene.v-simple .sb-ref figcaption{font-size:10px}.scene.v-simple .say-big{font-size:16px}
 .say-big{font-size:19px;font-weight:800;line-height:1.45;letter-spacing:-.01em;margin:2px 0 8px}.say-big .edit{display:block}
 .cap-line{font-size:14px;color:#1d4ed8;font-weight:700;margin-bottom:6px}.screen-line{font-size:14px;color:#3b4052;line-height:1.55;margin-bottom:10px}
 .scene-more{margin-top:4px}.scene-more summary{cursor:pointer;font-size:13px;color:var(--mute);font-weight:700;margin-bottom:8px}.scene-more[open] summary{color:var(--ink)}
-.guidebox{font-size:13px;line-height:1.6}.guidebox>div{display:grid;grid-template-columns:44px 1fr;gap:6px}.guidebox>div>b{color:#b91c1c;font-weight:700}.editbox{font-size:13px}
+.guidebox{font-size:13px;line-height:1.6}.guidebox>div{display:grid;grid-template-columns:56px 1fr;gap:6px}.ref-analysis{grid-column:1/-1;background:#f6f7fb;border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.5}.ref-analysis>b{display:block;margin-bottom:2px}.prefs{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-bottom:12px}.prefs>div>small{display:block;font-size:11px;color:var(--mute);font-weight:700;margin-bottom:2px}.prefs .pills{margin:2px 0}.guidebox>div>b{color:#b91c1c;font-weight:700}.editbox{font-size:13px}
 
 /* 레퍼런스 뜯어보기 · 편집 외주용 가독성 */
 .refsec{padding:20px 22px}.ref-head{gap:16px;margin-bottom:12px}.ref-head img{width:84px}.ref-name{font-size:18px;font-weight:800;display:flex;align-items:center;gap:10px}.ref-metrics{display:flex;gap:12px;color:var(--mute);font-size:13px;margin:4px 0}.ref-desc{font-size:14px;color:#3b4052;line-height:1.5}
@@ -179,7 +179,7 @@ h3.sub{font-size:17px;margin:18px 0 10px;display:flex;align-items:baseline;gap:8
 .editgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}.ecard{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px 16px}.ecard-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}.ecard-head .scene-no{position:static;width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;padding:0}
 ul.checks{list-style:none;margin:0;padding:0}ul.checks li{padding:6px 0;border-top:1px solid var(--line);font-size:14px}ul.checks li:first-child{border-top:0}ul.checks label{display:flex;gap:8px;align-items:flex-start;cursor:pointer}
 @media(max-width:800px){.why-grid{grid-template-columns:1fr}.cutgrid{grid-template-columns:1fr}.cutcard{grid-template-columns:72px 1fr}.cut-img img,.cut-ph{width:72px}}
-@media(max-width:1000px){.plan-layout{grid-template-columns:1fr}.plan-side{position:static;max-height:none}.scene-grid{grid-template-columns:1fr}.scene-visual{flex-direction:row}.scene-visual>*{flex:1}.say-big{font-size:17px}}
+@media(max-width:1400px){.scenes-list{grid-template-columns:repeat(2,1fr)}}@media(max-width:1000px){.scenes-list{grid-template-columns:1fr}.prefs{grid-template-columns:1fr}.plan-layout{grid-template-columns:1fr}.plan-side{position:static;max-height:none}.scene-grid{grid-template-columns:1fr}.scene-visual{flex-direction:row}.scene-visual>*{flex:1}.say-big{font-size:17px}}
 @media(max-width:900px){.plan-home .hero{grid-template-columns:1fr}.hero-art{display:none}.plan-hero{flex-direction:column}}
 </style>
 <style>a[data-r="boards"],a[data-r="settings"],#rlive,#rlivemsg,.racct .btn,button[onclick*="pickBoard"],button[onclick*="openItem"]{display:none!important}</style>
@@ -211,7 +211,7 @@ ul.checks{list-style:none;margin:0;padding:0}ul.checks li{padding:6px 0;border-t
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789033244"></script>
+<script src="static_api.js?v=1789033508"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => {
@@ -375,11 +375,16 @@ async function viewBrands(handle) {
       ${b && b.platform === "youtube" ? `<button class="btn p" onclick="sync('youtube',{handle:'@${esc(handle)}',industry:'${esc(b?.industry || "")}'})" ${META.adapters.youtube ? "" : "disabled title='YOUTUBE_API_KEY 필요'"}>유튜브 API로 수집</button>` :
         `<button class="btn" onclick="sync('instagram_graph',{mode:'discovery',handle:'${esc(handle)}',industry:'${esc(b?.industry || "")}'})" ${META.adapters.instagram_graph ? "" : "disabled title='META_ACCESS_TOKEN·IG_USER_ID 필요'"}>인스타 공식 API로 수집</button>`}</div>${grid(items, "이 계정의 레퍼런스가 아직 없어요")}`; return;
   }
-  $("#main").innerHTML = `<h2>브랜드 아카이브 <small>추적 중인 계정. 저장하면 어댑터가 이 목록을 보고 새 게시물을 모아요</small></h2>
+  window.BF = window.BF || { ind: "", q: "" };
+  const shown = brands.filter(b => (!BF.ind || (b.industry || "") === BF.ind) && (!BF.q || ((b.handle || "") + (b.name || "")).toLowerCase().includes(BF.q.toLowerCase())));
+  const indCounts = {}; brands.forEach(b => { const k = b.industry || "미지정"; indCounts[k] = (indCounts[k] || 0) + 1; });
+  $("#main").innerHTML = `<h2>브랜드 아카이브 <small>추적 중인 계정 ${brands.length}개 · 업종을 누르면 그 업종 계정만</small></h2>
+    <div class="rcats" style="margin:0 0 10px"><button class="rcat ${!BF.ind ? "on" : ""}" onclick="BF.ind='';viewBrands()">전체 ${brands.length}</button>${Object.entries(indCounts).sort((a, b) => b[1] - a[1]).map(([k, n]) => `<button class="rcat ${BF.ind === (k === "미지정" ? "" : k) && BF.ind ? "on" : ""}" onclick="BF.ind='${esc(k === "미지정" ? "" : k)}';viewBrands()">${esc(k)} ${n}</button>`).join("")}</div>
+    <div class="search" style="margin-bottom:10px">🔍 <input placeholder="계정·이름 검색" value="${esc(BF.q)}" oninput="BF.q=this.value;clearTimeout(window._bq);window._bq=setTimeout(viewBrands,300)"></div>
     <div class="panel row" style="margin-bottom:14px"><input id="b_handle" placeholder="@계정 (예: cafe_haru)" style="border:1px solid var(--line);border-radius:8px;padding:8px;flex:1"><input id="b_name" placeholder="브랜드 이름" style="border:1px solid var(--line);border-radius:8px;padding:8px;flex:1">
       <select id="b_plat" class="chip"><option value="instagram">Instagram</option><option value="youtube">YouTube</option></select>
       <select id="b_ind" class="chip"><option value="">업종</option>${META.industries.map(i => `<option>${i}</option>`).join("")}</select><button class="btn p" onclick="addBrand()">브랜드 저장</button></div>
-    ${brands.length ? `<table><tr><th></th><th>계정</th><th>브랜드</th><th>업종</th><th>플랫폼</th><th>저장된 게시물</th><th>최근 게시</th><th></th></tr>${brands.map(b => `<tr style="cursor:pointer" onclick="location.hash='#/brands/${esc(b.handle)}'">
+    ${shown.length ? `<table><tr><th></th><th>계정</th><th>브랜드</th><th>업종</th><th>플랫폼</th><th>저장된 게시물</th><th>최근 게시</th><th></th></tr>${shown.map(b => `<tr style="cursor:pointer" onclick="location.hash='#/brands/${esc(b.handle)}'">
       <td>${b.cover ? `<img class="avatar" src="${esc(b.cover)}">` : `<div class="avatar"></div>`}</td><td><b>@${esc(b.handle)}</b></td><td>${esc(b.name || "")}</td><td>${esc(b.industry || "")}</td><td>${logo(b.platform, 16)} ${PLAT[b.platform]}</td><td>${b.count}</td><td>${esc(b.last_post || "-")}</td>
       <td><button class="btn d" onclick="event.stopPropagation();post('/api/brands/${b.id}',null,'DELETE').then(()=>viewBrands())">삭제</button></td></tr>`).join("")}</table>` : `<div class="empty"><b>추적 중인 브랜드가 없어요</b>레퍼런스로 삼을 계정을 위에서 저장하세요. 클리퍼로 저장한 게시물은 계정별로 자동으로 모입니다.</div>`}`;
 }
@@ -619,7 +624,7 @@ async function route() {
 window.addEventListener("hashchange", () => { document.body.classList.remove("nav-open"); route(); });
 (async () => { try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=27"></script>
+<script src="static/plan.js?v=29"></script>
 <script src="static/account.js?v=3"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
 </body>
