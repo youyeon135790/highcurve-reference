@@ -343,7 +343,8 @@ body.guest{overflow-x:hidden}body.guest .app{grid-template-columns:minmax(0,1fr)
       <div class="tools"><div class="sec">기획 도구 <span class="tag">별도 상품</span></div>
       <a href="#/boards" data-r="boards"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg> 보드</a>
       <a href="#/plan" data-r="plan"><svg viewBox="0 0 24 24"><path d="M4 20h16M6 16l10-10 2 2L8 18l-3 1z"/></svg> 기획</a>
-      <a href="#/edit" data-r="edit"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M8 5v14"/></svg> 편집</a>
+      <a href="#/edit" data-r="edit"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M8 5v14"/></svg> 편집 툴 <span class="tag">β</span></a>
+      <a href="#/ytedit" data-r="ytedit"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M10 9l5 3-5 3z"/></svg> 유튜브 쇼츠 양산 <span class="tag">β</span></a>
       </div>
       <div class="sec">지원</div>
       <a href="#/support" data-r="support"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg> 고객센터</a>
@@ -359,7 +360,7 @@ body.guest{overflow-x:hidden}body.guest .app{grid-template-columns:minmax(0,1fr)
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789045785"></script>
+<script src="static_api.js?v=1789060197"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
@@ -741,7 +742,8 @@ async function exportBoardPrompt() {
   const txt = `# 레퍼런스 보드: ${b.name} (${items.length}개)\n` + items.map(i => `- [${PLAT[i.platform]}] @${i.account || "-"} (${i.posted_at || ""}) 조회 ${fmt(i.views)} · 좋아요 ${fmt(i.likes)} · 팔로워 ${fmt(i.followers)}\n  훅: ${(i.caption || "").split("\n")[0].slice(0, 80)}\n  ${i.description ? "설명: " + i.description + "\n  " : ""}${i.note ? "메모: " + i.note : ""}`).join("\n");
   await navigator.clipboard.writeText(txt); toast("클립보드에 복사됨 — 클로드 코드에 붙여넣으세요");
 }
-function viewEdit() { $("#main").innerHTML = `<h2 style="margin:0 0 4px">🎬 편집</h2><div class="muted" style="margin-bottom:14px">기획안이 나온 뒤 촬영 → 편집 → 납품까지의 하이커브 편집 흐름과 규칙. 편집자에게 그대로 전달하는 기준입니다.</div>
+async function viewEdit() { if (window.viewYtEdit) { await viewYtEdit(); const box = document.createElement("div"); box.id = "edit-guide"; $("#main").appendChild(box); viewEditGuide(box); return; } viewEditGuide(); }
+function viewEditGuide(box) { (box || $("#main")).innerHTML = `<h2 style="margin:24px 0 4px">편집 흐름과 규칙</h2><div class="muted" style="margin-bottom:14px">기획안이 나온 뒤 촬영 → 편집 → 납품까지의 하이커브 편집 흐름과 규칙. 편집자에게 그대로 전달하는 기준입니다.</div>
   <div class="two">
   <div class="panel"><b>① 편집 파이프라인</b><ol style="margin:8px 0 0 18px;line-height:1.8"><li><b>기획안</b> — ✍️ 기획에서 씬표·훅·자막 확정 (JSON/엑셀 내보내기)</li><li><b>촬영</b> — 촬영 지시서대로 컷·인서트 확보 (씬당 2테이크 이상)</li><li><b>캡컷 자동자막</b> — 원본 붙여 자동 자막 생성 후 오탈자만 수정</li><li><b>러프컷(자동)</b> — 캡컷 러프컷 스킬: 무음·군더더기 컷 제거, 자막 스타일(꾹꾹체 등), 효과음 자동 배치</li><li><b>편집자 마무리 20분</b> — B롤·강조 자막·줌인·색보정</li><li><b>납품 체크</b> — 아래 체크리스트 통과 후 업로드</li></ol></div>
   <div class="panel"><b>② 납품 전 체크리스트</b><ul style="margin:8px 0 0 18px;line-height:1.8"><li>0~1초에 첫 자막이 뜨는가 (검은 화면·로고 인트로 금지)</li><li>훅 자막은 화면 상단 1/3, 12자 이내, 한 줄</li><li>컷 전환 3~5초 이내, 같은 구도 6초 이상 지속 금지</li><li>자막은 말과 동시에, 한 줄 10자·1.2초 리듬, 강조어는 색·크기로만</li><li>정보 씬마다 인서트(손·제품·화면녹화) 1개 이상</li><li>효과음: 훅·반전·CTA 3지점, BGM은 -18dB 이하</li><li>엔딩은 CTA 자막으로 끝내고 마지막 1초 검은 화면 없음</li><li>세이프존: 하단 20%(캡션·버튼 영역)에 자막 배치 금지</li></ul></div>
@@ -800,7 +802,7 @@ async function viewLanding() {
 }
 
 // ---------------- 라우팅
-const TOOL_ROUTES = new Set(["boards", "plan", "edit", "settings", "pricing", "admin"]);
+const TOOL_ROUTES = new Set(["boards", "plan", "edit", "ytedit", "settings", "pricing", "admin"]);
 async function ensureMe() { for (let i = 0; i < 40 && !window.loadMe; i++) await new Promise(r => setTimeout(r, 50)); if (!window.__meLoaded && window.loadMe) { await loadMe(); window.__meLoaded = true; } return window.authState ? window.authState() : null; }
 async function route() {
   let h = location.hash.replace(/^#\/?/, "") || "reels"; let parts = h.split("/"); let [r, arg] = parts;
@@ -814,7 +816,7 @@ async function route() {
   $$(".nav a[data-r]").forEach(a => a.classList.toggle("on", a.dataset.r === r)); renderCatNav();
   try {
     if (r === "explore") await viewExplore(); else if (r === "brands") await viewBrands(arg ? decodeURIComponent(arg) : null); else if (r === "trends") await viewTrends();
-    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "plan") await viewPlan(arg); else if (r === "edit") viewEdit(); else if (r === "login") viewLogin(arg); else if (r === "account") await viewAccount(); else if (r === "support") await viewSupport(); else if (r === "pricing") await viewPricing(); else if (r === "admin") await viewAdmin(); else await viewExplore();
+    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "plan") await viewPlan(arg); else if (r === "edit") await viewEdit(); else if (r === "ytedit") await viewYtEdit(); else if (r === "login") viewLogin(arg); else if (r === "account") await viewAccount(); else if (r === "support") await viewSupport(); else if (r === "pricing") await viewPricing(); else if (r === "admin") await viewAdmin(); else await viewExplore();
     const s = await api("/api/stats"); $("#count").textContent = `레퍼런스 ${s.items} · 브랜드 ${s.brands} · 보드 ${s.boards}`;
   } catch (e) { $("#main").innerHTML = `<div class="empty"><b>서버 연결 실패</b>${esc(e.message)}<br>터미널에서 <code>python3 server.py</code> 를 실행하세요.</div>`; }
 }
@@ -825,6 +827,7 @@ window.addEventListener("hashchange", () => { document.body.classList.remove("na
 </script>
 <script src="static/plan.js?v=35"></script>
 <script src="static/account.js?v=6"></script>
+<script src="static/ytedit.js?v=6"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
 </body>
 </html>
