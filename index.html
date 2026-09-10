@@ -158,6 +158,7 @@ table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table
 .hooklist li{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;font-size:14px;line-height:1.5}.hook-pick{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:4px 8px;font-size:12px;font-weight:700;cursor:pointer}.hooklist li.on .hook-pick{background:var(--lime);border-color:var(--lime)}
 .capbox.script{font-size:15px;line-height:1.75;background:#fff;border:1.5px solid var(--line)}
 .todo{margin:0;padding-left:20px;line-height:1.8;font-size:14px}.side-sec.fold{padding:10px 14px}.side-sec.fold>summary{cursor:pointer;font-weight:700;font-size:14px}.side-sec.fold>*:not(summary){margin-top:8px}.wiz-more.small{padding:6px 10px;margin:8px 0 0}.wiz-more.small summary{font-size:12px}
+.bones{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:14px 18px;margin-bottom:14px}.bone-ref{font-size:13px;color:#3b4052;margin:6px 0 10px}.bone{display:grid;grid-template-columns:96px 1fr;gap:10px;font-size:14px;line-height:1.55;padding:6px 0;border-top:1px dashed var(--line)}.bone .tag{align-self:start;white-space:nowrap}
 .plan-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;flex-wrap:wrap}.seg{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}.seg button{border:0;background:transparent;padding:7px 14px;font-weight:700;color:var(--mute);cursor:pointer}.seg button.on{background:var(--ink);color:#fff}
 .scene{display:block;padding:0;overflow:hidden}.scene-head{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#f6f7fb;border-bottom:1px solid var(--line);font-size:13px}.scene-head .scene-no{position:static;width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;padding:0}.scene-sec{font-weight:800}
 .scene-grid{display:grid;grid-template-columns:190px 1fr;gap:16px;padding:14px 16px}.scene.v-simple .scene-grid{grid-template-columns:1fr;padding:12px}.scene.v-simple .scene-visual{flex-direction:row;gap:8px}.scene.v-simple .scene-visual>*{flex:1;min-width:0}.scene.v-simple .scene-visual .sk{display:none}.scene.v-simple .sb-ref figcaption{font-size:10px}.scene.v-simple .say-big{font-size:16px}
@@ -211,7 +212,7 @@ ul.checks{list-style:none;margin:0;padding:0}ul.checks li{padding:6px 0;border-t
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789033508"></script>
+<script src="static_api.js?v=1789039172"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => {
@@ -624,7 +625,7 @@ async function route() {
 window.addEventListener("hashchange", () => { document.body.classList.remove("nav-open"); route(); });
 (async () => { try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=29"></script>
+<script src="static/plan.js?v=31"></script>
 <script src="static/account.js?v=3"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
 </body>
