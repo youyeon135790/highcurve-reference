@@ -318,6 +318,9 @@ body.guest{overflow-x:hidden}body.guest .app{grid-template-columns:minmax(0,1fr)
 .wait-bar{width:260px;margin:0 auto;height:6px!important;background:#EEE8FF!important}.wait-bar i{background:linear-gradient(90deg,#B48CFF,#8E7CFF,#5FD0DD)!important;background-size:200% 100%!important;animation:flow 2.5s linear infinite!important}
 .wait-pct{width:260px;margin:8px auto 0!important}.wait-pct span:first-child{font-size:16px!important;color:#5E4BD6!important}
 .seg button.on,.view-seg button.on{background:#EEE8FF!important;color:#4F3DC7!important}
+
+/* ---- 모바일: 본문이 화면보다 넓어지지 않게 (카테고리 줄이 안에서 스크롤되도록) */
+@media(max-width:820px){.app{grid-template-columns:minmax(0,1fr)}.main{min-width:0;max-width:100vw;overflow-x:hidden}.rsearch{flex-wrap:wrap}.rcats-wrap,.rcats{max-width:100%}.rcats-wrap .rcats{overflow-x:auto!important}.chips{max-width:100%}}
 </style>
 <style>a[data-r="boards"],a[data-r="settings"],#rlive,#rlivemsg,.racct .btn,button[onclick*="pickBoard"],button[onclick*="openItem"]{display:none!important}</style>
 </head>
@@ -351,7 +354,7 @@ body.guest{overflow-x:hidden}body.guest .app{grid-template-columns:minmax(0,1fr)
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789044717"></script>
+<script src="static_api.js?v=1789044939"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
