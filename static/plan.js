@@ -75,7 +75,7 @@
       next = `<button class="btn p big" id="wiz-next4" onclick="${W.refs.length ? "wizAnalyzeThenTopics()" : "toast('참고 릴스를 1개 이상 골라주세요')"}">주제 고르기 →</button>`;
     } else {
       body = renderTopicStep();
-      next = STATIC ? `<button class="btn p big" disabled title="체험판에서는 생성 불가">✨ 기획안 만들기 (서버 연결 필요)</button>` : `<button class="btn p big" id="wiz-make" onclick="wizMake()">✨ 기획안 만들기</button>`;
+      next = STATIC ? `<button class="btn p big" disabled title="체험판에서는 생성 불가">✨ 기획안 만들기 (서버 연결 필요)</button>` : W.making ? `<button class="btn p big" onclick="location.hash='#/plan/${esc(W.making)}'">⏳ 만드는 중인 기획안 보기</button>` : `<button class="btn p big" id="wiz-make" onclick="wizMake()">✨ 기획안 만들기 <small style="font-weight:500">(1회 차감)</small></button>`;
     }
     $("#main").innerHTML = `<div class="wiz">${head}<div class="wiz-body">${body}</div><div class="wiz-foot"><button class="btn big" onclick="wizGo(${s - 1})" ${s === 1 ? "disabled" : ""}>이전</button>${next}</div></div>`;
     if (s === 4 && !W.refsCache.length && (W.keyword || W.selSubs.length)) wizSearchRefs();
@@ -171,8 +171,8 @@
     return `<h1>어떤 주제로 찍을까요?</h1>${connectBox()}
     <div class="wiz-sub">영상 길이 <small class="muted">기승전결이 다 들어가는 기준으로 씬을 나눕니다</small></div>
     <div class="pills">${LEN.map(l => pill(l + "초", String(W.extra.length) === l, `wizExtraSet('length','${l}')`)).join("")}</div><p class="muted">고른 참고 릴스의 구조에서 뽑은 주제예요. 하나 고르거나 직접 적어주세요. 첫 문장(훅)은 ${HOOKS.join("·")} 중 골고루 나옵니다.</p>
-    <div class="row" style="margin-bottom:10px"><button class="btn" onclick="wizTopics()">✨ 추천 주제 ${t.length ? "다시 뽑기" : "뽑기"}</button><span id="wiz-topic-msg" class="muted">${!t.length && !STATIC ? "준희 님 노하우(훅 공식·타깃 문제)를 적용해 주제 뽑는 중… (20~30초)" : STATIC ? "체험판에서는 주제 추천이 안 돼요. 직접 적어주세요." : ""}</span></div>
-    <div class="topics">${t.map((x, i) => `<div class="topic ${W.topic === x.title ? "on" : ""}" onclick="wizSet('topic','${esc(x.title).replace(/'/g, "\\'")}')"><b>${esc(x.title)}</b><div class="muted">${esc(x.from || "")}${x.hook_type ? ` · <span class="tag">${esc(x.hook_type)}</span>` : ""}</div></div>`).join("")}</div>
+    <div class="row" style="margin-bottom:10px;flex-wrap:wrap;gap:6px"><input id="wiz-dir" class="wiz-input" style="flex:1;min-width:220px;padding:8px 12px;font-size:13px" placeholder="원하는 방향이 있으면 (예: 실패담 위주 / 손님 반응 / 가격 얘기는 빼고)" value="${esc(W.direction || "")}" oninput="wizInput('direction', this)"><button class="btn" onclick="wizTopics()">✨ ${t.length ? "이 방향으로 다시 뽑기" : "추천 주제 뽑기"}</button>${t.length ? `<button class="btn" onclick="wizTopics(true)">+ 다른 주제 8개 더</button>` : ""}<span id="wiz-topic-msg" class="muted" style="width:100%">${!t.length && !STATIC ? "준희 님 노하우(훅 공식·타깃 문제)를 적용해 주제 뽑는 중… (20~30초)" : STATIC ? "체험판에서는 주제 추천이 안 돼요. 직접 적어주세요." : ""}</span></div>
+    <div class="topics">${t.map((x, i) => `<div class="topic ${W.topic === x.title ? "on" : ""}" onclick="wizSet('topic','${esc(x.title).replace(/'/g, "\\'")}')"><b>${esc(x.title)}</b>${x.why ? `<div class="topic-why">${esc(x.why)}</div>` : ""}<div class="muted">${x.angle ? `<span class="tag">${esc(x.angle)}</span> ` : ""}${x.hook_type ? `<span class="tag">${esc(x.hook_type)}</span> ` : ""}${esc(x.from || "")}</div></div>`).join("")}</div>
     <label class="wiz-label">직접 적기 (비워두면 AI가 레퍼런스 구조에서 정합니다)</label><input class="wiz-input" placeholder="예: 조회수 800 나오던 카페 릴스, 첫 문장 바꿨더니 11만" value="${t.find(x => x.title === W.topic) ? "" : esc(W.topic)}" oninput="wizInput('topic', this)">
     <details class="wiz-more" ${Object.values(W.extra).some(Boolean) ? "open" : ""}><summary>더 좋은 결과를 원하면 (선택) — 내 재료 넣기</summary>
       <div class="two">
@@ -187,19 +187,21 @@
     <div class="wiz-summary"><b>정리</b> ${esc(W.job)} → ${esc(W.target.join(", "))}${W.extra.target_free ? " · " + esc(W.extra.target_free) : ""} · #${esc(W.keyword)} ${W.selSubs.map(k => "#" + esc(k)).join(" ")} · 참고 릴스 ${W.refs.length}개 · ${esc(W.extra.length || 30)}초</div>`;
   }
   const brief = () => ({ job: W.job, target: [...W.target, W.extra.target_free].filter(Boolean).join(", "), keyword: [W.keyword, ...W.selSubs].filter(Boolean).join(", "), topic: W.topic, length: W.extra.length || 30, tone: W.extra.tone, scene: W.extra.scene, numbers: W.extra.numbers, cta: W.extra.cta, shooting: W.extra.shooting });
-  window.wizTopics = async function () {
+  window.wizTopics = async function (more) {
     if (TOPICS_LOADING) return; TOPICS_LOADING = true;
+    const dirEl = $("#wiz-dir"); if (dirEl) { W.direction = dirEl.value; save(); }
     const m = $("#wiz-topic-msg"); if (m) m.textContent = "주제 뽑는 중…"; showWait("주제 뽑는 중", 28, "참고 릴스 구조 + 훅 공식으로 8개를 만들고 있어요");
     try {
-      const r = await post("/api/plan/topics", { ids: W.refs, brief: brief() });
+      const r = await post("/api/plan/topics", { ids: W.refs, brief: brief(), direction: W.direction || "", exclude: more ? (W.topics || []).map(x => x.title) : [] });
       if (r.need_key) { if (m) m.textContent = "AI 엔진이 없어 추천은 건너뜁니다. 주제를 직접 적어주세요 (비워도 돼요)"; return; }
       if (r.error) throw new Error(r.error);
-      W.topics = r.topics || []; save(); if (!W.topics.length && m) m.textContent = "추천이 비어 왔어요. 다시 뽑기를 눌러주세요";
+      W.topics = more ? [...(W.topics || []), ...(r.topics || [])] : (r.topics || []); save(); if (!W.topics.length && m) m.textContent = "추천이 비어 왔어요. 다시 뽑기를 눌러주세요";
     } catch (e) { if (m) m.textContent = "실패: " + e.message + " — 다시 뽑기를 눌러주세요"; }
     finally { TOPICS_LOADING = false; hideWait(); if (W.topics.length) renderWizard(); }
   };
   window.wizMake = async function () {
     if (!W.refs.length) return toast("참고 릴스를 골라주세요");
+    if (W.making) { try { const pr = await api("/api/plans/" + W.making + "/progress"); if (pr.stage !== "unknown" && !pr.done && !pr.plan_ready) { toast("이미 만드는 중이에요 — 잠시만요"); location.hash = "#/plan/" + W.making; return; } } catch (e) {} }
     const b = $("#wiz-make"); b.disabled = true;
     for (const id of W.refs) {
       const c = W.refsCache.find(x => x.id === id); if (c && c.frames) continue;
@@ -211,8 +213,9 @@
     try {
       const r = await post("/api/plan", { ids: W.refs, brief: brief(), mode: W.mode || "precise" });
       if (r.error) throw new Error(r.error);
-      const pid = r.id;
-      if (!r.queued) { hideWait(); location.hash = "#/plan/" + pid; return; }
+      const pid = r.id; W.making = pid; save();
+      if (r.dedup) toast("방금 만든 기획안이 있어 그걸 열어요");
+      if (!r.queued) { hideWait(); location.replace(location.pathname + location.search + "#/plan/" + pid); return; }
       const STAGES = { plan: "기획안 쓰는 중 — 훅·씬표·촬영 가이드", polish: "대사 완결·기승전결 다듬는 중", extras: "기획안 완성 — 스케치·편집 외주서는 뒤에서", done: "완성" };
       await new Promise((resolve, reject) => {
         const iv = setInterval(async () => {
@@ -224,8 +227,9 @@
           } catch (e) {}
         }, 2000);
       });
-      hideWait(); location.hash = "#/plan/" + pid;
-    } catch (e) { hideWait(); toast("실패: " + e.message); b.disabled = false; b.textContent = "✨ 기획안 만들기"; }
+      hideWait(); W.making = null; W.topic = ""; W.topics = []; W.step = 1; save();   // 완성 → 위저드 초기화(뒤로가기로 재생성 방지)
+      location.replace(location.pathname + location.search + "#/plan/" + pid);
+    } catch (e) { hideWait(); W.making = null; save(); toast("실패: " + e.message); b.disabled = false; b.textContent = "✨ 기획안 만들기"; }
   };
 
   // ---------------- 결과 화면: [내 릴스 기획안] [레퍼런스 뜯어보기] [전문가용]
