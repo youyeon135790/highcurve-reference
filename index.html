@@ -302,6 +302,22 @@ body:not(.admin) .nav .tools,body:not(.admin) .admin-only,body.member .topbar .b
 body.guest{overflow-x:hidden}body.guest .app{grid-template-columns:minmax(0,1fr)}body.guest .main{min-width:0;width:100%;overflow-x:hidden}
 .land{min-width:0}.land-hero h1,.land-shots h2,.land-why h2,.shot-txt b{word-break:keep-all;overflow-wrap:anywhere}.land-top .btn{white-space:nowrap}
 @media(max-width:600px){.land-top{padding:16px 0}.land-top .wm{font-size:17px}.land-hero h1{font-size:26px}.land-hero p{font-size:15px}.shot{padding:12px}.shot-txt b{font-size:17px}.why-col{padding:20px 16px 14px}}
+
+/* ---- 카테고리 슬라이드 */
+.rcats-wrap{display:flex;align-items:center;gap:6px;min-width:0}.rcats-wrap .rcats{flex:1;min-width:0;overflow-x:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 2px}.rcats-wrap .rcats::-webkit-scrollbar{display:none}
+.rarr{flex:none;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--brand);font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}.rarr:hover{background:#F1ECFF}
+.rcat{white-space:nowrap}
+@media(max-width:700px){.rarr{display:none}}
+
+/* ---- 대기 화면: 카드 없이 큰 보라 구 + 한 줄 노하우 */
+.wait{background:rgba(250,248,255,.96)!important}.wait-bg{display:block!important}.wait-bg i{opacity:.5}.wait-bg i:nth-child(1){background:#D9CCFF}.wait-bg i:nth-child(2){background:#CDEFF3}
+.wait-card{background:transparent!important;border:0!important;box-shadow:none!important;width:min(720px,94vw)!important;padding:0!important}
+.wait-canvas{width:min(420px,80vw)!important;height:min(420px,80vw)!important;margin:0 auto -10px!important}
+.wait-title{font-size:15px!important;font-weight:600!important;color:var(--mute)!important;letter-spacing:0!important}.wait-sub{font-size:12px!important;margin:2px 0 8px!important}
+.wait-quote{font-style:normal!important;font-size:22px!important;line-height:1.5!important;font-weight:700!important;color:var(--ink)!important;letter-spacing:-.02em;margin:6px auto 18px!important;max-width:620px;min-height:66px!important;word-break:keep-all}
+.wait-bar{width:260px;margin:0 auto;height:6px!important;background:#EEE8FF!important}.wait-bar i{background:linear-gradient(90deg,#B48CFF,#8E7CFF,#5FD0DD)!important;background-size:200% 100%!important;animation:flow 2.5s linear infinite!important}
+.wait-pct{width:260px;margin:8px auto 0!important}.wait-pct span:first-child{font-size:16px!important;color:#5E4BD6!important}
+.seg button.on,.view-seg button.on{background:#EEE8FF!important;color:#4F3DC7!important}
 </style>
 <style>a[data-r="boards"],a[data-r="settings"],#rlive,#rlivemsg,.racct .btn,button[onclick*="pickBoard"],button[onclick*="openItem"]{display:none!important}</style>
 </head>
@@ -335,7 +351,7 @@ body.guest{overflow-x:hidden}body.guest .app{grid-template-columns:minmax(0,1fr)
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789042822"></script>
+<script src="static_api.js?v=1789044717"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
@@ -504,7 +520,7 @@ async function viewBrands(handle) {
   const shown = brands.filter(b => (!BF.ind || (b.industry || "") === BF.ind) && (!BF.q || ((b.handle || "") + (b.name || "")).toLowerCase().includes(BF.q.toLowerCase())));
   const indCounts = {}; brands.forEach(b => { const k = b.industry || "미지정"; indCounts[k] = (indCounts[k] || 0) + 1; });
   $("#main").innerHTML = `<h2>브랜드 아카이브 <small>추적 중인 계정 ${brands.length}개 · 업종을 누르면 그 업종 계정만</small></h2>
-    <div class="rcats" style="margin:0 0 10px"><button class="rcat ${!BF.ind ? "on" : ""}" onclick="BF.ind='';viewBrands()">전체 ${brands.length}</button>${Object.entries(indCounts).sort((a, b) => b[1] - a[1]).map(([k, n]) => `<button class="rcat ${BF.ind === (k === "미지정" ? "" : k) && BF.ind ? "on" : ""}" onclick="BF.ind='${esc(k === "미지정" ? "" : k)}';viewBrands()">${esc(k)} ${n}</button>`).join("")}</div>
+    <div class="rcats-wrap" style="margin:0 0 10px"><button class="rarr l" onclick="rcatScroll(this,-1)">‹</button><div class="rcats"><button class="rcat ${!BF.ind ? "on" : ""}" onclick="BF.ind='';viewBrands()">전체 ${brands.length}</button>${Object.entries(indCounts).sort((a, b) => b[1] - a[1]).map(([k, n]) => `<button class="rcat ${BF.ind === (k === "미지정" ? "" : k) && BF.ind ? "on" : ""}" onclick="BF.ind='${esc(k === "미지정" ? "" : k)}';viewBrands()">${esc(k)} ${n}</button>`).join("")}</div><button class="rarr r" onclick="rcatScroll(this,1)">›</button></div>
     <div class="search" style="margin-bottom:10px">🔍 <input placeholder="계정·이름 검색" value="${esc(BF.q)}" oninput="BF.q=this.value;clearTimeout(window._bq);window._bq=setTimeout(viewBrands,300)"></div>
     <div class="panel row" style="margin-bottom:14px"><input id="b_handle" placeholder="@계정 (예: cafe_haru)" style="border:1px solid var(--line);border-radius:8px;padding:8px;flex:1"><input id="b_name" placeholder="브랜드 이름" style="border:1px solid var(--line);border-radius:8px;padding:8px;flex:1">
       <select id="b_plat" class="chip"><option value="instagram">Instagram</option><option value="youtube">YouTube</option></select>
@@ -573,7 +589,7 @@ async function viewReels() {
       ${yt ? `<select class="chip" onchange="R.band=this.value;R.page=0;viewReels()">${BANDS.map(([v,l]) => `<option value="${v}" ${R.band===v?"selected":""}>구독자 ${l}</option>`).join("")}</select>` : ""}
       <select class="chip" onchange="R.days=this.value;R.page=0;viewReels()">${[["7","최근 7일"],["30","최근 30일"],["60","최근 60일"],["100","최근 100일"],["","전체 기간"]].map(([v,l]) => `<option value="${v}" ${R.days===v?"selected":""}>${l}</option>`).join("")}</select>
     </div>
-    <div class="rcats" style="margin:2px 0 8px"><button class="rcat fbtn ${R.fopen || rfCount() ? "on" : ""}" onclick="R.fopen=!R.fopen;viewReels()">⚙ 필터${rfCount() ? " " + rfCount() : ""}</button><button class="rcat hot ${F.min_views=="300000"?"on":""}" onclick="rfQuick({min_views:'${F.min_views=="300000"?"":"300000"}',max_views:''})">🔥 터진 것만 30만↑</button><button class="rcat ${!R.cat?"on":""}" onclick="location.hash='#/reels/${R.plat}'">전체</button>${cats.map(c => `<button class="rcat ${R.cat===c[0]?"on":""}" onclick="location.hash='#/reels/${R.plat}/'+encodeURIComponent('${c[0]}')">${c[0]}</button>`).join("")}</div>
+    <div class="rcats-wrap" style="margin:2px 0 8px"><button class="rarr l" onclick="rcatScroll(this,-1)" aria-label="왼쪽">‹</button><div class="rcats"><button class="rcat fbtn ${R.fopen || rfCount() ? "on" : ""}" onclick="R.fopen=!R.fopen;viewReels()">⚙ 필터${rfCount() ? " " + rfCount() : ""}</button><button class="rcat hot ${F.min_views=="300000"?"on":""}" onclick="rfQuick({min_views:'${F.min_views=="300000"?"":"300000"}',max_views:''})">🔥 터진 것만 30만↑</button><button class="rcat ${!R.cat?"on":""}" onclick="location.hash='#/reels/${R.plat}'">전체</button>${cats.map(c => `<button class="rcat ${R.cat===c[0]?"on":""}" onclick="location.hash='#/reels/${R.plat}/'+encodeURIComponent('${c[0]}')">${c[0]}</button>`).join("")}</div><button class="rarr r" onclick="rcatScroll(this,1)" aria-label="오른쪽">›</button></div>
     ${R.fopen ? `<div class="fpanel">
       <div class="fgroup"><b>조회수</b><div class="fquick">${[["1만↑","10000"],["10만↑","100000"],["50만↑","500000"],["100만↑","1000000"]].map(([l,v]) => `<button class="chip ${F.min_views==v?"on":""}" onclick="rfQuick({min_views:'${F.min_views==v?"":v}',max_views:''})">${l}</button>`).join("")}</div><div class="frange"><input class="fin" placeholder="이상 (예: 5만)" value="${esc(F.min_views||"")}" onchange="rf('min_views',this.value)"><span>~</span><input class="fin" placeholder="이하" value="${esc(F.max_views||"")}" onchange="rf('max_views',this.value)"></div></div>
       <div class="fgroup"><b>${yt ? "구독자" : "팔로워"}</b><div class="fquick">${[["1만 미만","","10000"],["1~10만","10000","100000"],["10~50만","100000","500000"],["50만↑","500000",""]].map(([l,a,b]) => `<button class="chip ${F.min_followers==a&&F.max_followers==b&&(a||b)?"on":""}" onclick="rfQuick({min_followers:'${a}',max_followers:'${b}'})">${l}</button>`).join("")}</div><div class="frange"><input class="fin" placeholder="이상" value="${esc(F.min_followers||"")}" onchange="rf('min_followers',this.value)"><span>~</span><input class="fin" placeholder="이하" value="${esc(F.max_followers||"")}" onchange="rf('max_followers',this.value)"></div></div>
@@ -735,6 +751,8 @@ function renderCatNav() {
 }
 let curRoute = "reels";
 
+window.rcatScroll = (btn, dir) => { const row = btn.parentElement.querySelector(".rcats"); row.scrollBy({ left: dir * Math.max(200, row.clientWidth * 0.7), behavior: "smooth" }); };
+
 // ---------------- 랜딩 (비회원 첫 화면)
 async function viewLanding() {
   let st = null; try { st = await api("/api/stats"); } catch (e) {}
@@ -797,8 +815,8 @@ window.addEventListener("hashchange", () => { document.body.classList.remove("na
   try { const tk = new URLSearchParams(location.search).get("hc_token"); if (tk && ["localhost", "127.0.0.1"].includes(location.hostname)) { localStorage.setItem("hc_token", tk); history.replaceState(null, "", location.pathname + location.hash); } } catch (e) {}
   try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=34"></script>
-<script src="static/account.js?v=5"></script>
+<script src="static/plan.js?v=35"></script>
+<script src="static/account.js?v=6"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
 </body>
 </html>

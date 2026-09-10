@@ -19,11 +19,11 @@
   const pill = (v, on, fn, extra = "") => `<button class="pill ${on ? "on" : ""}" onclick="${fn}" ${extra}>${esc(v)}</button>`;
 
   // ---------- 기다리는 화면: 퍼센트 + 준희 님 노하우 글귀
-  const QUOTES = ["터진 훅에 숫자 없는 훅이 없다. 5개·3가지·3배·한 달.", "훅은 소유물이 아니라 공용 패턴이다. 남의 훅 구조를 그대로 써도 된다.", "뼈대는 고정, 소재만 교체. 레퍼런스의 순서와 속도를 바꾸지 마라.", "첫 3초에 '이거 내 얘기잖아'가 나와야 한다.", "한 씬에 메시지 하나. 3~5초마다 컷.", "자막은 말과 동시에, 한 줄 10자.", "'하세요'보다 '하지 마세요'가 더 멈춘다.", "훅은 2버전 찍어라. 오프닝 3초만 두 번, 본문은 한 번.", "댓글 수가 좋아요를 넘으면 퍼널을 설계할 때다.", "타깃의 겉 고민 말고 속마음을 건드려라.", "비주얼 훅의 상한이 제일 높다. 첫 프레임에 '보여줄 것'을 두어라.", "지어낸 사실은 [확인 필요]로 남긴다. 신뢰가 곧 조회수다.", "캡션 첫 줄이 두 번째 훅이다.", "'안녕하세요'로 시작하는 순간 넘어간다."];
+  const QUOTES = ["훅에는 숫자가 있다. (3년차가 알려주는) 처럼 괄호로 자리를 잡아라.", "모든 영상은 기승전결. 정보형도 예외가 없다.", "뼈대는 레퍼런스 그대로, 소재만 내 가게로.", "첫 3초에 '이거 내 얘기잖아'가 나와야 한다.", "카페와 원장님은 감성과 공감, 커머스와 브랜드는 텐션.", "한 씬에 메시지 하나. 3~5초마다 컷.", "자막은 말과 동시에, 한 줄 열 자 안쪽.", "'하세요'보다 '하지 마세요'가 더 멈춘다.", "문장은 이어져야 한다. ~해서 ~했는데, 근데 ~하더라고요.", "어미를 섞어라. 요, 죠, 거든요, 습니다.", "반신반의로 시작해서 반전으로 끝내라.", "BGM은 목소리 뒤에서 35~55%.", "훅은 두 버전 찍어라. 본문은 한 번, 오프닝만 두 번.", "'안녕하세요'로 시작하는 순간 넘어간다.", "캡션 첫 줄이 두 번째 훅이다.", "지어낸 숫자는 [확인 필요]로 남겨라. 신뢰가 조회수다.", "비주얼 훅이 가장 세다. 첫 프레임에 보여줄 것을 두어라.", "댓글이 좋아요를 넘으면 퍼널을 열 때다.", "겉 고민 말고 속마음을 건드려라.", "터진 구조는 공용 패턴이다. 그대로 써도 된다.", "촬영은 정면, 눈높이, 손에 뭔가 들고.", "마지막 문장은 질문으로 끝내라. 댓글이 달린다.", "40대 사장님도 바로 읽을 수 있는 말로 써라.", "편집자가 못 알아듣는 지시는 없는 것과 같다.", "잘 팔리는 영상은 설명하지 않고 보여준다.", "레퍼런스 3개면 충분하다. 더 보면 흔들린다."];
   let WAIT = null;
   window.showWait = (title, expectSec, sub) => {
     hideWait(); const t0 = Date.now(); let qi = Math.floor(Math.random() * QUOTES.length);
-    const el = document.createElement("div"); el.className = "wait"; el.innerHTML = `<div class="wait-bg"><i></i><i></i></div><div class="wait-card"><canvas class="wait-canvas" width="360" height="360"></canvas><div class="wait-title">${esc(title)}</div><div class="wait-sub" id="wait-sub">${esc(sub || "")}</div><div class="wait-bar"><i id="wait-bar"></i></div><div class="wait-pct"><span id="wait-pct">0%</span><span id="wait-eta">예상 ${expectSec}초</span></div><div class="wait-quote" id="wait-quote">“${esc(QUOTES[qi])}”</div></div>`;
+    const el = document.createElement("div"); el.className = "wait"; el.innerHTML = `<div class="wait-bg"><i></i><i></i></div><div class="wait-card"><canvas class="wait-canvas" width="480" height="480"></canvas><div class="wait-title">${esc(title)}</div><div class="wait-sub" id="wait-sub">${esc(sub || "")}</div><div class="wait-bar"><i id="wait-bar"></i></div><div class="wait-pct"><span id="wait-pct">0%</span><span id="wait-eta">예상 ${expectSec}초</span></div><div class="wait-quote" id="wait-quote">“${esc(QUOTES[qi])}”</div></div>`;
     document.body.appendChild(el);
     startOrb(el.querySelector(".wait-canvas"));
     WAIT = { el, t0, expectSec, real: null, timer: setInterval(() => {
@@ -37,7 +37,7 @@
   // 구(球) 파티클: 모였다(구) → 흩어졌다(먼지) → 다시 모임. 잉크 점 + 라임 점 몇 개
   let ORB = null;
   function startOrb(cv) {
-    if (!cv) return; const ctx = cv.getContext("2d"); const N = 720, R = 96, cx = 180, cy = 180;
+    if (!cv) return; const ctx = cv.getContext("2d"); const N = 760, R = 128, cx = 240, cy = 240;
     const pts = []; const gold = Math.PI * (3 - Math.sqrt(5));
     for (let i = 0; i < N; i++) { const y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = gold * i; pts.push({ x: Math.cos(th) * r, y, z: Math.sin(th) * r, sx: (Math.random() - .5) * 2.6, sy: (Math.random() - .5) * 2.6, sz: (Math.random() - .5) * 2.6, lime: Math.random() < 0.08, s: 0.8 + Math.random() * 1.4 }); }
     const ease = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -46,8 +46,8 @@
       const t = ((now - start) / 6000) % 1;            // 6초 주기
       const spread = t < .35 ? 0 : t < .5 ? ease((t - .35) / .15) : t < .7 ? 1 : t < .9 ? 1 - ease((t - .7) / .2) : 0;
       const rot = (now - start) / 4000, rot2 = (now - start) / 9000;
-      ctx.clearRect(0, 0, 360, 360);
-      const g = ctx.createRadialGradient(cx, cy, 10, cx, cy, 170); g.addColorStop(0, "rgba(191,254,158,.35)"); g.addColorStop(.6, "rgba(109,124,255,.10)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, 360, 360);
+      ctx.clearRect(0, 0, 480, 480);
+      const g = ctx.createRadialGradient(cx, cy, 10, cx, cy, 230); g.addColorStop(0, "rgba(180,140,255,.30)"); g.addColorStop(.6, "rgba(95,208,221,.10)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, 480, 480);
       const order = [];
       for (const p of pts) {
         const x0 = p.x * (1 - spread) + p.sx * spread, y0 = p.y * (1 - spread) + p.sy * spread, z0 = p.z * (1 - spread) + p.sz * spread;
@@ -56,7 +56,7 @@
         const persp = 1 / (1.9 - z2 * 0.6); order.push({ X: cx + x1 * R * persp, Y: cy + y2 * R * persp, z: z2, p, persp });
       }
       order.sort((a, b) => a.z - b.z);
-      for (const o of order) { const a = 0.25 + 0.75 * (o.z + 1) / 2; ctx.beginPath(); ctx.arc(o.X, o.Y, o.p.s * o.persp * (1 + spread * .4), 0, Math.PI * 2); ctx.fillStyle = o.p.lime ? `rgba(120,200,60,${a})` : `rgba(21,23,31,${a * (0.9 - spread * .35)})`; ctx.fill(); }
+      for (const o of order) { const a = 0.25 + 0.75 * (o.z + 1) / 2; ctx.beginPath(); ctx.arc(o.X, o.Y, o.p.s * o.persp * (1 + spread * .4), 0, Math.PI * 2); ctx.fillStyle = o.p.lime ? `rgba(95,208,221,${a})` : `rgba(${Math.round(120 + 60 * (1 - a))},${Math.round(90 + 60 * (1 - a))},255,${a * (0.95 - spread * .3)})`; ctx.fill(); }
       ORB = requestAnimationFrame(frame);
     };
     ORB = requestAnimationFrame(frame);

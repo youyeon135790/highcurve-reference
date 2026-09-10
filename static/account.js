@@ -21,7 +21,7 @@
     $("#main").innerHTML = `<div class="auth-wrap"><div class="auth-card"><a href="#/landing" class="muted" style="font-size:12px">← 소개로 돌아가기</a><div class="ph-kicker" style="margin-top:8px">하이커브</div><h1>${mode === "login" ? "로그인" : "회원가입"}</h1>
       <div class="tabs" style="margin:10px 0 16px"><button class="tab ${mode === "login" ? "on" : ""}" onclick="viewLogin('login')">로그인</button><button class="tab ${mode === "signup" ? "on" : ""}" onclick="viewLogin('signup')">회원가입</button></div>
       ${mode === "signup" ? `<label class="wiz-label">이름</label><input id="au-name" class="wiz-input" placeholder="홍길동">` : ""}
-      <label class="wiz-label">이메일</label><input id="au-email" class="wiz-input" type="email" placeholder="you@example.com">
+      <label class="wiz-label">${mode === "login" ? "아이디 또는 이메일" : "이메일"}</label><input id="au-email" class="wiz-input" type="text" autocapitalize="off" placeholder="${mode === "login" ? "아이디 또는 이메일" : "you@example.com"}">
       <label class="wiz-label">비밀번호 ${mode === "signup" ? "(6자 이상)" : ""}</label><input id="au-pw" class="wiz-input" type="password" onkeydown="if(event.key==='Enter')authSubmit('${mode}')">
       ${mode === "signup" ? `<label class="wiz-label">수강생 초대 코드 (있으면)</label><input id="au-code" class="wiz-input" placeholder="강의에서 받은 코드 → 수강생 플랜(월 20건)"><div class="muted" style="font-size:12px;margin-top:4px">코드가 없으면 무료 체험(월 2건)으로 시작해요.</div>` : ""}
       <div id="au-msg" class="muted" style="margin:8px 0;min-height:18px"></div>
