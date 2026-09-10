@@ -151,7 +151,7 @@ mark{background:var(--lime);padding:1px 4px;border-radius:4px}
 .kakao{background:#fee500!important;color:#191919!important;border-color:#fee500!important;display:inline-block;margin:6px 0 12px}
 table.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table.kv th{text-align:left;color:var(--mute);font-weight:600;width:90px;padding:5px 0;vertical-align:top}table.kv td{padding:5px 0;border-top:1px solid var(--line)}
 
-.fpanel{display:flex;flex-wrap:wrap;gap:14px 22px;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;margin:4px 0 10px;align-items:flex-start}.fgroup{display:flex;flex-direction:column;gap:6px;min-width:200px}.fgroup>b{font-size:12px;color:var(--mute)}.fquick{display:flex;gap:6px;flex-wrap:wrap}.fquick .chip{padding:5px 10px;font-size:12px;cursor:pointer}.frange{display:flex;align-items:center;gap:6px}.frange .fin{width:110px;border:1.5px solid var(--line);border-radius:9px;padding:7px 9px;font-size:13px}.rcat.fbtn{border-style:dashed}
+.fpanel{display:flex;flex-wrap:wrap;gap:14px 22px;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;margin:4px 0 10px;align-items:flex-start}.fgroup{display:flex;flex-direction:column;gap:6px;min-width:200px}.fgroup>b{font-size:12px;color:var(--mute)}.fquick{display:flex;gap:6px;flex-wrap:wrap}.fquick .chip{padding:5px 10px;font-size:12px;cursor:pointer}.frange{display:flex;align-items:center;gap:6px}.frange .fin{width:110px;border:1.5px solid var(--line);border-radius:9px;padding:7px 9px;font-size:13px}.rcat.fbtn{border-style:dashed}.rcat.hot{border-color:#f59e0b;color:#b45309}.rcat.hot.on{background:#f59e0b;border-color:#f59e0b;color:#fff}
 /* 기획안 가독성 */
 .plan-layout{font-size:15px}.plan-side{gap:12px}.title-card h2{font-size:21px;line-height:1.35}.tc-meta{margin-top:10px;font-size:12px;color:#c9cddb}
 .side-sec h3{font-size:15px;display:flex;align-items:baseline;gap:6px}.side-sec h3 small{font-size:12px;font-weight:500}
@@ -211,7 +211,7 @@ ul.checks{list-style:none;margin:0;padding:0}ul.checks li{padding:6px 0;border-t
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1788948612"></script>
+<script src="static_api.js?v=1789030217"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const api = async (p, opt) => {
@@ -443,7 +443,7 @@ async function viewReels() {
       ${yt ? `<select class="chip" onchange="R.band=this.value;R.page=0;viewReels()">${BANDS.map(([v,l]) => `<option value="${v}" ${R.band===v?"selected":""}>구독자 ${l}</option>`).join("")}</select>` : ""}
       <select class="chip" onchange="R.days=this.value;R.page=0;viewReels()">${[["7","최근 7일"],["30","최근 30일"],["60","최근 60일"],["100","최근 100일"],["","전체 기간"]].map(([v,l]) => `<option value="${v}" ${R.days===v?"selected":""}>${l}</option>`).join("")}</select>
     </div>
-    <div class="rcats" style="margin:2px 0 8px"><button class="rcat fbtn ${R.fopen || rfCount() ? "on" : ""}" onclick="R.fopen=!R.fopen;viewReels()">⚙ 필터${rfCount() ? " " + rfCount() : ""}</button><button class="rcat ${!R.cat?"on":""}" onclick="location.hash='#/reels/${R.plat}'">전체</button>${cats.map(c => `<button class="rcat ${R.cat===c[0]?"on":""}" onclick="location.hash='#/reels/${R.plat}/'+encodeURIComponent('${c[0]}')">${c[0]}</button>`).join("")}</div>
+    <div class="rcats" style="margin:2px 0 8px"><button class="rcat fbtn ${R.fopen || rfCount() ? "on" : ""}" onclick="R.fopen=!R.fopen;viewReels()">⚙ 필터${rfCount() ? " " + rfCount() : ""}</button><button class="rcat hot ${F.min_views=="300000"?"on":""}" onclick="rfQuick({min_views:'${F.min_views=="300000"?"":"300000"}',max_views:''})">🔥 터진 것만 30만↑</button><button class="rcat ${!R.cat?"on":""}" onclick="location.hash='#/reels/${R.plat}'">전체</button>${cats.map(c => `<button class="rcat ${R.cat===c[0]?"on":""}" onclick="location.hash='#/reels/${R.plat}/'+encodeURIComponent('${c[0]}')">${c[0]}</button>`).join("")}</div>
     ${R.fopen ? `<div class="fpanel">
       <div class="fgroup"><b>조회수</b><div class="fquick">${[["1만↑","10000"],["10만↑","100000"],["50만↑","500000"],["100만↑","1000000"]].map(([l,v]) => `<button class="chip ${F.min_views==v?"on":""}" onclick="rfQuick({min_views:'${F.min_views==v?"":v}',max_views:''})">${l}</button>`).join("")}</div><div class="frange"><input class="fin" placeholder="이상 (예: 5만)" value="${esc(F.min_views||"")}" onchange="rf('min_views',this.value)"><span>~</span><input class="fin" placeholder="이하" value="${esc(F.max_views||"")}" onchange="rf('max_views',this.value)"></div></div>
       <div class="fgroup"><b>${yt ? "구독자" : "팔로워"}</b><div class="fquick">${[["1만 미만","","10000"],["1~10만","10000","100000"],["10~50만","100000","500000"],["50만↑","500000",""]].map(([l,a,b]) => `<button class="chip ${F.min_followers==a&&F.max_followers==b&&(a||b)?"on":""}" onclick="rfQuick({min_followers:'${a}',max_followers:'${b}'})">${l}</button>`).join("")}</div><div class="frange"><input class="fin" placeholder="이상" value="${esc(F.min_followers||"")}" onchange="rf('min_followers',this.value)"><span>~</span><input class="fin" placeholder="이하" value="${esc(F.max_followers||"")}" onchange="rf('max_followers',this.value)"></div></div>
