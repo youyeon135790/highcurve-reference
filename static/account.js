@@ -9,18 +9,16 @@
   };
   function renderAccountBox() {
     const box = $("#acct"); if (!box) return;
-    if (window.staticApi && !(window.apiBase && window.apiBase())) { box.innerHTML = ""; return; }
     if (ME) box.innerHTML = `<a href="#/account" class="acct-card"><b>${esc(ME.name)}</b><span class="tag ${ME.role === "admin" ? "ok" : ""}">${esc(ME.role === "admin" ? "관리자" : ME.plan_name)}</span><div class="muted">${ME.quota == null ? "기획안 무제한" : `이번 달 기획안 ${ME.used}/${ME.quota}`}</div></a><div class="row" style="gap:4px;margin-top:6px"><a class="btn small" href="#/support">문의</a>${ME.role === "admin" ? '<a class="btn small" href="#/admin">관리</a>' : ""}<button class="btn small" onclick="doLogout()">로그아웃</button></div>`;
-    else if (window.AUTH_OPEN) box.innerHTML = `<div class="muted" style="font-size:12px">아직 회원이 없어요. 첫 가입자가 관리자가 됩니다.</div><a class="btn p small" href="#/login">가입하기</a>`;
     else box.innerHTML = `<a class="btn p small" href="#/login">로그인 · 가입</a> <a class="btn small" href="#/pricing">요금제</a>`;
   }
-  window.doLogout = async () => { try { await post("/api/auth/logout", {}); } catch (e) {} localStorage.removeItem("hc_token"); ME = null; renderAccountBox(); location.hash = "#/reels"; toast("로그아웃했어요"); };
-  window.requireLogin = (msg) => { if (ME || window.AUTH_OPEN) return true; toast(msg || "로그인이 필요해요"); location.hash = "#/login"; return false; };
+  window.doLogout = async () => { try { await post("/api/auth/logout", {}); } catch (e) {} localStorage.removeItem("hc_token"); ME = null; renderAccountBox(); window.__meLoaded = false; location.hash = "#/landing"; toast("로그아웃했어요"); };
+  window.requireLogin = (msg) => { if (ME) return true; toast(msg || "로그인이 필요해요"); location.hash = "#/login"; return false; };
 
   // ---------- 로그인/가입
   window.viewLogin = function (mode) {
     mode = mode || "login";
-    $("#main").innerHTML = `<div class="auth-wrap"><div class="auth-card"><div class="ph-kicker">하이커브</div><h1>${mode === "login" ? "로그인" : "회원가입"}</h1>
+    $("#main").innerHTML = `<div class="auth-wrap"><div class="auth-card"><a href="#/landing" class="muted" style="font-size:12px">← 소개로 돌아가기</a><div class="ph-kicker" style="margin-top:8px">하이커브</div><h1>${mode === "login" ? "로그인" : "회원가입"}</h1>
       <div class="tabs" style="margin:10px 0 16px"><button class="tab ${mode === "login" ? "on" : ""}" onclick="viewLogin('login')">로그인</button><button class="tab ${mode === "signup" ? "on" : ""}" onclick="viewLogin('signup')">회원가입</button></div>
       ${mode === "signup" ? `<label class="wiz-label">이름</label><input id="au-name" class="wiz-input" placeholder="홍길동">` : ""}
       <label class="wiz-label">이메일</label><input id="au-email" class="wiz-input" type="email" placeholder="you@example.com">
@@ -39,7 +37,7 @@
       const r = await post(mode === "signup" ? "/api/auth/signup" : "/api/auth/login", body);
       if (r.error) throw new Error(r.error);
       if (r.token) localStorage.setItem("hc_token", r.token);
-      await loadMe(); toast(mode === "signup" ? `환영해요, ${r.user.name}님` : `안녕하세요, ${r.user.name}님`); location.hash = "#/plan";
+      await loadMe(); window.__meLoaded = true; toast(mode === "signup" ? `환영해요, ${r.user.name}님` : `안녕하세요, ${r.user.name}님`); location.hash = "#/reels";
     } catch (e) { m.textContent = e.message; }
   };
 

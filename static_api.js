@@ -127,6 +127,30 @@
     localStorage.setItem("apiBase", base); location.reload(); return true;
   };
   window.disconnectServer = () => { localStorage.removeItem("apiBase"); location.reload(); };
+  // 배포본(github.io) 회원: 서버가 없으므로 이 브라우저 안에서만 유지되는 간이 가입. 도구는 어차피 서버 전용.
+  const SU = () => { try { return JSON.parse(localStorage.getItem("hc_users") || "{}"); } catch (e) { return {}; } };
+  const sha = async (t) => { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); };
+  async function staticAuth(path, opt) {
+    const body = opt && opt.body ? JSON.parse(opt.body) : {};
+    const cur = () => { try { return JSON.parse(localStorage.getItem("hc_static_me") || "null"); } catch (e) { return null; } };
+    const pub = (u) => ({ id: u.email, email: u.email, name: u.name, role: "member", plan: u.plan, plan_name: u.plan === "student" ? "수강생" : "체험", quota: 0, used: 0, remaining: 0, status: "active", created_at: u.created_at });
+    const cfg = (STATIC.meta && STATIC.meta.config) || {};
+    if (path === "/api/auth/me") return { user: cur() ? pub(cur()) : null, open: false, plans: {}, categories: [], support: { url: cfg.support_channel_url || "", name: cfg.support_channel_name || "하이커브 채널" } };
+    if (path === "/api/auth/logout") { localStorage.removeItem("hc_static_me"); return { ok: true }; }
+    const users = SU(); const email = (body.email || "").trim().toLowerCase();
+    if (path === "/api/auth/signup") {
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { error: "이메일 형식을 확인해주세요" };
+      if ((body.password || "").length < 6) return { error: "비밀번호는 6자 이상" };
+      if (!(body.name || "").trim()) return { error: "이름을 적어주세요" };
+      if (users[email]) return { error: "이미 가입된 이메일이에요. 로그인해주세요" };
+      const code = (body.code || "").trim(); if (code && !(cfg.invite_codes || []).includes(code)) return { error: "초대 코드가 맞지 않아요 (없으면 비워두세요)" };
+      const u = { email, name: body.name.trim(), pw: await sha(body.password), plan: code ? "student" : "free", created_at: new Date().toISOString().slice(0, 10) };
+      users[email] = u; localStorage.setItem("hc_users", JSON.stringify(users)); localStorage.setItem("hc_static_me", JSON.stringify(u)); return { user: pub(u) };
+    }
+    if (path === "/api/auth/login") { const u = users[email]; if (!u || u.pw !== await sha(body.password || "")) return { error: "이메일 또는 비밀번호가 맞지 않아요" }; localStorage.setItem("hc_static_me", JSON.stringify(u)); return { user: pub(u) }; }
+    if (path === "/api/auth/password") { const me = cur(); if (!me) return { error: "로그인이 필요해요" }; const u = users[me.email]; if (!u || u.pw !== await sha(body.old || "")) return { error: "현재 비밀번호가 맞지 않아요" }; if ((body.new || "").length < 6) return { error: "새 비밀번호는 6자 이상" }; u.pw = await sha(body.new); users[me.email] = u; localStorage.setItem("hc_users", JSON.stringify(users)); localStorage.setItem("hc_static_me", JSON.stringify(u)); return { ok: true }; }
+    return { error: "지원하지 않아요" };
+  }
   window.staticApi = async function (p, opt) {
     const base = window.apiBase();
     if (base) {
@@ -137,6 +161,7 @@
     }
     await load();
     const method = (opt && opt.method) || "GET";
+    { const ap = new URL(p, location.href).pathname.replace(/^.*\/api\//, "/api/"); if (ap.startsWith("/api/auth/")) return staticAuth(ap, opt); }
     if (method !== "GET") throw new Error("체험판(배포본)에서는 여기까지예요. 영상 분석·기획안 생성은 하이커브 서버에서만 됩니다");
     const u = new URL(p, location.href); const path = u.pathname.replace(/^.*\/api\//, "/api/"); const qs = u.searchParams;
     if (path === "/api/meta") return { ...STATIC.meta, adapters: {}, static: true };
