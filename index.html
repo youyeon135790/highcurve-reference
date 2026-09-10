@@ -68,17 +68,6 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 6px;b
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.2s;z-index:40}.toast.on{opacity:1}
 .avatar{width:44px;height:44px;border-radius:12px;background:#e9ecf5;object-fit:cover}
 
-/* ---- 하이커브 아이덴티티 */
-body{background:radial-gradient(1200px 600px at 8% -10%,rgba(191,254,158,.28),transparent 60%),radial-gradient(900px 500px at 100% 0%,rgba(109,124,255,.10),transparent 55%),var(--bg);background-attachment:fixed}
-.side{background:rgba(255,255,255,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-right:1px solid rgba(21,23,31,.06)}
-.logo{font-size:17px;letter-spacing:-.03em}.logo i{width:26px;height:26px;border-radius:9px;background:var(--ink);position:relative}.logo i:after{content:"";position:absolute;left:5px;top:5px;width:16px;height:16px;border-radius:50% 50% 50% 0;background:var(--lime);transform:rotate(-45deg)}
-.nav a{border-radius:11px;position:relative}.nav a.on{background:var(--ink);color:#fff}.nav a.on:before{content:"";position:absolute;left:-14px;top:50%;width:6px;height:22px;border-radius:0 6px 6px 0;background:var(--lime);transform:translateY(-50%)}
-h1,.plan-home .hero h1,.title-card h2{font-family:"Pretendard Variable",Pretendard,sans-serif;letter-spacing:-.035em;font-weight:850}
-h2{position:relative}h2:after{content:"";display:inline-block;width:22px;height:8px;margin-left:8px;border-radius:0 0 22px 22px;border:3px solid var(--lime);border-top:0;vertical-align:middle;opacity:.9}
-.panel,.rcard,.refcard,.scene,.bcard,.refsec,.side-sec,.pricecard,.auth-card,.cutcard,.ecard{border-radius:18px;border-color:rgba(21,23,31,.08)}
-.btn.p{box-shadow:0 6px 16px rgba(21,23,31,.18)}.btn.p:active{transform:translateY(1px)}
-.hc-curve{position:fixed;right:-120px;bottom:-140px;width:520px;height:520px;border-radius:50%;border:90px solid rgba(191,254,158,.18);pointer-events:none;z-index:0}
-.main{position:relative;z-index:1}
 /* ---- 디자인 리프레시 + 기획 위저드 */
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
 body{font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;-webkit-font-smoothing:antialiased}
@@ -193,27 +182,53 @@ ul.checks{list-style:none;margin:0;padding:0}ul.checks li{padding:6px 0;border-t
 @media(max-width:800px){.why-grid{grid-template-columns:1fr}.cutgrid{grid-template-columns:1fr}.cutcard{grid-template-columns:72px 1fr}.cut-img img,.cut-ph{width:72px}}
 @media(max-width:1400px){.scenes-list{grid-template-columns:repeat(2,1fr)}}@media(max-width:1000px){.scenes-list{grid-template-columns:1fr}.prefs{grid-template-columns:1fr}.plan-layout{grid-template-columns:1fr}.plan-side{position:static;max-height:none}.scene-grid{grid-template-columns:1fr}.scene-visual{flex-direction:row}.scene-visual>*{flex:1}.say-big{font-size:17px}}
 @media(max-width:900px){.plan-home .hero{grid-template-columns:1fr}.hero-art{display:none}.plan-hero{flex-direction:column}}
+/* ---- 하이커브 기본 톤: 흰 바탕, 1px 선, 검정 버튼, 라임은 포인트만 */
+:root{--bg:#fafafa;--panel:#fff;--line:#e5e7eb;--ink:#111318;--mute:#6b7280;--brand:#111318;--brand2:#f3f4f6;--lime:#c6ff5b;--r:12px}
+body{background:var(--bg)}
+.side{background:#fff;border-right:1px solid var(--line)}
+.logo{font-size:15px;letter-spacing:-.02em;font-weight:800}.logo i{width:22px;height:22px;border-radius:6px;background:var(--ink)}.logo i:after{content:"";position:absolute;left:6px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--lime)}
+.nav a{border-radius:8px;padding:8px 10px;font-weight:500;color:#374151}.nav a:hover{background:#f3f4f6}.nav a.on{background:#111318;color:#fff}.nav a.on .tag{background:var(--lime);color:#111}.nav a svg{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav .sec{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;padding:16px 10px 6px}
+h1{font-size:24px;letter-spacing:-.02em;font-weight:700}h2{font-size:16px;font-weight:700}h2:after{display:none}
+.panel,.rcard,.refcard,.scene,.bcard,.refsec,.side-sec,.pricecard,.auth-card,.cutcard,.ecard,.hook,.topic,.plancard,.bones,.brief-top,.plan-hero,.wiz-summary,.wiz-more,.fpanel{border-radius:12px;border:1px solid var(--line);box-shadow:none}
+.rcard:hover,.refcard:hover,.plancard:hover,.scene:hover{box-shadow:0 4px 14px rgba(17,19,24,.06);transform:none}
+.btn{border-radius:8px;font-weight:600;border:1px solid var(--line);background:#fff}.btn:hover{background:#f9fafb}.btn.p{background:#111318;color:#fff;border-color:#111318;box-shadow:none}.btn.p:hover{background:#000}.btn.big{border-radius:10px}
+.pill{border-radius:8px;border:1px solid var(--line);background:#fff;font-weight:500}.pill.on{background:#111318;color:#fff;border-color:#111318;box-shadow:none}
+.chip,.rcat{border-radius:8px}.chip.on,.rcat.on{background:#111318;color:#fff;border-color:#111318}
+.tag{border-radius:6px;background:#f3f4f6;color:#374151;font-weight:600}.tag.ok{background:var(--lime);color:#111}
+.search{border-radius:10px;border:1px solid var(--line)}
+.wiz-input{border:1px solid var(--line);border-radius:10px}.wiz-input:focus{border-color:#111318;box-shadow:0 0 0 3px rgba(17,19,24,.08)}
+.wiz-bar{background:#eef0f3}.wiz-bar i{background:#111318}
+.plan-home .hero{background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:14px}.plan-home .hero:before{display:none}.plan-home .hero h1{color:var(--ink);font-size:28px}.plan-home .hero p{color:#4b5563}.plan-home .hero .btn.p{background:#111318;color:#fff;border-color:#111318}.plan-home .hero .ghost2{background:#fff;border-color:var(--line);color:var(--ink)}.hero-art{display:none}
+.ph-kicker{color:#6b7280}.title-card{background:#111318;border:0}.title-card:before{display:none}.ttag{background:var(--lime);color:#111}
+.tabs{border-bottom:1px solid var(--line)}.tab.on{border-bottom-color:#111318}
+.saybox{border-left-color:#111318;background:#f9fafb}.saybox .cap{color:#374151}.guidebox{border-left-color:#d1d5db;background:#fafafa}.guidebox>b{color:#374151}.editbox{background:#fafafa}
+.cap-line,.cut-cap,table.scenes td.cap{color:#1f2937}
+.scene-no,.scene-head .scene-no,.ecard-head .scene-no{background:#111318}.scene-head{background:#fafafa}
+.stat,.chip2,.cchip{background:#f3f4f6}.sb-tip,.cut-point{background:#fffbeb;color:#713f12}
+.rc-label{background:var(--lime);color:#111}.refcard.on{border-color:#111318}.refcard.on .rc-check{background:var(--lime);border-color:var(--lime)}
+.wait{background:rgba(255,255,255,.94)}.wait-bg{display:none}.wait-card{background:#fff;border:1px solid var(--line);box-shadow:0 20px 60px rgba(17,19,24,.10)}.wait-bar i{background:#111318;animation:none}
+.topbar{border-bottom:1px solid var(--line)}
 </style>
 <style>a[data-r="boards"],a[data-r="settings"],#rlive,#rlivemsg,.racct .btn,button[onclick*="pickBoard"],button[onclick*="openItem"]{display:none!important}</style>
 </head>
 <body>
 <div class="topbar"><button class="btn ghost" onclick="document.body.classList.toggle('nav-open')">☰</button><b>하이커브</b><a class="btn small" href="#/plan/new">+ 기획</a></div>
-<div class="hc-curve"></div>
 <div class="app">
   <aside class="side">
     <div class="logo"><i></i>하이커브 레퍼런스</div>
     <nav class="nav">
       <div id="catnav"></div>
       <div class="sec">도구</div>
-      <a href="#/explore" data-r="explore">🔍 탐색 · 필터</a>
-      <a href="#/brands" data-r="brands">🏷️ 브랜드 아카이브</a>
-      <a href="#/trends" data-r="trends">📈 트렌드 <span class="tag">NEW</span></a>
-      <a href="#/boards" data-r="boards">📌 보드</a>
-      <a href="#/plan" data-r="plan">✍️ 기획</a>
-      <a href="#/edit" data-r="edit">🎬 편집</a>
-      <a href="#/support" data-r="support">💬 고객센터</a>
-      <a href="#/pricing" data-r="pricing">💳 요금제</a>
-      <a href="#/settings" data-r="settings">⚙️ 설정 · 수집</a>
+      <a href="#/explore" data-r="explore"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg> 탐색 · 필터</a>
+      <a href="#/brands" data-r="brands"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg> 브랜드 아카이브</a>
+      <a href="#/trends" data-r="trends"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> 트렌드 <span class="tag">NEW</span></a>
+      <a href="#/boards" data-r="boards"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg> 보드</a>
+      <a href="#/plan" data-r="plan"><svg viewBox="0 0 24 24"><path d="M4 20h16M6 16l10-10 2 2L8 18l-3 1z"/></svg> 기획</a>
+      <a href="#/edit" data-r="edit"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M8 5v14"/></svg> 편집</a>
+      <a href="#/support" data-r="support"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg> 고객센터</a>
+      <a href="#/pricing" data-r="pricing"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg> 요금제</a>
+      <a href="#/settings" data-r="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2-1.2L14.3 3h-4l-.4 2.6a7 7 0 0 0-2 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 2 1.2l.4 2.6h4l.4-2.6a7 7 0 0 0 2-1.2l2.3.9 2-3.4-2-1.5A7 7 0 0 0 19 12z"/></svg> 설정 · 수집</a>
     </nav>
     <div id="acct" class="acct"></div>
     <div class="foot"><b id="wsname">하이커브 워크스페이스</b><span id="count">-</span></div>
@@ -224,9 +239,10 @@ ul.checks{list-style:none;margin:0;padding:0}ul.checks li{padding:6px 0;border-t
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789039908"></script>
+<script src="static_api.js?v=1789040254"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
 const api = async (p, opt) => {
   opt = opt || {}; try { const t = localStorage.getItem("hc_token"); if (t) opt.headers = { ...(opt.headers || {}), Authorization: "Bearer " + t }; } catch (e) {}
   if (window.staticApi) return window.staticApi(p, opt);
@@ -259,7 +275,7 @@ function card(it, opts={}) {
   const ratio = it.followers && it.views ? (it.views / it.followers).toFixed(1) + "x" : null;
   const short = (u) => { try { const x = new URL(u); return x.hostname.replace("www.", "") + x.pathname.replace(/\/$/, "").slice(0, 28); } catch { return u; } };
   return `<div class="card" data-id="${it.id}" onclick="openItem(${it.id})">
-    <a class="thumb" href="${esc(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="원본 열기">${it.thumbnail ? `<img src="${esc(it.thumbnail)}" loading="lazy" onerror="this.remove()">` : `<div class="ph">썸네일 없음</div>`}
+    <a class="thumb" href="${esc(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="원본 열기">${it.thumbnail ? `<img src="${esc(it.thumbnail)}" loading="lazy" onerror="imgRetry(this)">` : `<div class="ph">썸네일 없음</div>`}
       <div class="badge">${logo(it.platform, 16)}${PLAT[it.platform] || it.platform}</div>
       <div class="cap">${esc((it.caption || "").split("\n")[0].slice(0, 60))}</div><span class="open">↗</span></a>
     <div class="body">
@@ -333,7 +349,7 @@ async function openItem(id) {
   d.innerHTML = `<button class="x" onclick="closeAll()">✕</button>
     <div class="badge" style="position:static;display:inline-flex;margin-bottom:8px">${logo(it.platform, 18)}${PLAT[it.platform] || it.platform} · ${esc(it.source)}</div>
     <h3>${esc(it.account_name || it.account || "")} <small style="color:var(--mute);font-weight:400">@${esc(it.account || "")}</small></h3>
-    ${it.thumbnail ? `<img src="${esc(it.thumbnail)}" style="width:100%;max-height:260px;object-fit:cover;border-radius:10px" onerror="this.remove()">` : ""}
+    ${it.thumbnail ? `<img src="${esc(it.thumbnail)}" style="width:100%;max-height:260px;object-fit:cover;border-radius:10px" onerror="imgRetry(this)">` : ""}
     <div class="kv"><div><b>${fmt(it.views)}</b><span>조회수</span></div><div><b>${fmt(it.likes)}</b><span>좋아요</span></div><div><b>${fmt(it.comments)}</b><span>댓글</span></div><div><b>${fmt(it.followers)}</b><span>팔로워</span></div></div>
     <label>게시일 / 업종 / 유형 / 계정</label><div class="row"><input id="e_posted" value="${esc(it.posted_at || "")}" style="flex:1"><select id="e_ind" style="flex:1"><option value="">(미분류)</option>${META.industries.map(i => `<option ${it.industry===i?"selected":""}>${i}</option>`).join("")}</select>
       <select id="e_kind" style="flex:1">${[["reel","릴스"],["shorts","쇼츠"]].map(([v,l]) => `<option value="${v}" ${it.kind===v?"selected":""}>${l}</option>`).join("")}</select>
@@ -406,7 +422,7 @@ async function addBrand() { const h = $("#b_handle").value.trim(); if (!h) retur
 // ---------------- 업종 트렌드
 let trendInd = "", trendDays = 7, trendPlat = "";
 function tcard(it, extra) {
-  return `<div class="card" onclick="openItem(${it.id})"><a class="thumb" href="${esc(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="aspect-ratio:9/11">${it.thumbnail ? `<img src="${esc(it.thumbnail)}" loading="lazy" onerror="this.remove()">` : `<div class="ph">썸네일 없음</div>`}
+  return `<div class="card" onclick="openItem(${it.id})"><a class="thumb" href="${esc(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="aspect-ratio:9/11">${it.thumbnail ? `<img src="${esc(it.thumbnail)}" loading="lazy" onerror="imgRetry(this)">` : `<div class="ph">썸네일 없음</div>`}
     <div class="badge">${logo(it.platform, 16)}${PLAT[it.platform] || it.platform}</div><div class="cap">${esc((it.caption || "").split("\n")[0].slice(0, 50))}</div>${extra ? `<span class="open" style="background:var(--brand)">${extra}</span>` : ""}</a>
     <div class="body"><div class="acc">${esc(it.account_name || it.account || "-")}</div><div class="meta"><span>${esc(it.posted_at || "")}</span><span>▶ <b>${fmt(it.views)}</b></span><span>❤ <b>${fmt(it.likes)}</b></span>${it.followers ? `<span>👥 ${fmt(it.followers)}</span>` : ""}</div></div></div>`;
 }
@@ -524,7 +540,7 @@ async function openReel(id) {
     <div class="rsim" id="rsim"><div class="rcaph">🔎 유사한 릴스 <small style="color:var(--mute);font-weight:400">같은 카테고리 · 캡션·해시태그·썸네일 유사도</small></div><div class="rsimgrid">불러오는 중…</div></div>`;
   try {
     const sim = await api(`/api/items/${id}/similar?limit=36`);
-    $("#rsim .rsimgrid").innerHTML = sim.length ? sim.map(x => `<div class="scard" onclick="openReel(${x.id})">${x.thumbnail ? `<img src="${esc(x.thumbnail)}" loading="lazy" onerror="this.remove()">` : ""}<span class="rv">${x.views != null ? "▶ " + fmt(x.views) : "❤ " + fmt(x.likes)}</span><div class="sacc">@${esc(x.account || "-")}</div></div>`).join("") : '<span class="muted">아직 비슷한 릴스가 없어요</span>';
+    $("#rsim .rsimgrid").innerHTML = sim.length ? sim.map(x => `<div class="scard" onclick="openReel(${x.id})">${x.thumbnail ? `<img src="${esc(x.thumbnail)}" loading="lazy" onerror="imgRetry(this)">` : ""}<span class="rv">${x.views != null ? "▶ " + fmt(x.views) : "❤ " + fmt(x.likes)}</span><div class="sacc">@${esc(x.account || "-")}</div></div>`).join("") : '<span class="muted">아직 비슷한 릴스가 없어요</span>';
     $("#modal").scrollTop = 0;
   } catch (e) {}
 }
@@ -590,7 +606,7 @@ async function demo() { await post("/api/demo"); toast("샘플 24건 추가 (설
 const PLANREFS = () => { try { return JSON.parse(localStorage.getItem("planRefs") || "[]"); } catch (e) { return []; } };
 const setPlanRefs = (a) => { localStorage.setItem("planRefs", JSON.stringify([...new Set(a)].slice(0, 6))); updatePlanBadge(); };
 function togglePlanRef(id) { const a = PLANREFS(); const i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); setPlanRefs(a); toast(i >= 0 ? "기획 바구니에서 뺐어요" : `기획 바구니에 담았어요 (${PLANREFS().length}개)`); const b = $("#planbtn-" + id); if (b) b.textContent = i >= 0 ? "✍️ 기획에 담기" : "✅ 담김"; }
-function updatePlanBadge() { const n = PLANREFS().length; const a = $('a[data-r="plan"]'); if (a) a.innerHTML = `✍️ 기획 ${n ? `<span class="tag" style="background:#111;color:#fff">${n}</span>` : ""}`; }
+function updatePlanBadge() { const n = PLANREFS().length; const a = $('a[data-r="plan"]'); if (a) a.innerHTML = `<svg viewBox="0 0 24 24"><path d="M4 20h16M6 16l10-10 2 2L8 18l-3 1z"/></svg> 기획 ${n ? `<span class="tag" style="background:#111;color:#fff">${n}</span>` : ""}`; }
 let PLAN = { current: null };
 async function viewPlan(arg) {
   updatePlanBadge();
@@ -637,8 +653,8 @@ async function route() {
 window.addEventListener("hashchange", () => { document.body.classList.remove("nav-open"); route(); });
 (async () => { try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=32"></script>
-<script src="static/account.js?v=3"></script>
+<script src="static/plan.js?v=33"></script>
+<script src="static/account.js?v=4"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
 </body>
 </html>

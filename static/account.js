@@ -10,7 +10,7 @@
   function renderAccountBox() {
     const box = $("#acct"); if (!box) return;
     if (window.staticApi && !(window.apiBase && window.apiBase())) { box.innerHTML = ""; return; }
-    if (ME) box.innerHTML = `<a href="#/account" class="acct-card"><b>${esc(ME.name)}</b><span class="tag ${ME.role === "admin" ? "ok" : ""}">${esc(ME.role === "admin" ? "관리자" : ME.plan_name)}</span><div class="muted">${ME.quota == null ? "기획안 무제한" : `이번 달 기획안 ${ME.used}/${ME.quota}`}</div></a><div class="row" style="gap:4px;margin-top:6px"><a class="btn small" href="#/support">💬 문의</a>${ME.role === "admin" ? '<a class="btn small" href="#/admin">🛠 관리</a>' : ""}<button class="btn small" onclick="doLogout()">로그아웃</button></div>`;
+    if (ME) box.innerHTML = `<a href="#/account" class="acct-card"><b>${esc(ME.name)}</b><span class="tag ${ME.role === "admin" ? "ok" : ""}">${esc(ME.role === "admin" ? "관리자" : ME.plan_name)}</span><div class="muted">${ME.quota == null ? "기획안 무제한" : `이번 달 기획안 ${ME.used}/${ME.quota}`}</div></a><div class="row" style="gap:4px;margin-top:6px"><a class="btn small" href="#/support">문의</a>${ME.role === "admin" ? '<a class="btn small" href="#/admin">관리</a>' : ""}<button class="btn small" onclick="doLogout()">로그아웃</button></div>`;
     else if (window.AUTH_OPEN) box.innerHTML = `<div class="muted" style="font-size:12px">아직 회원이 없어요. 첫 가입자가 관리자가 됩니다.</div><a class="btn p small" href="#/login">가입하기</a>`;
     else box.innerHTML = `<a class="btn p small" href="#/login">로그인 · 가입</a> <a class="btn small" href="#/pricing">요금제</a>`;
   }
@@ -60,7 +60,7 @@
   // ---------- 고객센터 (FAQ + 문의)
   const FAQ = [
     ["기획안은 어떻게 만들어지나요?", "직업·타깃·키워드를 고르면 저장소에서 참고 릴스를 찾고, 고른 릴스의 영상을 실제로 뜯어(컷·자막·대사·효과음) 하이커브 기획 원칙으로 씬별 대본·촬영 가이드·캡컷 편집표·편집 외주서를 만듭니다. 3~5분 걸려요."],
-    ["기획안 1회에 뭐가 나오나요?", "① 참고 릴스 최대 3개 영상 분석(컷·자막·대사·효과음) ② 주제 추천 8개(+더 뽑기) ③ 첫 문장(훅) 5개 ④ 씬별 대본·촬영 가이드·캡컷 편집(기승전결, 고른 길이) ⑤ 전체 대본 ⑥ 씬 구도 스케치 ⑦ 편집 외주서 ⑧ 캡션·찍을 것·준비물. '기획안 만들기'를 누른 순간 1회 차감되고, 같은 조건으로 15분 안에 다시 누르면 새로 만들지 않고 그 기획안을 엽니다."],
+    ["기획안 1회에 뭐가 나오나요?", "참고 릴스 최대 3개 영상 분석(컷·자막·대사·효과음) 주제 추천 8개(+더 뽑기) 첫 문장(훅) 5개 ④ 씬별 대본·촬영 가이드·캡컷 편집(기승전결, 고른 길이) ⑤ 전체 대본 ⑥ 씬 구도 스케치 ⑦ 편집 외주서 ⑧ 캡션·찍을 것·준비물. '기획안 만들기'를 누른 순간 1회 차감되고, 같은 조건으로 15분 안에 다시 누르면 새로 만들지 않고 그 기획안을 엽니다."],
     ["수정은 어디까지 되나요?", "기획안 하나당: 대사·자막·화면·캡션 직접 고치기 무제한 · 훅 적용(바꿔 끼우기) 무제한 · 다른 훅 공식으로 3개 더 뽑기 5회 · 훅에 맞춰 씬 1~2 다시 쓰기 3회 · 내 말투로 다듬기 3회 · 스케치 다시 그리기 3회 · 편집 외주서 다시 만들기 2회. 이 한도는 기획안 횟수에서 차감되지 않습니다. 주제나 참고 릴스를 바꾸려면 새 기획안(1회)입니다."],
     ["참고 릴스가 마음에 안 들어요", "4단계에서 '다시 찾기'를 누르거나 서브 키워드를 바꿔보세요. 인스타 릴스 링크를 직접 넣어도 됩니다(최대 3개)."],
     ["대본이 제 말투가 아니에요", "기획안 화면에서 '🗣 내 말투로 다듬기'에 말투를 적어주세요. 대사·자막·캡션은 화면에서 눌러 직접 고칠 수도 있어요."],
@@ -75,7 +75,7 @@
     const inq = ME ? await api("/api/inquiries").catch(() => []) : [];
     const sp = META_AUTH.support || {};
     $("#main").innerHTML = `<h1>고객센터</h1><p class="muted">자주 묻는 질문을 먼저 확인하고, 없으면 문의를 남겨주세요. 평일 24시간 안에 답합니다.</p>
-      ${sp.url ? `<a class="btn p big kakao" href="${esc(sp.url)}" target="_blank" rel="noopener">💬 ${esc(sp.name || "하이커브 채널")}로 바로 문의</a>` : `<div class="panel warn">하이커브 채널 링크가 아직 설정되지 않았어요 (설정 → 문의 채널). 그동안은 아래 문의 폼으로 받습니다.</div>`}
+      ${sp.url ? `<a class="btn p big kakao" href="${esc(sp.url)}" target="_blank" rel="noopener">${esc(sp.name || "하이커브 채널")}로 바로 문의</a>` : `<div class="panel warn">하이커브 채널 링크가 아직 설정되지 않았어요 (설정 → 문의 채널). 그동안은 아래 문의 폼으로 받습니다.</div>`}
       <div class="two"><section><h2>자주 묻는 질문</h2>${FAQ.map(([q, a]) => `<details class="faq"><summary>${esc(q)}</summary><div>${esc(a)}</div></details>`).join("")}</section>
       <section><h2>문의하기</h2><div class="panel">${ME ? `<div class="muted">${esc(ME.name)} · ${esc(ME.email)}</div>` : `<label class="wiz-label">이름</label><input id="iq-name" class="wiz-input"><label class="wiz-label">답변 받을 이메일</label><input id="iq-email" class="wiz-input" type="email">`}
         <label class="wiz-label">종류</label><select id="iq-cat" class="wiz-input">${cats.map(c => `<option>${esc(c)}</option>`).join("")}</select>
