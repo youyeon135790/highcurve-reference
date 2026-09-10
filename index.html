@@ -241,7 +241,7 @@ h1{letter-spacing:-.03em;font-weight:800}h2{font-weight:800;letter-spacing:-.02e
 .btn.p{background:var(--grad);color:#fff;border:0;box-shadow:0 8px 20px rgba(255,111,181,.25)}.btn.p:hover{background:var(--grad);filter:brightness(1.05);box-shadow:0 10px 24px rgba(138,108,255,.3)}
 .btn.big{border-radius:14px}
 .chip,.rcat,.pill,.tabs button{border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.8);color:#4B4460;font-weight:500}
-.chip.on,.rcat.on,.pill.on,.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:none}
+.chip.on,.rcat.on,.pill.on,.tabs button.on{background:#F1ECFF;color:#5B44C9;border-color:#D9CCFF;box-shadow:none;font-weight:700}
 .rcat.on,.chip.on{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 6px 16px rgba(255,111,181,.22)}
 .tag{border-radius:999px;background:#F1ECFF;color:#5B44C9;font-weight:600}.tag.ok,.ttag,.rc-label{background:var(--grad);color:#fff}
 .wiz-bar{background:#F1ECFF}.wiz-bar i{background:var(--grad)}.wiz-input{border:1px solid var(--line);border-radius:14px;background:#fff}.wiz-input:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(138,108,255,.15)}
@@ -249,7 +249,7 @@ h1{letter-spacing:-.03em;font-weight:800}h2{font-weight:800;letter-spacing:-.02e
 .rcard,.card,.plancard,.refcard{transition:.2s}.rcard:hover,.card:hover,.refcard:hover,.plancard:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(138,108,255,.16);border-color:#E3D9FF}
 .rthumb,.thumb{background:var(--gradsoft)}.badge{border-radius:8px;background:rgba(255,255,255,.9)}
 .search{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:999px;padding:11px 18px}.search:focus-within{border-color:var(--brand);box-shadow:0 0 0 4px rgba(138,108,255,.12)}
-.plan-home .hero{background:linear-gradient(120deg,rgba(255,211,196,.55),rgba(255,194,226,.45) 50%,rgba(217,204,255,.6));border:1px solid rgba(255,255,255,.8);border-radius:22px;color:var(--ink)}.plan-home .hero:before{display:none}.plan-home .hero h1{color:var(--ink);font-size:30px}.plan-home .hero p{color:#5B5470}.plan-home .hero .btn.p{background:var(--ink);box-shadow:none}
+.plan-home .hero{background:linear-gradient(120deg,rgba(255,211,196,.55),rgba(255,194,226,.45) 50%,rgba(217,204,255,.6));border:1px solid rgba(255,255,255,.8);border-radius:22px;color:var(--ink)}.plan-home .hero:before{display:none}.plan-home .hero h1{color:var(--ink);font-size:30px}.plan-home .hero p{color:#5B5470}.plan-home .hero .btn.p{background:var(--grad);box-shadow:0 8px 20px rgba(138,108,255,.25)}
 .ph-kicker{color:var(--brand);font-weight:700}
 .title-card{background:var(--grad);border:0;color:#fff}.title-card:before{display:none}.tc-meta{color:rgba(255,255,255,.8)}
 .tabs{border-bottom:1px solid var(--line)}.tab.on{border-bottom-color:var(--brand);color:var(--brand)}
@@ -292,7 +292,7 @@ h1{letter-spacing:-.03em;font-weight:800}h2{font-weight:800;letter-spacing:-.02e
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789041425"></script>
+<script src="static_api.js?v=1789041448"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
