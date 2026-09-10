@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>하이커브 레퍼런스 저장소</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f6f7fb;--panel:#fff;--line:#e6e8ef;--ink:#15171f;--mute:#7b8194;--brand:#2f54eb;--brand2:#eef2ff;--lime:#bffe9e;--red:#ec1d1d;--r:12px}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Pretendard","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:14px}
@@ -209,14 +210,45 @@ h1{font-size:24px;letter-spacing:-.02em;font-weight:700}h2{font-size:16px;font-w
 .rc-label{background:var(--lime);color:#111}.refcard.on{border-color:#111318}.refcard.on .rc-check{background:var(--lime);border-color:var(--lime)}
 .wait{background:rgba(255,255,255,.94)}.wait-bg{display:none}.wait-card{background:#fff;border:1px solid var(--line);box-shadow:0 20px 60px rgba(17,19,24,.10)}.wait-bar i{background:#111318;animation:none}
 .topbar{border-bottom:1px solid var(--line)}
+
+/* ---- HIGHCURVE v2: 잉크 사이드바 · 페이퍼 본문 · 라임은 활성 표시에만 */
+:root{--bg:#FAFBFC;--ink:#0F1011;--ink2:#17181A;--line:#E6E8EC;--mute:#6B7280;--lime:#B8F235}
+body{background:var(--bg)}
+.side{background:var(--ink);border-right:0;color:#C8CBD2;padding:20px 12px 14px}
+.wm{font-family:"Archivo","Pretendard",sans-serif;font-weight:800;font-stretch:125%;letter-spacing:.18em;font-size:14px;color:#fff;display:inline-flex;align-items:center;gap:6px}.wm i{width:7px;height:7px;border-radius:50%;background:var(--lime);display:inline-block;margin-top:-6px;position:static}.wm i:after{content:none}
+.logo{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:4px 10px 20px}.logo small{font-size:11px;color:#7A7F8A;letter-spacing:.02em}
+.nav a{color:#B4B8C2;font-weight:500;border-radius:8px;padding:9px 10px}.nav a:hover{background:var(--ink2);color:#fff}
+.nav a.on{background:var(--ink2);color:#fff;box-shadow:inset 3px 0 0 var(--lime)}.nav a.on .tag{background:var(--lime);color:#111}
+.nav a svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.85}.nav a.on svg{opacity:1}
+.nav a .tag{background:#2A2C31;color:#C8CBD2}
+.nav .sec{color:#6B7078;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:18px 10px 6px}
+.nav .phead{color:#fff}.nav .phead .arr{color:#6B7078}.nav a.cat{color:#9DA2AC}.nav a.cat.on{color:#fff;background:var(--ink2)}
+#catnav a{font-weight:600;color:#E5E7EB;padding:10px 10px}#catnav a .plogo{margin-right:2px}
+.side .foot{color:#6B7078;border-top:1px solid #23252A;padding-top:12px}.side .foot b{color:#C8CBD2;font-weight:600}
+.acct{border-top:1px solid #23252A}.acct-card{background:var(--ink2);color:#C8CBD2;border:1px solid #2A2C31}.acct-card b{color:#fff}.acct-card a,.acct-card button{color:#fff}
+.side::-webkit-scrollbar{width:0}
+.topbar{background:var(--ink);color:#fff;border-bottom:0}.topbar .btn.ghost{color:#fff;border-color:#2A2C31;background:transparent}.topbar .btn.small{background:var(--lime);color:#111;border-color:var(--lime);font-weight:700}
+.main{padding:24px 32px}
+h1{font-family:"Pretendard",sans-serif;letter-spacing:-.02em}
+.btn.p{background:var(--ink);border-color:var(--ink)}.btn.p:hover{background:var(--ink2)}
+.chip.on,.rcat.on,.pill.on,.tabs button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.rcat.on,.chip.on{box-shadow:inset 0 -2px 0 var(--lime)}
+.tag.ok,.ttag,.rc-label{background:var(--lime);color:#111}
+.wiz-bar i{background:var(--lime)}.wiz-input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(184,242,53,.35)}
+.rcard,.card,.panel,.refcard,.scene,.bcard,.plancard{border:1px solid var(--line);box-shadow:none;border-radius:12px}.rcard:hover,.card:hover,.refcard:hover,.plancard:hover{border-color:#C9CDD4;box-shadow:none;transform:none}
+.badge{border-radius:6px}
+.search{background:#fff;border:1px solid var(--line);border-radius:10px}.search:focus-within{border-color:var(--ink)}
+.title-card{background:var(--ink)}
+.scene-no,.scene-head .scene-no,.ecard-head .scene-no{background:var(--ink);color:var(--lime)}
+.wait{background:rgba(250,251,252,.96)}
 </style>
 <style>a[data-r="boards"],a[data-r="settings"],#rlive,#rlivemsg,.racct .btn,button[onclick*="pickBoard"],button[onclick*="openItem"]{display:none!important}</style>
 </head>
 <body>
-<div class="topbar"><button class="btn ghost" onclick="document.body.classList.toggle('nav-open')">☰</button><b>하이커브</b><a class="btn small" href="#/plan/new">+ 기획</a></div>
+<div class="topbar"><button class="btn ghost" onclick="document.body.classList.toggle('nav-open')">☰</button><b class="wm">HIGHCURVE<i></i></b><a class="btn small" href="#/plan/new">+ 기획</a></div>
 <div class="app">
   <aside class="side">
-    <div class="logo"><i></i>하이커브 레퍼런스</div>
+    <div class="logo"><span class="wm">HIGHCURVE<i></i></span><small>레퍼런스 · 기획</small></div>
     <nav class="nav">
       <div id="catnav"></div>
       <div class="sec">도구</div>
@@ -239,7 +271,7 @@ h1{font-size:24px;letter-spacing:-.02em;font-weight:700}h2{font-size:16px;font-w
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789040254"></script>
+<script src="static_api.js?v=1789041158"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
@@ -256,9 +288,9 @@ const PLAT = { instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", met
 const PLAT_ORDER = ["instagram", "youtube"];   // 화면에 보이는 플랫폼 (틱톡·메타광고는 데이터는 유지, 화면에서 숨김)
 // 플랫폼 로고 (인라인 SVG — 외부 이미지 없이 항상 표시)
 const LOGO = {
-  instagram: (s) => `<svg class="plogo" style="width:${s}px;height:${s}px" width="${s}" height="${s}" viewBox="0 0 24 24"><defs><linearGradient id="igg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#f9ce34"/><stop offset=".5" stop-color="#ee2a7b"/><stop offset="1" stop-color="#6228d7"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#igg)"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" stroke-width="2"/><circle cx="17.3" cy="6.7" r="1.3" fill="#fff"/></svg>`,
+  instagram: (s) => `<svg class="plogo" style="width:${s}px;height:${s}px" width="${s}" height="${s}" viewBox="0 0 24 24"><defs><radialGradient id="igr" cx="30%" cy="107%" r="150%"><stop offset="0" stop-color="#fdf497"/><stop offset=".1" stop-color="#fdf497"/><stop offset=".5" stop-color="#fd5949"/><stop offset=".6" stop-color="#d6249f"/><stop offset="1" stop-color="#285AEB"/></radialGradient></defs><rect width="24" height="24" rx="6.5" fill="url(#igr)"/><rect x="5" y="5" width="14" height="14" rx="4.2" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="12" cy="12" r="3.3" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="16.1" cy="7.9" r="1" fill="#fff"/></svg>`,
   tiktok: (s) => `<svg class="plogo" style="width:${s}px;height:${s}px" width="${s}" height="${s}" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#000"/><g transform="translate(4.5 4.2) scale(.62)"><path d="M12.53.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" fill="#25f4ee" transform="translate(-1.2 -1)"/><path d="M12.53.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" fill="#fe2c55" transform="translate(1.2 1)"/><path d="M12.53.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" fill="#fff"/></g></svg>`,
-  youtube: (s) => `<svg class="plogo" style="width:${s}px;height:${s}px" width="${s}" height="${s}" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#fff"/><rect x="2" y="5.5" width="20" height="13" rx="4" fill="#ff0000"/><path d="M10 9l5.2 3L10 15z" fill="#fff"/></svg>`,
+  youtube: (s) => `<svg class="plogo" style="width:${s}px;height:${s}px" width="${s}" height="${s}" viewBox="0 0 24 24"><rect width="24" height="24" rx="6.5" fill="#ff0033"/><path d="M9.6 8.4v7.2l6-3.6z" fill="#fff"/></svg>`,
   meta_ad: (s) => `<svg class="plogo" style="width:${s}px;height:${s}px" width="${s}" height="${s}" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#fff"/><path d="M3.2 14.6c0-3.6 1.8-6.8 4.1-6.8 1.9 0 3 1.9 4.7 5 1.7-3.1 2.8-5 4.7-5 2.3 0 4.1 3.2 4.1 6.8 0 1.7-.7 2.6-1.9 2.6-1.4 0-2.2-1.5-3.6-4.2l-.9-1.8-.9 1.8c-1.4 2.7-2.2 4.2-3.6 4.2-1.4 0-2.2-1.5-3.6-4.2L5.5 11.2l-.4.8c-.8 1.7-1.2 2.6-1.9 2.6z" fill="none" stroke="#0866ff" stroke-width="2.2" stroke-linejoin="round"/></svg>`,
   web: (s) => `<svg class="plogo" style="width:${s}px;height:${s}px" width="${s}" height="${s}" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#8a8f9e"/><circle cx="12" cy="12" r="6" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M6 12h12M12 6c2.5 2.5 2.5 9.5 0 12M12 6c-2.5 2.5-2.5 9.5 0 12" fill="none" stroke="#fff" stroke-width="1.3"/></svg>`,
 };
