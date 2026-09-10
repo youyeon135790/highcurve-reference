@@ -183,7 +183,7 @@
         <label>촬영 환경 <input class="wiz-input" placeholder="예: 얼굴 노출 OK, 매장, 화면녹화 가능" value="${esc(W.extra.shooting || "")}" oninput="wizExtra('shooting', this)"></label>
 
       </div></details>
-    <div class="row" style="margin:6px 0 10px;gap:8px;align-items:center"><span class="muted" style="font-size:12px">생성 모드</span>${pill("⚡ 빠름 (1~2분)", W.mode === "fast", "wizSet('mode','fast')")}${pill("🎯 정밀 (3~4분, 추천)", W.mode !== "fast", "wizSet('mode','precise')")}</div>
+    <div class="row" style="margin:6px 0 10px;gap:8px;align-items:center"><span class="muted" style="font-size:12px">생성 모드</span>${pill("⚡ 빠름 (1분 안팎)", W.mode === "fast", "wizSet('mode','fast')")}${pill("🎯 정밀 (2~3분)", W.mode !== "fast", "wizSet('mode','precise')")}</div>
     <div class="wiz-summary"><b>정리</b> ${esc(W.job)} → ${esc(W.target.join(", "))}${W.extra.target_free ? " · " + esc(W.extra.target_free) : ""} · #${esc(W.keyword)} ${W.selSubs.map(k => "#" + esc(k)).join(" ")} · 참고 릴스 ${W.refs.length}개 · ${esc(W.extra.length || 30)}초</div>`;
   }
   const brief = () => ({ job: W.job, target: [...W.target, W.extra.target_free].filter(Boolean).join(", "), keyword: [W.keyword, ...W.selSubs].filter(Boolean).join(", "), topic: W.topic, length: W.extra.length || 30, tone: W.extra.tone, scene: W.extra.scene, numbers: W.extra.numbers, cta: W.extra.cta, shooting: W.extra.shooting });
@@ -206,20 +206,21 @@
       try { const it = await api("/api/items/" + id); if (it.frames) continue; showWait("참고 릴스 뜯는 중", 35, `@${it.account} 영상을 받아 컷·자막·대사를 뽑는 중`); await post("/api/analyze", { url: it.url }); hideWait(); }
       catch (e) { hideWait(); toast("분석 건너뜀: " + e.message); }
     }
-    const fast = W.mode === "fast"; const expect = fast ? 150 : 330;
+    const fast = W.mode === "fast"; const expect = fast ? 80 : 170;
     showWait("기획안 만드는 중", expect, "레퍼런스 프레임을 한 장씩 보면서 씬표를 쓰고 있어요");
     try {
       const r = await post("/api/plan", { ids: W.refs, brief: brief(), mode: W.mode || "precise" });
       if (r.error) throw new Error(r.error);
       const pid = r.id;
       if (!r.queued) { hideWait(); location.hash = "#/plan/" + pid; return; }
-      const STAGES = { plan: "기획안 쓰는 중 — 훅·씬표·촬영 가이드", polish: "대사 완결·기승전결 다듬는 중", sketch: "씬마다 구도 스케치 그리는 중", brief: "편집 외주서 쓰는 중 — 폰트·효과음·컷", done: "완성" };
+      const STAGES = { plan: "기획안 쓰는 중 — 훅·씬표·촬영 가이드", polish: "대사 완결·기승전결 다듬는 중", extras: "기획안 완성 — 스케치·편집 외주서는 뒤에서", done: "완성" };
       await new Promise((resolve, reject) => {
         const iv = setInterval(async () => {
           try {
             const pr = await api("/api/plans/" + pid + "/progress");
             setWait(pr.pct, STAGES[pr.stage] || pr.message || "");
-            if (pr.done) { clearInterval(iv); pr.error ? reject(new Error(pr.error)) : resolve(); }
+            if (pr.error) { clearInterval(iv); reject(new Error(pr.error)); return; }
+            if (pr.plan_ready || pr.done) { clearInterval(iv); resolve(); }
           } catch (e) {}
         }, 2000);
       });
@@ -231,8 +232,19 @@
   let TAB = "plan"; let CUR = null;
   window.planJson = () => JSON.stringify((CUR && (CUR.plan || CUR)) || {}, null, 1);
   window.planTab = (t) => { TAB = t; renderPlan2(CUR); };
+  let EXTRA_T = null;
+  async function watchExtras(pid) {
+    clearInterval(EXTRA_T);
+    EXTRA_T = setInterval(async () => {
+      try { const pr = await api("/api/plans/" + pid + "/progress"); if (pr.done || pr.stage === "unknown") { clearInterval(EXTRA_T); if (pr.done) { CUR = await api("/api/plans/" + pid); renderPlan2(CUR); toast("스케치·편집 외주서 완성"); } } }
+      catch (e) { clearInterval(EXTRA_T); }
+    }, 4000);
+  }
   function renderPlan2(p) {
     CUR = p;
+    const hasBrief = !!(((p.plan || {}).pro || {}).edit_brief); const anySketch = ((((p.plan || {}).B_plan || {}).scenes) || []).some(s => s.sketch);
+    const extrasPending = p.plan && (!hasBrief || !anySketch) && p.status === "done" && (p.engine === "cli" || p.engine === "api");
+    if (extrasPending) watchExtras(p.id); else clearInterval(EXTRA_T);
     const plan = p.plan || null; const refs = p.refs || []; const done = !!plan;
     const title = plan ? plan.title : ((p.brief || {}).topic || ((p.brief || {}).keyword || "기획 준비").split(",")[0]);
     const tabs = [["plan", "✅ 내 릴스 기획안"], ["refs", "🔍 레퍼런스 뜯어보기"], ["pro", "🎬 편집 외주용"]];
@@ -242,6 +254,7 @@
     else body = done ? renderPlanTab(plan, p) : promptBox(p);
     $("#main").innerHTML = `<div class="plan-hero"><a class="btn ghost" href="#/plan">← 기획</a><div class="ph-title"><span class="ph-kicker">${done ? "내 릴스 기획안" : "프롬프트 패키지"} · ${esc(p.created_at || "")}</span><h1>${esc(title)}</h1>${plan && plan.one_line ? `<p>${esc(plan.one_line)}</p>` : ""}${plan && plan.thumbnail_text ? `<div class="ph-thumbtext">썸네일 문구 <b>${esc(plan.thumbnail_text)}</b></div>` : ""}</div>
       <div class="ph-actions"><a class="btn" href="/api/plans/${esc(p.id)}.csv">📊 엑셀</a><button class="btn" onclick="navigator.clipboard.writeText(planJson());toast('복사됨')">JSON</button>${plan ? `<button class="btn" onclick="reSketch('${esc(p.id)}')" title="모든 씬 구도 스케치 생성 (씬당 3~5초)">🎨 스케치</button>` : ""}<button class="btn d" onclick="planDelete('${esc(p.id)}')">삭제</button></div></div>
+      ${extrasPending ? `<div class="panel warn" style="margin:0 0 10px;padding:8px 14px;font-size:13px">⏳ 기획안은 완성됐어요. 씬 스케치와 편집 외주서는 뒤에서 만드는 중 (1~2분) — 끝나면 자동으로 채워집니다.</div>` : ""}
       <div class="tabs">${tabs.map(([k, v]) => `<button class="tab ${TAB === k ? "on" : ""}" onclick="planTab('${k}')">${v}</button>`).join("")}</div>${body}`;
   }
   window.planDelete = async (id) => { if (!confirm("이 기획안을 지울까요?")) return; await post("/api/plans/" + id + "/delete", {}); location.hash = "#/plan"; };
