@@ -416,9 +416,10 @@ mark,.plan-hero .ttag,.title-card .ttag{background:linear-gradient(transparent 1
 .bones.teaser:not([open])>summary{padding-bottom:16px;background:linear-gradient(180deg,#fff,#FAF8FF)}
 /* ---- 쉬운 기획안: 빈칸 전부 미리 · 훅 바꾸기 */
 .ph-blank{display:inline-block;background:linear-gradient(transparent 8%,#FFE58A 8%,#FFE58A 92%,transparent 92%);color:#6B4A00;font-weight:800;padding:0 5px;margin:0 1px;font-size:.92em}
+.thumb-mock .tm-ph{font-style:normal;color:#FFE58A;border-bottom:3px dashed #FFE58A;padding:0 2px}
 .ph-slot{display:inline-block;background:#FFE58A;border:1.5px dashed #C99A00;color:#6B4A00;font-weight:800;padding:0 6px;margin:0 2px}
 .fill-list{display:flex;flex-direction:column;gap:8px}.fill-row{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:12px;align-items:center;background:#fff;border:1px solid #EDD9A0;padding:10px 12px}
-.fr-where{font-size:11.5px;font-weight:800;color:#8A6A10;letter-spacing:.02em;margin-bottom:3px}.fr-text{font-size:14.5px;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
+.fr-where{font-size:11.5px;font-weight:800;color:#8A6A10;letter-spacing:.02em;margin-bottom:3px}.fr-where .fr-n{display:inline-block;margin-left:6px;padding:0 6px;background:#FFF1B8;color:#6B4A00;border-radius:2px;font-weight:800}.fr-text{font-size:14.5px;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
 .fill-row .fill-in{width:100%;border:1.5px solid #E7D9A8;border-radius:8px;padding:10px 12px;font-size:15px;font-family:inherit;background:#FFFDF5}.fill-row .fill-in:focus{outline:none;border-color:#8E7CFF;box-shadow:0 0 0 3px rgba(138,108,255,.15)}
 .ez-alt-label{margin:14px 0 6px;font-size:13px;font-weight:800;color:#5E4BD6}.ez-newhook{margin-top:12px;padding-top:12px;border-top:1px dashed #E7E0F7;font-size:13px}.ez-newhook b{color:#241E33}
 @media(max-width:700px){.fill-row{grid-template-columns:1fr}}
@@ -459,7 +460,7 @@ mark,.plan-hero .ttag,.title-card .ttag{background:linear-gradient(transparent 1
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789117832"></script>
+<script src="static_api.js?v=1789132241"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; if (el.parentNode && el.parentNode.classList) el.parentNode.classList.add("nothumb"); return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
@@ -924,7 +925,7 @@ window.addEventListener("hashchange", () => { document.body.classList.remove("na
   try { const tk = new URLSearchParams(location.search).get("hc_token"); if (tk && ["localhost", "127.0.0.1"].includes(location.hostname)) { localStorage.setItem("hc_token", tk); history.replaceState(null, "", location.pathname + location.hash); } } catch (e) {}
   try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=40"></script>
+<script src="static/plan.js?v=42"></script>
 <script src="static/account.js?v=8"></script>
 <script src="static/ytedit.js?v=6"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>

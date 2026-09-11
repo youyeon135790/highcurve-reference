@@ -10,7 +10,8 @@
   window.reSketch = async (pid, no) => { toast("스케치 그리는 중… (10초)"); const r = await post("/api/plans/" + pid + "/sketches", { only: no ? [no] : null }); if (r.error) return toast(r.error); CUR = r; renderPlan2(r); };
   window.likeScript = async (pid) => { const note = prompt("이 대본에서 특히 좋은 점을 한 줄 (비워도 됨)", ""); if (note === null) return; try { const r = await post("/api/plans/" + pid + "/like", { note }); if (r.error) throw new Error(r.error); toast(`예시로 저장했어요 (총 ${r.count}개). 다음 기획안부터 이 수준을 참고합니다`); } catch (e) { toast(e.message); } };
   let THUMB_T = null;
-  window.thumbLive = (el, pid) => { const box = el.closest(".thumb-block").querySelector(".tm-text"); const lines = el.value.split(/\n/).map(x => x.trim()).filter(Boolean); box.innerHTML = lines.length ? lines.map(l => `<span>${esc(l)}</span>`).join("") : '<span class="muted">문구 없음</span>';
+  const tmLine = (l) => esc(l).replace(/\[확인\s*필요[:：]?\s*([^\]]*)\]/g, (m, k) => `<em class="tm-ph">${(k || "").trim() || "숫자"}</em>`);
+  window.thumbLive = (el, pid) => { const box = el.closest(".thumb-block").querySelector(".tm-text"); const lines = el.value.split(/\n/).map(x => x.trim()).filter(Boolean); box.innerHTML = lines.length ? lines.map(l => `<span>${tmLine(l)}</span>`).join("") : '<span class="muted">문구 없음</span>';
     clearTimeout(THUMB_T); THUMB_T = setTimeout(async () => { try { const r = await post("/api/plans/" + pid + "/thumb", { text: el.value.trim() }); if (!r.error && CUR && CUR.plan) CUR.plan.thumbnail_text = el.value.trim(); } catch (e) {} }, 900); };
   window.saveThumb = async (pid) => { const t = ($("#thumb-text").value || "").trim(); const r = await post("/api/plans/" + pid + "/thumb", { text: t }); if (r.error) return toast(r.error); CUR = r; renderPlan2(r); toast("썸네일 문구 저장"); };
   window.thumbFromHook = (pid) => { const B = (CUR.plan || {}).B_plan || {}; const h = (B.hooks || [])[(B.recommended_hook || 1) - 1] || {}; const t = h.thumb || (h.line || ""); $("#thumb-text").value = t; saveThumb(pid); };
@@ -302,7 +303,7 @@
     else if (TAB === "easy") body = done ? renderEasyTab(plan, p) : promptBox(p);
     else if (TAB === "pro") body = done ? renderProTab(plan, p) : promptBox(p);
     else body = done ? renderPlanTab(plan, p) : promptBox(p);
-    $("#main").innerHTML = `<div class="plan-hero"><a class="btn ghost" href="#/plan">← 기획</a><div class="ph-title"><span class="ph-kicker">${done ? "내 릴스 기획안" : "프롬프트 패키지"} · ${esc(p.created_at || "")}</span><h1>${esc(title)}</h1>${plan && plan.one_line ? `<p>${esc(plan.one_line)}</p>` : ""}${plan && plan.thumbnail_text ? `<div class="ph-thumbtext">썸네일 문구 <b>${esc(plan.thumbnail_text)}</b></div>` : ""}</div>
+    $("#main").innerHTML = `<div class="plan-hero"><a class="btn ghost" href="#/plan">← 기획</a><div class="ph-title"><span class="ph-kicker">${done ? "내 릴스 기획안" : "프롬프트 패키지"} · ${esc(p.created_at || "")}</span><h1>${phHtml(title)}</h1>${plan && plan.one_line ? `<p>${esc(plan.one_line)}</p>` : ""}${plan && plan.thumbnail_text ? `<div class="ph-thumbtext">썸네일 문구 <b>${esc(plan.thumbnail_text)}</b></div>` : ""}</div>
       <div class="ph-actions"><a class="btn" href="/api/plans/${esc(p.id)}.csv">엑셀</a><button class="btn" onclick="navigator.clipboard.writeText(planJson());toast('복사됨')">JSON</button>${plan ? `<button class="btn" onclick="reSketch('${esc(p.id)}')" title="모든 씬 구도 스케치 생성 (씬당 3~5초)">스케치</button>` : ""}<button class="btn d" onclick="planDelete('${esc(p.id)}')">삭제</button></div></div>
       ${extrasPending ? `<div class="panel warn" style="margin:0 0 10px;padding:8px 14px;font-size:13px">기획안은 완성됐어요. 씬 스케치와 편집 외주서는 뒤에서 만드는 중 (1~2분) — 끝나면 자동으로 채워집니다.</div>` : ""}
       <div class="tabs">${tabs.map(([k, v]) => `<button class="tab ${TAB === k ? "on" : ""}" onclick="planTab('${k}')">${v}</button>`).join("")}</div>${body}`;
@@ -348,8 +349,8 @@
   let VIEW = "guide"; window.planView = (v) => { VIEW = v; renderPlan2(CUR); };
   function titleCardHtml(plan, p, hooks, rec, scenesAll) {
     const thumbLines = String(plan.thumbnail_text || "").split(/\n/).filter(Boolean); const cands = (plan.thumb_candidates || []).filter(Boolean);
-    return `<div class="title-card2"><div class="ph-kicker">내 릴스 기획안</div><h2>${esc(plan.title)}</h2>${plan.one_line ? `<p class="one">${esc(plan.one_line)}</p>` : ""}<div class="tc-chips"><span class="tag">${esc(plan.length_sec)}초</span><span class="tag">${scenesAll.length}씬</span>${(p.brief || {}).job ? `<span class="tag">${esc(p.brief.job)}</span>` : ""}</div>
-        <div class="thumb-block"><div class="thumb-mock"><div class="tm-text">${thumbLines.length ? thumbLines.map(l => `<span>${esc(l)}</span>`).join("") : '<span class="muted">문구 없음</span>'}</div><div class="tm-cap">썸네일 미리보기</div></div>
+    return `<div class="title-card2"><div class="ph-kicker">내 릴스 기획안</div><h2>${phHtml(plan.title)}</h2>${plan.one_line ? `<p class="one">${phHtml(plan.one_line)}</p>` : ""}<div class="tc-chips"><span class="tag">${esc(plan.length_sec)}초</span><span class="tag">${scenesAll.length}씬</span>${(p.brief || {}).job ? `<span class="tag">${esc(p.brief.job)}</span>` : ""}</div>
+        <div class="thumb-block"><div class="thumb-mock"><div class="tm-text">${thumbLines.length ? thumbLines.map(l => `<span>${tmLine(l)}</span>`).join("") : '<span class="muted">문구 없음</span>'}</div><div class="tm-cap">썸네일 미리보기</div></div>
           <div class="thumb-side"><div class="thumb-label">썸네일 문구 <small>= 메인 후킹 문구</small></div><textarea id="thumb-text" class="thumb-input" rows="2" placeholder="첫줄 (Enter) 둘째줄" oninput="thumbLive(this, '${esc(p.id)}')">${esc(plan.thumbnail_text || "")}</textarea>
             <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn small" onclick="saveThumb('${esc(p.id)}')">저장</button><button class="btn small" onclick="thumbFromHook('${esc(p.id)}')" title="지금 고른 훅 문장을 썸네일 문구로">고른 훅에서 가져오기</button><button class="btn small" onclick="genThumbs('${esc(p.id)}')">AI로 후보 3개 뽑기</button></div>
             ${cands.length ? `<div class="thumb-cands">${cands.map(c => `<button class="tcand" onclick="pickThumb('${esc(p.id)}', ${JSON.stringify(c).replace(/"/g, "&quot;")})">${esc(c).replace(/\n/g, " / ")}</button>`).join("")}</div>` : ""}
@@ -364,18 +365,29 @@
     (B.hooks || []).forEach((h, i) => { add(h, "line", `첫 문장 후보 ${i + 1}`); add(h, "thumb", `썸네일 후보 ${i + 1}`); });
     add(B, "caption_text", "캡션"); if (B.cta) { add(B.cta, "say", "마지막 멘트"); add(B.cta, "caption", "마지막 자막"); add(B.cta, "comment_question", "댓글 질문"); }
     add(plan, "thumbnail_text", "썸네일 문구"); (plan.thumb_candidates || []).forEach((t, i) => { if (typeof t === "string") L.push({ obj: plan.thumb_candidates, key: i, where: `썸네일 후보 ${i + 1}` }); });
+    add(plan, "title", "제목"); add(plan, "one_line", "한 줄 요약");
     return L;
+  }
+  function phSecondary(plan) {   // 따로 줄을 만들지 않고, 같은 빈칸이 있으면 같이 채워지는 곳
+    const L = []; if (typeof plan.script_full === "string") L.push({ obj: plan, key: "script_full", where: "전체 대본" });
+    const walk = (o) => { if (!o || typeof o !== "object") return; for (const k of Object.keys(o)) { const v = o[k]; if (typeof v === "string") { if (v.indexOf("확인") >= 0) L.push({ obj: o, key: k, where: "편집 외주서" }); } else walk(v); } };
+    walk((plan.pro || {}).edit_brief); return L;
   }
   function phGroups(plan) {
     const g = new Map();
-    phSources(plan).forEach(src => { const t = src.obj[src.key] || ""; const re = new RegExp(PH_RE.source, "g"); let m, idx = 0;
-      while ((m = re.exec(t))) { const key = t + "|#|" + idx; if (!g.has(key)) g.set(key, { text: t, idx, label: (m[1] || "").trim() || "숫자", start: m.index, end: m.index + m[0].length, srcs: [], where: [] }); const x = g.get(key); x.srcs.push(src); if (!x.where.includes(src.where)) x.where.push(src.where); idx++; } });
+    const scan = (src, primary) => { const t = src.obj[src.key] || ""; const re = new RegExp(PH_RE.source, "g"); let m, idx = 0;
+      while ((m = re.exec(t))) { const label = (m[1] || "").trim() || "숫자"; const nxt = (t.slice(m.index + m[0].length).match(/^[가-힣]/) || [""])[0];
+        let key = /^[\d.,]+$/.test(label) ? label + "|" + nxt : label;   // '3'+'줄' 은 제목·훅·썸네일·대본 어디서 나와도 같은 빈칸
+        if (!g.has(key) && !primary) { const same = [...g.values()].filter(x => x.label === label); if (same.length === 1) key = same[0].key; }   // 외주서의 '(3)' 처럼 단위 없이 인용된 것
+        if (!g.has(key)) { if (!primary) { idx++; continue; } g.set(key, { key, text: t, label, start: m.index, end: m.index + m[0].length, occ: [], where: [], texts: [] }); }
+        const x = g.get(key); x.occ.push({ src, idx }); if (primary && !x.where.includes(src.where)) x.where.push(src.where); if (primary && !x.texts.includes(t)) x.texts.push(t); idx++; } };
+    phSources(plan).forEach(src => scan(src, true)); phSecondary(plan).forEach(src => scan(src, false));
     return [...g.values()];
   }
   const phHint = (l) => /조회/.test(l) ? "예: 1.2만" : /잔|개/.test(l) ? "예: 3잔 / 7개" : /년|개월|일/.test(l) ? "예: 3년" : /원|가격/.test(l) ? "예: 9,900원" : /명|팔로워/.test(l) ? "예: 1,200명" : "숫자나 짧은 말";
   window.fillNumbers = async (pid) => {
     const plan = CUR.plan; const groups = phGroups(plan); const per = new Map(); let n = 0;
-    $$(".fill-in").forEach(inp => { const v = inp.value.trim(); if (!v) return; const gr = groups[Number(inp.dataset.gi)]; if (!gr) return; n++; gr.srcs.forEach(src => { if (!per.has(src)) per.set(src, {}); per.get(src)[gr.idx] = v; }); });
+    $$(".fill-in").forEach(inp => { const v = inp.value.trim(); if (!v) return; const gr = groups[Number(inp.dataset.gi)]; if (!gr) return; n++; gr.occ.forEach(o => { if (!per.has(o.src)) per.set(o.src, {}); per.get(o.src)[o.idx] = v; }); });
     if (!n) return toast("한 곳이라도 채워주세요");
     const before = ((plan.B_plan || {}).scenes || []).map(x => x.say);
     per.forEach((vals, src) => { let k = 0; src.obj[src.key] = (src.obj[src.key] || "").replace(new RegExp(PH_RE.source, "g"), (m) => { const r = vals[k] != null ? vals[k] : m; k++; return r; }); });
@@ -404,7 +416,7 @@
     return `<div class="ez-wrap">
       <div class="ez-steps"><span class="${groups.length ? "" : "done"}">① 숫자 채우기</span><span>② 첫 문장 정하기</span><span>③ 순서대로 찍기</span><span>④ 올리기</span></div>
       <div class="ez-grid"><div class="ez-left">${titleCardHtml(plan, p, hooks, rec, scenesAll)}</div><div class="ez-right">
-      ${groups.length ? `<section class="ez-sec ez-fill"><h3>① 빈칸 ${groups.length}곳을 채워 주세요 <small>빈칸이 들어간 문장을 전부 먼저 보여드려요 · 모르면 비워 두고 나중에 채워도 됩니다</small></h3><div class="fill-list">${groups.map((g, gi) => `<div class="fill-row"><div class="fr-ctx"><div class="fr-where">${esc(g.where.join(" · "))}</div><div class="fr-text">${ctx(g)}</div></div><input class="fill-in" data-gi="${gi}" placeholder="${esc(phHint(g.label))}"></div>`).join("")}</div><button class="btn p" style="margin-top:12px" onclick="fillNumbers('${esc(p.id)}')">대본에 채우기</button></section>` : `<section class="ez-sec ez-fill done"><h3>① 숫자 채우기 <small>완료 · 대본에 빈칸이 없어요</small></h3></section>`}
+      ${groups.length ? `<section class="ez-sec ez-fill"><h3>① 빈칸 ${groups.length}곳을 채워 주세요 <small>빈칸이 들어간 문장을 전부 먼저 보여드려요 · 모르면 비워 두고 나중에 채워도 됩니다</small></h3><div class="fill-list">${groups.map((g, gi) => `<div class="fill-row"><div class="fr-ctx"><div class="fr-where">${esc(g.where.slice(0, 3).join(" · "))}${g.where.length > 3 ? ` 외 ${g.where.length - 3}곳` : ""}${g.occ.length > 1 ? ` <b class="fr-n">${g.occ.length}곳 같이 바뀜</b>` : ""}</div><div class="fr-text">${ctx(g)}</div></div><input class="fill-in" data-gi="${gi}" placeholder="${esc(phHint(g.label))}"></div>`).join("")}</div><button class="btn p" style="margin-top:12px" onclick="fillNumbers('${esc(p.id)}')">대본에 채우기</button></section>` : `<section class="ez-sec ez-fill done"><h3>① 숫자 채우기 <small>완료 · 대본에 빈칸이 없어요</small></h3></section>`}
       <section class="ez-sec"><h3>② 첫 문장 <small>3초 안에 멈춰 세우는 한마디 · 아래에서 바로 바꿀 수 있어요</small></h3><div class="ez-hook"><span class="tag htype">${esc(h.type || "")}</span><div class="ez-hook-line">${phHtml(h.line || "")}</div></div>
         ${hooks.length > 1 ? `<div class="ez-alt-label">다른 첫 문장 ${hooks.length - 1}개 · 누르면 1번 장면과 썸네일 문구가 같이 바뀝니다</div><ol class="hooklist">${hooks.map((x, i) => i + 1 == rec ? "" : `<li class="hook-row"><span class="tag htype">${esc(x.type)}</span><div class="hline">${phHtml(x.line)}</div><button class="hook-pick" onclick="applyHook('${esc(p.id)}', ${i + 1})">이걸로</button></li>`).join("")}</ol>` : ""}
         <div class="ez-newhook"><b>다른 훅 공식으로 새로 뽑기</b><div class="row" style="gap:6px;flex-wrap:wrap;margin-top:6px"><select id="hook-formula" class="chip" style="max-width:180px">${HOOK_FORMULAS.map(f => `<option>${f}</option>`).join("")}</select><button class="btn small" onclick="genHooks('${esc(p.id)}')">이 공식으로 3개 더</button><button class="btn small" onclick="rewriteOpening('${esc(p.id)}', ${rec})">첫 문장에 맞춰 1~2번 장면 다시 쓰기</button><span id="hook-msg" class="muted" style="font-size:12px"></span></div></div></section>
