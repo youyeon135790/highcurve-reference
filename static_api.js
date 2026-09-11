@@ -151,13 +151,22 @@
     if (path === "/api/auth/password") { const me = cur(); if (!me) return { error: "로그인이 필요해요" }; const u = users[me.email]; if (!u || u.pw !== await sha(body.old || "")) return { error: "현재 비밀번호가 맞지 않아요" }; if ((body.new || "").length < 6) return { error: "새 비밀번호는 6자 이상" }; u.pw = await sha(body.new); users[me.email] = u; localStorage.setItem("hc_users", JSON.stringify(users)); localStorage.setItem("hc_static_me", JSON.stringify(u)); return { ok: true }; }
     return { error: "지원하지 않아요" };
   }
+  // 서버 연결 상태: 서버가 주는 /thumbs/ /frames/ /sketches/ /media/ /edits/ 경로를 서버 주소로 바꿔야 github.io 에서 이미지가 뜬다
+  const PFX = ["/thumbs/", "/frames/", "/sketches/", "/media/", "/edits/"];
+  function absolutize(v, base, depth) {
+    depth = depth || 0; if (depth > 6 || v == null) return v;
+    if (typeof v === "string") return PFX.some(x => v.startsWith(x)) ? base + v : v;
+    if (Array.isArray(v)) return v.map(x => absolutize(x, base, depth + 1));
+    if (typeof v === "object") { const o = {}; for (const k in v) o[k] = (k === "url" || k === "caption" || k === "transcript") ? v[k] : absolutize(v[k], base, depth + 1); return o; }
+    return v;
+  }
   window.staticApi = async function (p, opt) {
     const base = window.apiBase();
     if (base) {
       const u = new URL(p, location.href); const path = u.pathname.replace(/^.*\/api\//, "/api/") + (u.search || "");
       const r = await fetch(base + path, opt); const j = await r.json();
       if (j && j.need_login) { if (typeof toast === "function") toast(j.error); location.hash = "#/login"; throw new Error(j.error); }
-      if (j && j.error) throw new Error(j.error); return j;
+      if (j && j.error) throw new Error(j.error); return absolutize(j, base);
     }
     await load();
     const method = (opt && opt.method) || "GET";

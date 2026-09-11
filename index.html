@@ -360,10 +360,10 @@ body.guest{overflow-x:hidden}body.guest .app{grid-template-columns:minmax(0,1fr)
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789103426"></script>
+<script src="static_api.js?v=1789104620"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
-window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
+window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; if (el.parentNode && el.parentNode.classList) el.parentNode.classList.add("nothumb"); return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
 const api = async (p, opt) => {
   opt = opt || {}; try { const t = localStorage.getItem("hc_token"); if (t) opt.headers = { ...(opt.headers || {}), Authorization: "Bearer " + t }; } catch (e) {}
   if (window.staticApi) return window.staticApi(p, opt);
@@ -579,7 +579,7 @@ const rfCount = () => Object.keys(R.f).length;
 const BANDS = [["", "전체"], ["0,10000", "0~1만 (급성장)"], ["10000,50000", "1만~5만"], ["50000,100000", "5만~10만"], ["100000,200000", "10만~20만"]];
 function rcard(it) {
   return `<div class="rcard" onclick="openReel(${it.id})">
-    <a class="rthumb" href="${esc(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${it.thumbnail ? `<img src="${esc(it.thumbnail)}" loading="lazy" onerror="this.parentNode.classList.add('nothumb');this.remove()">` : ""}
+    <a class="rthumb" href="${esc(it.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${it.thumbnail ? `<img src="${esc(it.thumbnail)}" loading="lazy" onerror="imgRetry(this)">` : ""}
       <span class="rv">${it.views != null ? "▶ " + fmt(it.views) : "❤ " + fmt(it.likes)}</span>${it.paid ? `<span class="rp">협찬</span>` : ""}</a>
     <div class="racc"><b>${it.platform === "youtube" ? esc(it.account_name || it.account || "-") : "@" + esc(it.account || "-")}</b><span>${it.days_ago != null ? "⏱ " + it.days_ago + "일 전" : "📅 " + esc(it.posted_at || "")}</span></div>
     <div class="rmeta">${it.platform === "youtube" ? `<span>👥 구독 <b>${fmt(it.followers)}</b></span><span>▶ 조회 <b>${fmt(it.views)}</b></span>${it.daily_views ? `<span>📈 일일 <b>${fmt(it.daily_views)}</b></span>` : ""}${it.golden ? `<span class="gold">★ ${it.golden}</span>` : ""}` : `<span>❤ ${fmt(it.likes)}</span><span>💬 ${fmt(it.comments)}</span>${it.followers ? `<span>👥 ${fmt(it.followers)}</span>` : ""}`}${it.industry ? `<span class="ind">${esc(it.industry)}</span>` : ""}</div>
