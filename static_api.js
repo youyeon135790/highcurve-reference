@@ -147,7 +147,7 @@
       const u = { email, name: body.name.trim(), pw: await sha(body.password), plan: code ? "student" : "free", created_at: new Date().toISOString().slice(0, 10) };
       users[email] = u; localStorage.setItem("hc_users", JSON.stringify(users)); localStorage.setItem("hc_static_me", JSON.stringify(u)); return { user: pub(u) };
     }
-    if (path === "/api/auth/login") { const u = users[email]; if (!u || u.pw !== await sha(body.password || "")) return { error: "이메일 또는 비밀번호가 맞지 않아요" }; localStorage.setItem("hc_static_me", JSON.stringify(u)); return { user: pub(u) }; }
+    if (path === "/api/auth/login") { const u = users[email]; if (!u || u.pw !== await sha(body.password || "")) return { error: users[email] ? "비밀번호가 맞지 않아요" : (email.includes("@") ? "이 브라우저에는 가입 기록이 없어요. 회원가입 탭에서 먼저 가입해주세요 (체험판은 브라우저마다 따로 가입됩니다)" : "관리자 계정은 이 체험판(github.io)에서는 쓸 수 없어요. 하이커브 서버 주소(맥과 같은 와이파이에서 http://맥주소:8787)로 접속해 로그인하세요") }; localStorage.setItem("hc_static_me", JSON.stringify(u)); return { user: pub(u) }; }
     if (path === "/api/auth/password") { const me = cur(); if (!me) return { error: "로그인이 필요해요" }; const u = users[me.email]; if (!u || u.pw !== await sha(body.old || "")) return { error: "현재 비밀번호가 맞지 않아요" }; if ((body.new || "").length < 6) return { error: "새 비밀번호는 6자 이상" }; u.pw = await sha(body.new); users[me.email] = u; localStorage.setItem("hc_users", JSON.stringify(users)); localStorage.setItem("hc_static_me", JSON.stringify(u)); return { ok: true }; }
     return { error: "지원하지 않아요" };
   }
