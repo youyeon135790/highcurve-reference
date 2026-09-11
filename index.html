@@ -326,6 +326,27 @@ body.guest{overflow-x:hidden}body.guest .app{grid-template-columns:minmax(0,1fr)
 @media(max-width:420px){.rgrid,.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.rcard .body{padding:8px 9px 10px}}
 
 @media(max-width:820px){.hooklist li .tag{white-space:nowrap;flex:none}.hooklist li{flex-wrap:wrap}.rsearch .search{flex:1 1 100%}.rsearch select.chip{max-width:none}}
+
+/* ---- 기획안 가독성 v2: 가로 배치 · 표 · 접힘 카드 */
+.plan-layout{grid-template-columns:360px 1fr}
+.side-sec.fold{padding:0}.side-sec.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:8px;padding:14px 16px;font-size:15px}.side-sec.fold>summary::-webkit-details-marker{display:none}.side-sec.fold>summary:before{content:"›";display:inline-block;transform:rotate(0);transition:.15s;color:var(--brand);font-weight:800;margin-right:2px}.side-sec.fold[open]>summary:before{transform:rotate(90deg)}.side-sec.fold>summary b{font-weight:800}.side-sec.fold>summary small{color:var(--mute);font-weight:500;font-size:12px}.side-sec.fold>*:not(summary){margin:0 16px 14px}
+.side-sec.fold:hover{border-color:#D4C8FF}.side-sec.warnbox{border-color:#F6C36B;background:#FFFBEB}
+.hooklist{list-style:none;margin:0;padding:0}.hook-row{display:grid!important;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:#fff}.hook-row .htype{white-space:nowrap;flex:none;font-size:12px}.hook-row .hline{font-size:14.5px;line-height:1.5;font-weight:600;min-width:0;word-break:keep-all;overflow-wrap:anywhere}.hook-row .hook-pick{white-space:nowrap}.hook-row.on{border-color:#B8A6FF;background:#F7F4FF}.hook-row.on .hook-pick{background:#E4DBFF;border-color:#D4C8FF;color:#3B2BA8}
+.bones.fold2{padding:0}.bones.fold2>summary{list-style:none;cursor:pointer;padding:14px 18px}.bones.fold2>summary::-webkit-details-marker{display:none}.bones.fold2>*:not(summary){margin:0 18px 12px}.bones.fold2>.bone{margin:0 18px;padding:10px 0}
+.bone{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:start}.bone .tag{white-space:nowrap;justify-self:start}.bone-text{min-width:0;word-break:keep-all;overflow-wrap:anywhere;line-height:1.6}
+.scenes-list2{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:14px}
+.scene.v-guide{padding:0}.scene-body2{padding:14px 16px}
+.scene-visual2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}.scene-visual2 .sb-ref img{aspect-ratio:9/12;object-fit:cover;border-radius:12px;border:1px solid var(--line)}.scene-visual2 .sk-img img{aspect-ratio:9/12}.scene-visual2 .sb-ref figcaption{font-size:12px;color:var(--mute);margin-top:6px}
+.ref-line{background:#F7F4FF;border-radius:10px;padding:8px 12px;font-size:12.5px;line-height:1.55;margin-bottom:10px;word-break:keep-all;overflow-wrap:anywhere}.ref-line b{color:#3B2BA8}
+.gtable{width:100%;border-collapse:collapse;margin:0 0 12px;font-size:14px;table-layout:fixed}.gtable th{width:76px;text-align:left;color:#5E4BD6;font-weight:700;padding:7px 10px;background:#F7F4FF;border:1px solid #ECE6F7;white-space:nowrap;vertical-align:top;font-size:13px}.gtable td{padding:7px 10px;border:1px solid #ECE6F7;line-height:1.55;word-break:keep-all;overflow-wrap:anywhere;min-width:0}
+.glabel{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--brand);margin:4px 0 6px}
+.say-big{font-size:18px;margin:4px 0 10px}
+table.scenes.stable td{vertical-align:top;line-height:1.6;font-size:14px;word-break:keep-all;overflow-wrap:anywhere}table.scenes.stable td.say{font-weight:700;min-width:240px}table.scenes.stable th{white-space:nowrap}
+@media(max-width:1200px){.scenes-list2{grid-template-columns:1fr}}
+@media(max-width:1000px){.plan-layout{grid-template-columns:1fr}}
+@media(max-width:600px){.hook-row{grid-template-columns:1fr auto}.hook-row .htype{grid-column:1/-1}.bone{grid-template-columns:1fr}.scene-visual2{grid-template-columns:1fr 1fr}.gtable th{width:64px}}
+
+.scene-visual2{max-width:520px}.scene-visual2 .sb-ref img,.scene-visual2 .sk-img img{max-height:300px;aspect-ratio:9/11}
 </style>
 <style>a[data-r="boards"],a[data-r="settings"],#rlive,#rlivemsg,.racct .btn,button[onclick*="pickBoard"],button[onclick*="openItem"]{display:none!important}</style>
 </head>
@@ -360,7 +381,7 @@ body.guest{overflow-x:hidden}body.guest .app{grid-template-columns:minmax(0,1fr)
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789107128"></script>
+<script src="static_api.js?v=1789111090"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; if (el.parentNode && el.parentNode.classList) el.parentNode.classList.add("nothumb"); return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
@@ -825,7 +846,7 @@ window.addEventListener("hashchange", () => { document.body.classList.remove("na
   try { const tk = new URLSearchParams(location.search).get("hc_token"); if (tk && ["localhost", "127.0.0.1"].includes(location.hostname)) { localStorage.setItem("hc_token", tk); history.replaceState(null, "", location.pathname + location.hash); } } catch (e) {}
   try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=35"></script>
+<script src="static/plan.js?v=36"></script>
 <script src="static/account.js?v=8"></script>
 <script src="static/ytedit.js?v=6"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
