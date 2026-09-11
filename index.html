@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>하이커브 레퍼런스 저장소</title>
+<title>REELPD</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{--bg:#f6f7fb;--panel:#fff;--line:#e6e8ef;--ink:#15171f;--mute:#7b8194;--brand:#2f54eb;--brand2:#eef2ff;--lime:#bffe9e;--red:#ec1d1d;--r:12px}
@@ -330,10 +330,10 @@ body.guest{overflow-x:hidden}body.guest .app{grid-template-columns:minmax(0,1fr)
 <style>a[data-r="boards"],a[data-r="settings"],#rlive,#rlivemsg,.racct .btn,button[onclick*="pickBoard"],button[onclick*="openItem"]{display:none!important}</style>
 </head>
 <body>
-<div class="topbar"><button class="btn ghost" onclick="document.body.classList.toggle('nav-open')">☰</button><b class="wm">HIGHCURVE<i></i></b><a class="btn small" href="#/plan/new">+ 기획</a></div>
+<div class="topbar"><button class="btn ghost" onclick="document.body.classList.toggle('nav-open')">☰</button><b class="wm">REELPD<i></i></b><a class="btn small" href="#/plan/new">+ 기획</a></div>
 <div class="app">
   <aside class="side">
-    <div class="logo"><span class="wm">HIGHCURVE<i></i></span><small>레퍼런스 · 기획</small></div>
+    <div class="logo"><span class="wm">REELPD<i></i></span><small>by HIGHCURVE</small></div>
     <nav class="nav">
       <div class="sec">레퍼런스</div>
       <div id="catnav"></div>
@@ -352,7 +352,7 @@ body.guest{overflow-x:hidden}body.guest .app{grid-template-columns:minmax(0,1fr)
       <a href="#/settings" data-r="settings" class="admin-only"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2-1.2L14.3 3h-4l-.4 2.6a7 7 0 0 0-2 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 2 1.2l.4 2.6h4l.4-2.6a7 7 0 0 0 2-1.2l2.3.9 2-3.4-2-1.5A7 7 0 0 0 19 12z"/></svg> 설정 · 수집</a>
     </nav>
     <div id="acct" class="acct"></div>
-    <div class="foot"><b id="wsname">하이커브 워크스페이스</b><span id="count">-</span></div>
+    <div class="foot"><b id="wsname">REELPD workspace</b><span id="count">-</span></div>
   </aside>
   <main class="main" id="main"></main>
 </div>
@@ -360,7 +360,7 @@ body.guest{overflow-x:hidden}body.guest .app{grid-template-columns:minmax(0,1fr)
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789104916"></script>
+<script src="static_api.js?v=1789107128"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; if (el.parentNode && el.parentNode.classList) el.parentNode.classList.add("nothumb"); return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
@@ -768,9 +768,9 @@ async function viewLanding() {
   let st = null; try { st = await api("/api/stats"); } catch (e) {}
   const n = st && st.items ? fmt(st.items) : "4,000+";
   $("#main").innerHTML = `<div class="land">
-    <header class="land-top"><span class="wm">HIGHCURVE<i></i></span><nav><a class="btn" href="#/login">로그인</a><a class="btn p" href="#/login/signup">가입하기</a></nav></header>
+    <header class="land-top"><span class="wm">REELPD<i></i></span><nav><a class="btn" href="#/login">로그인</a><a class="btn p" href="#/login/signup">가입하기</a></nav></header>
     <section class="land-hero">
-      <div class="land-kicker">HIGHCURVE REFERENCE</div>
+      <div class="land-kicker">REELPD · BY HIGHCURVE</div>
       <h1>터진 릴스를 뜯어보고,<br>내 기획안으로 옮기는 가장 짧은 길.</h1>
       <p>하이커브 수강생을 위한 릴스 레퍼런스 저장소와 기획 도구입니다. 업종별로 정리된 터진 릴스를 보고, 컷 단위로 분석하고, 5단계 클릭만으로 씬별 기획안과 편집 외주서까지 받습니다.</p>
       <div class="land-cta"><a class="btn p big" href="#/login/signup">가입하고 시작하기</a><a class="btn big" href="#/login">이미 회원이에요</a></div>
@@ -796,7 +796,7 @@ async function viewLanding() {
     <section class="land-why"><div class="why-col"><div class="land-kicker">왜 조회수가 달라지나</div><h2>감으로 찍지 않고, 터진 구조를 옮깁니다</h2><ul><li><b>이미 검증된 뼈대</b><span>내 업종에서 최근 100일 안에 터진 릴스의 구조를 그대로 가져옵니다. 처음 3초의 훅, 전개 순서, 마무리 유도까지 같은 흐름입니다.</span></li><li><b>사람이 말하는 대본</b><span>"~해서 ~했어요, 근데 ~하더라고요" 처럼 이어지는 문장, 반전과 자조가 섞인 말투로 씁니다. 읽자마자 찍을 수 있습니다.</span></li><li><b>찍기 전에 보이는 그림</b><span>씬마다 사람 스케치와 참고 릴스의 실제 프레임이 나란히 붙어서 무엇을 어떻게 찍을지 헷갈리지 않습니다.</span></li></ul></div>
       <div class="why-col"><div class="land-kicker">AI만으로 충분합니다</div><h2>기획자 없이, 편집자에게 바로 넘깁니다</h2><ul><li><b>5단계 클릭이 전부</b><span>업종, 타깃, 키워드, 참고 릴스, 주제. 글을 쓰는 칸이 없습니다. 영상이 처음인 40~50대 사장님 기준으로 만들었습니다.</span></li><li><b>대본, 스케치, 외주서를 한 번에</b><span>기획안이 나오면 편집자용 지시서(폰트, 효과음, 컷 길이, 따라갈 레퍼런스)까지 같이 만들어집니다. 사람이 할 일은 촬영뿐입니다.</span></li><li><b>하이커브 노하우가 들어 있습니다</b><span>훅 공식, 기승전결, 업종별 말투, 실제 대표 대본을 학습했습니다. 강의에서 배운 그대로 도구가 따라옵니다.</span></li></ul></div></section>
     <section class="land-how"><h2>이렇게 씁니다</h2><ol><li><b>가입</b><span>이메일과 비밀번호로 가입합니다. 수강생 초대 코드가 있으면 함께 넣습니다.</span></li><li><b>레퍼런스 보기</b><span>업종을 고르고 터진 릴스를 봅니다. 조회수, 팔로워 대비 성과, 최신순으로 정렬합니다.</span></li><li><b>기획하기</b><span>참고 릴스를 담고 5단계를 누르면 기획안이 만들어집니다. 훅을 바꾸고 대사를 다듬어 촬영에 들어갑니다.</span></li></ol></section>
-    <footer class="land-foot"><span class="wm">HIGHCURVE<i></i></span><span>하이커브 수강생 전용 · 문의는 고객센터</span><a class="btn p" href="#/login/signup">가입하기</a></footer>
+    <footer class="land-foot"><span class="wm">REELPD<i></i></span><span>REELPD by HIGHCURVE · 하이커브 수강생 전용 · 문의는 고객센터</span><a class="btn p" href="#/login/signup">가입하기</a></footer>
   </div>`;
   window.scrollTo(0, 0);
 }
@@ -826,7 +826,7 @@ window.addEventListener("hashchange", () => { document.body.classList.remove("na
   try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
 <script src="static/plan.js?v=35"></script>
-<script src="static/account.js?v=6"></script>
+<script src="static/account.js?v=8"></script>
 <script src="static/ytedit.js?v=6"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
 </body>
