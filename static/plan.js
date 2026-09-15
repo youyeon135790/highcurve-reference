@@ -75,7 +75,7 @@
   window.viewPlanWizard = async function (arg, sub) {
     if (arg) { if (sub && ["plan", "easy", "refs", "pro"].includes(sub)) TAB = sub; else if (!CUR || CUR.id !== arg) TAB = "easy"; const p = await api("/api/plans/" + arg); CUR = p; return renderPlan2(p); }
     // 릴스 상세창에서 담아둔 바구니 → 참고 릴스에 자동 반영
-    const basket = (window.PLANREFS ? PLANREFS() : []).slice(0, 3); W.basketSeen = W.basketSeen || [];
+    const basket = (typeof PLANREFS === "function" ? PLANREFS() : []).slice(0, 3); W.basketSeen = W.basketSeen || [];
     for (const id of basket) if (!W.basketSeen.includes(id) && !W.refs.includes(id) && W.refs.length < 3) { W.refs.push(id); W.basketSeen.push(id); }
     save(); renderWizard();
   };

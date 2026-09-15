@@ -442,6 +442,7 @@ mark,.plan-hero .ttag,.title-card .ttag{background:linear-gradient(transparent 1
       <a href="#/trends" data-r="trends"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> 트렌드 <span class="tag">NEW</span></a>
       <div class="tools"><div class="sec">기획 도구 <span class="tag">별도 상품</span></div>
       <a href="#/boards" data-r="boards"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg> 보드</a>
+      <a href="#/analyze" data-r="analyze"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="12" height="17" rx="2"/><path d="M3 8h12M3 15h12"/><circle cx="17" cy="15" r="3.2"/><path d="M19.4 17.4L22 20"/></svg> 레퍼런스 분석 <span class="tag">NEW</span></a>
       <a href="#/plan" data-r="plan"><svg viewBox="0 0 24 24"><path d="M4 20h16M6 16l10-10 2 2L8 18l-3 1z"/></svg> 콘텐츠 기획</a>
       <a href="#/edit" data-r="edit"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M8 5v14"/></svg> 편집 툴 <span class="tag">β</span></a>
       <a href="#/ytedit" data-r="ytedit"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M10 9l5 3-5 3z"/></svg> 유튜브 쇼츠 양산 <span class="tag">β</span></a>
@@ -460,7 +461,7 @@ mark,.plan-hero .ttag,.title-card .ttag{background:linear-gradient(transparent 1
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789443312"></script>
+<script src="static_api.js?v=1789465428"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; if (el.parentNode && el.parentNode.classList) el.parentNode.classList.add("nothumb"); return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
@@ -755,7 +756,7 @@ async function openReel(id) {
       <div class="pills">${it.music && (it.music.artist || it.music.title) ? pill("🎤", "작곡가", esc(it.music.artist || "-")) + pill("🎵", "음원제목", esc(it.music.title || (it.music.original ? "오리지널 오디오" : "-"))) : `<span class="pill muted">🎵 음원 정보 없음 (벤더 수집분에 표시)</span>`}${pill("📅", "작성일", esc(it.posted_at || "-"))}${it.industry ? pill("🏷", "카테고리", esc(it.industry)) : ""}${it.duration ? pill("⏱", "길이", Math.round(it.duration) + "초") : ""}</div>
       <div class="rcaph">✏️ 캡션</div><div class="rcapbox">${esc(it.caption || "").replace(/\n/g, "<br>") || '<span class="muted">캡션 없음</span>'}</div>
       ${it.description ? `<div class="rcaph">🧠 AI 설명</div><div class="rcapbox">${esc(it.description)}</div>` : ""}
-      <div class="row" style="margin-top:12px"><button class="btn p" onclick="pickBoard(${id})">보드에 저장</button><button class="btn" onclick="closeAll();openItem(${id})">메모·수정</button>${it.platform === "instagram" ? `<button class="btn" id="planbtn-${id}" onclick="togglePlanRef(${id})">${PLANREFS().includes(id) ? "✅ 담김" : "✍️ 기획에 담기"}</button>` : ""}<a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">원본 열기 ↗</a></div>
+      <div class="row" style="margin-top:12px"><button class="btn p" onclick="pickBoard(${id})">보드에 저장</button><button class="btn" onclick="closeAll();openItem(${id})">메모·수정</button>${it.platform === "instagram" ? `<button class="btn" id="planbtn-${id}" onclick="togglePlanRef(${id})">${PLANREFS().includes(id) ? "✅ 담김" : "✍️ 기획에 담기"}</button>` : ""}${document.body.classList.contains("admin") ? (() => { let v = null; try { v = it.visual ? JSON.parse(it.visual) : null; } catch (e) {} return v && v.aid ? `<a class="btn" href="#/analyze/${esc(v.aid)}" onclick="closeAll()">🔬 분석 결과 · ${esc(v.production || "")}</a>` : `<button class="btn" onclick="closeAll();raStart({item_id:${id}})">🔬 레퍼런스 분석</button>`; })() : ""}<a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">원본 열기 ↗</a></div>
     </div>
     <div class="rstrip"><button class="nav" onclick="${idx > 0 ? `openReel(${list[idx - 1].id})` : ""}" ${idx > 0 ? "" : "disabled"}>‹</button><div class="thumbs">${strip}</div><button class="nav" onclick="${idx < list.length - 1 ? `openReel(${list[idx + 1].id})` : ""}" ${idx < list.length - 1 ? "" : "disabled"}>›</button></div>
     <div class="rsim" id="rsim"><div class="rcaph">🔎 유사한 릴스 <small style="color:var(--mute);font-weight:400">같은 카테고리 · 캡션·해시태그·썸네일 유사도</small></div><div class="rsimgrid">불러오는 중…</div></div>`;
@@ -902,7 +903,7 @@ async function viewLanding() {
 }
 
 // ---------------- 라우팅
-const TOOL_ROUTES = new Set(["boards", "plan", "edit", "ytedit", "settings", "pricing", "admin"]);
+const TOOL_ROUTES = new Set(["boards", "analyze", "plan", "edit", "ytedit", "settings", "pricing", "admin"]);
 async function ensureMe() { for (let i = 0; i < 40 && !window.loadMe; i++) await new Promise(r => setTimeout(r, 50)); if (!window.__meLoaded && window.loadMe) { await loadMe(); window.__meLoaded = true; } return window.authState ? window.authState() : null; }
 async function route() {
   let h = location.hash.replace(/^#\/?/, "") || "reels"; let parts = h.split("/"); let [r, arg] = parts;
@@ -916,7 +917,7 @@ async function route() {
   $$(".nav a[data-r]").forEach(a => a.classList.toggle("on", a.dataset.r === r)); renderCatNav();
   try {
     if (r === "explore") await viewExplore(); else if (r === "brands") await viewBrands(arg ? decodeURIComponent(arg) : null); else if (r === "trends") await viewTrends();
-    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "plan") await viewPlan(arg, parts[2]); else if (r === "edit") await viewEdit(); else if (r === "ytedit") await viewYtEdit(); else if (r === "login") viewLogin(arg); else if (r === "account") await viewAccount(); else if (r === "support") await viewSupport(); else if (r === "pricing") await viewPricing(); else if (r === "admin") await viewAdmin(); else await viewExplore();
+    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "analyze") await viewAnalyze(arg); else if (r === "plan") await viewPlan(arg, parts[2]); else if (r === "edit") await viewEdit(); else if (r === "ytedit") await viewYtEdit(); else if (r === "login") viewLogin(arg); else if (r === "account") await viewAccount(); else if (r === "support") await viewSupport(); else if (r === "pricing") await viewPricing(); else if (r === "admin") await viewAdmin(); else await viewExplore();
     const s = await api("/api/stats"); $("#count").textContent = `레퍼런스 ${s.items} · 브랜드 ${s.brands} · 보드 ${s.boards}`;
   } catch (e) { $("#main").innerHTML = `<div class="empty"><b>서버 연결 실패</b>${esc(e.message)}<br>터미널에서 <code>python3 server.py</code> 를 실행하세요.</div>`; }
 }
@@ -925,7 +926,8 @@ window.addEventListener("hashchange", () => { document.body.classList.remove("na
   try { const tk = new URLSearchParams(location.search).get("hc_token"); if (tk && ["localhost", "127.0.0.1"].includes(location.hostname)) { localStorage.setItem("hc_token", tk); history.replaceState(null, "", location.pathname + location.hash); } } catch (e) {}
   try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=42"></script>
+<script src="static/plan.js?v=43"></script>
+<script src="static/refan.js?v=4"></script>
 <script src="static/account.js?v=8"></script>
 <script src="static/ytedit.js?v=6"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
