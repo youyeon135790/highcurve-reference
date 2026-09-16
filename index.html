@@ -448,7 +448,7 @@ mark,.plan-hero .ttag,.title-card .ttag{background:linear-gradient(transparent 1
       <a href="#/ytedit" data-r="ytedit"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M10 9l5 3-5 3z"/></svg> 유튜브 쇼츠 양산 <span class="tag">β</span></a>
       </div>
       <div class="sec">지원</div>
-      <a href="#/support" data-r="support"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg> 고객센터</a>
+      <a href="#/support" data-r="support"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg> 문의</a>
       <a href="#/pricing" data-r="pricing" class="admin-only"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg> 요금제</a>
       <a href="#/settings" data-r="settings" class="admin-only"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2-1.2L14.3 3h-4l-.4 2.6a7 7 0 0 0-2 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 2 1.2l.4 2.6h4l.4-2.6a7 7 0 0 0 2-1.2l2.3.9 2-3.4-2-1.5A7 7 0 0 0 19 12z"/></svg> 설정 · 수집</a>
     </nav>
@@ -461,7 +461,7 @@ mark,.plan-hero .ttag,.title-card .ttag{background:linear-gradient(transparent 1
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789465428"></script>
+<script src="static_api.js?v=1789529874"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; if (el.parentNode && el.parentNode.classList) el.parentNode.classList.add("nothumb"); return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
@@ -917,7 +917,7 @@ async function route() {
   $$(".nav a[data-r]").forEach(a => a.classList.toggle("on", a.dataset.r === r)); renderCatNav();
   try {
     if (r === "explore") await viewExplore(); else if (r === "brands") await viewBrands(arg ? decodeURIComponent(arg) : null); else if (r === "trends") await viewTrends();
-    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "analyze") await viewAnalyze(arg); else if (r === "plan") await viewPlan(arg, parts[2]); else if (r === "edit") await viewEdit(); else if (r === "ytedit") await viewYtEdit(); else if (r === "login") viewLogin(arg); else if (r === "account") await viewAccount(); else if (r === "support") await viewSupport(); else if (r === "pricing") await viewPricing(); else if (r === "admin") await viewAdmin(); else await viewExplore();
+    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "analyze") await viewAnalyze(arg); else if (r === "plan") await viewPlan(arg, parts[2]); else if (r === "edit") await viewEdit(); else if (r === "ytedit") await viewYtEdit(); else if (r === "login") viewLogin(arg); else if (r === "account") await viewAccount(); else if (r === "support") await viewSupport(arg); else if (r === "pricing") await viewPricing(); else if (r === "admin") await viewAdmin(); else await viewExplore();
     const s = await api("/api/stats"); $("#count").textContent = `레퍼런스 ${s.items} · 브랜드 ${s.brands} · 보드 ${s.boards}`;
   } catch (e) { $("#main").innerHTML = `<div class="empty"><b>서버 연결 실패</b>${esc(e.message)}<br>터미널에서 <code>python3 server.py</code> 를 실행하세요.</div>`; }
 }
@@ -928,7 +928,8 @@ window.addEventListener("hashchange", () => { document.body.classList.remove("na
 </script>
 <script src="static/plan.js?v=43"></script>
 <script src="static/refan.js?v=4"></script>
-<script src="static/account.js?v=8"></script>
+<script src="static/account.js?v=9"></script>
+<script src="static/chat.js?v=4"></script>
 <script src="static/ytedit.js?v=6"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
 </body>
