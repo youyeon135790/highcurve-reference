@@ -37,7 +37,7 @@
       const r = await post(mode === "signup" ? "/api/auth/signup" : "/api/auth/login", body);
       if (r.error) throw new Error(r.error);
       if (r.token) localStorage.setItem("hc_token", r.token);
-      await loadMe(); window.__meLoaded = true; toast(mode === "signup" ? `환영해요, ${r.user.name}님` : `안녕하세요, ${r.user.name}님`); location.hash = "#/reels";
+      await loadMe(); window.__meLoaded = true; toast(mode === "signup" ? `환영해요, ${r.user.name}님` : `안녕하세요, ${r.user.name}님`); { let after = null; try { after = sessionStorage.getItem("hc_after"); sessionStorage.removeItem("hc_after"); } catch (e) {} location.hash = after || "#/reels"; }
     } catch (e) { m.textContent = e.message; }
   };
 

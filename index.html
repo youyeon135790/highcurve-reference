@@ -57,7 +57,17 @@ h2{font-size:17px;margin:20px 0 10px;display:flex;align-items:center;gap:10px}h2
 .racct{display:flex;align-items:center;gap:10px;margin:6px 0 16px;font-size:16px}.racct .av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}.racct .nm{color:var(--mute);font-size:13px}
 .pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.pill{background:#f3f4f8;border-radius:10px;padding:9px 14px;font-size:14px;color:#3b4052}.pill b{margin-left:6px;color:var(--ink)}.pill.muted{color:var(--mute);font-size:12px}
 .rcaph{font-weight:700;margin:18px 0 8px}.rcapbox{background:#f8f9fc;border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.7;max-height:320px;overflow:auto;white-space:normal}.muted{color:var(--mute)}
-.racctrow{display:flex;gap:10px;overflow-x:auto;padding:4px 0 10px}.racct{flex:0 0 200px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-size:12px;display:flex;flex-direction:column;gap:4px}.racct .rh{display:flex;flex-direction:column}.racct a{color:var(--mute);text-decoration:none;font-size:11px}.btn.small{padding:3px 8px;font-size:11px}
+.ra-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:6px 0 8px}.ra-head b{font-size:15px}.ra-head span{font-size:12.5px;color:var(--mute)}
+.racctrow{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 12px;scroll-snap-type:x proximity}
+.racctrow .racct{flex:0 0 240px;min-width:0;margin:0;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;font-size:12px;display:flex;flex-direction:column;align-items:stretch;gap:8px;scroll-snap-align:start;transition:.15s}
+.racctrow .racct:hover{border-color:#b9bfd2;box-shadow:0 8px 20px rgba(20,25,60,.08)}
+.racctrow .ra-top{display:flex;align-items:center;gap:10px;min-width:0}
+.racctrow .ra-av{flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.racctrow .ra-id{min-width:0;display:flex;flex-direction:column;gap:1px}
+.racctrow .ra-id b{font-size:13.5px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#15171f}
+.racctrow .ra-id a{font-size:11.5px;color:var(--mute);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.racctrow .ra-id a:hover{color:#15171f}
+.racctrow .ra-meta{display:flex;flex-wrap:wrap;gap:4px 6px}.racctrow .ra-meta span{background:#f3f4f9;border-radius:99px;padding:3px 9px;font-size:11px;color:#3b4052;white-space:nowrap}.racctrow .ra-meta span b{color:#15171f}.racctrow .ra-meta span.ind{background:#eef8e6;color:#2f5d0f}
+.racctrow .btn.small{align-self:flex-start;margin-top:auto}.racctrow .ra-saved{margin-top:auto;font-size:11.5px;color:var(--mute)}.btn.small{padding:3px 8px;font-size:11px}
 .rsim{grid-column:1/-1;margin-top:6px}.rsimgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}.scard{position:relative;aspect-ratio:9/14;border-radius:10px;overflow:hidden;background:#e9ecf5;cursor:pointer}.scard img{width:100%;height:100%;object-fit:cover;display:block}.scard .rv{font-size:11px;padding:1px 6px}.scard .sacc{position:absolute;left:6px;top:6px;background:rgba(0,0,0,.55);color:#fff;border-radius:6px;padding:1px 6px;font-size:10px;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rstrip{grid-column:1/-1;display:flex;align-items:center;gap:10px;justify-content:center;margin-top:6px}.rstrip .thumbs{display:flex;gap:10px}.rstrip img{width:64px;height:88px;object-fit:cover;border-radius:10px;border:3px solid transparent;cursor:pointer;background:#e9ecf5}.rstrip img.on{border-color:var(--brand)}.rstrip .nav{border:0;background:#f0f2f8;border-radius:50%;width:36px;height:36px;font-size:18px}.rstrip .nav:disabled{opacity:.3}
 @media (max-width:800px){.rmodal{grid-template-columns:1fr}}
@@ -91,6 +101,29 @@ h1{font-size:26px;letter-spacing:-.03em;line-height:1.25;margin:0 0 6px}
 .wiz-more{margin:16px 0;border:1.5px dashed var(--line);border-radius:14px;padding:10px 14px}.wiz-more summary{cursor:pointer;font-weight:700;color:#3b4052}.wiz-more .two{margin-top:10px;gap:10px}.wiz-more label{font-size:12px;color:var(--mute);font-weight:600}
 .wiz-summary{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;color:#3b4052}
 .rcard.ad .rv{background:#0866ff}.rp.live{background:#16a34a;color:#fff}
+.ez2{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:16px;font-size:15px;line-height:1.6}
+.ez2 .ez-sec{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:18px 20px}.ez2 .ez-sec>h3{margin:0 0 12px;font-size:17px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.ez2 .ez-sec>h3 small{font-size:12.5px;font-weight:500;color:var(--mute)}
+.ez2 small{display:block;font-size:12px;font-weight:700;color:var(--mute);margin-bottom:3px;letter-spacing:.01em}.ez2 ul,.ez2 ol{margin:0;padding-left:18px}.ez2 p{margin:0}
+.sum-card{background:#15171f;color:#fff;border-radius:20px;padding:20px 22px;display:flex;flex-direction:column;gap:14px}.sum-card small{color:#aab0c4}
+.sum-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}.sum-tags{display:flex;gap:6px;flex-wrap:wrap}.sum-tags .tag{background:#2a2e3d;color:#e6e8ef;border:0}.sum-tags .tag.fmt{background:#bffe9e;color:#15171f;font-weight:800}.sum-tags .tag.ref{background:#3a2f5c;color:#e9defe}.sum-actions{display:flex;gap:6px;flex-wrap:wrap}.sum-actions .btn{background:#2a2e3d;color:#fff;border-color:#3a3f52}.sum-actions .btn.p{background:#bffe9e;color:#15171f;border-color:#bffe9e}
+.sum-core p{font-size:22px;font-weight:800;line-height:1.35;letter-spacing:-.01em}
+.f3{display:grid;grid-template-columns:64px repeat(3,1fr);gap:8px;align-items:stretch}.f3-title{font-weight:800;font-size:13px;color:#bffe9e;align-self:center}.f3-cell{background:#22252f;border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.45}
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;font-size:14px;line-height:1.5}.sum-grid>div{background:#1d2029;border-radius:12px;padding:10px 12px}
+.hks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}.hk{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}.hk.on{border-color:var(--ink);box-shadow:0 0 0 3px rgba(21,23,31,.10)}.hk-top{display:flex;justify-content:space-between;align-items:center}.hk-line{font-size:18px;font-weight:800;line-height:1.35}
+.hk-dl,.ez-dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0;font-size:13px;line-height:1.45}.hk-dl dt,.ez-dl dt{color:var(--mute);font-weight:700;white-space:nowrap}.hk-dl dd,.ez-dl dd{margin:0}
+.sx{display:flex;flex-direction:column;gap:2px}.sx-row{display:grid;grid-template-columns:118px 1fr;gap:14px;padding:10px 0;border-top:1px dashed var(--line)}.sx-row:first-child{border-top:0}.sx-side{display:flex;flex-direction:column;gap:3px;align-items:flex-start}.sx-side b{font-size:18px;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:#eef0f6}.sx-row.part-기 .sx-side b{background:#ffe9a8}.sx-row.part-승 .sx-side b{background:#cfe6ff}.sx-row.part-전 .sx-side b{background:#ffd3e0}.sx-row.part-결 .sx-side b{background:#d6f6c4}
+.sx-side span{font-size:12px;color:var(--mute);font-weight:700}.sx-side em{font-style:normal;font-size:11.5px;background:#f3f4f9;border-radius:99px;padding:2px 8px;color:#3b4052}.sx-lines p{font-size:17px;line-height:1.75;font-weight:500}
+.ez-fill2{margin-top:12px;border:1.5px dashed #f2c94c;background:#fffaf0;border-radius:14px;padding:10px 14px}.ez-fill2 summary{cursor:pointer;font-size:14px}
+.ez2 .ez-scene .ez-say{font-size:17px;font-weight:600;line-height:1.55}.ez-cap{font-size:13px;color:#3b4052;margin-top:4px}.ez-hold{font-size:11.5px;background:#eef8e6;color:#2f5d0f;border-radius:99px;padding:2px 9px;font-weight:700}.ez2 .ez-how{font-size:13.5px;color:#3b4052;margin-top:6px;line-height:1.5}
+.prep-grid,.up-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.up-cap{white-space:pre-wrap;font-size:14px;line-height:1.6;background:#f7f8fb;border-radius:12px;padding:10px 12px}.ez2 .thumb-block{margin-top:14px}
+.ez-sec.caution{border-color:#f2c94c;background:#fffdf5}.ref-mini{display:flex;gap:12px;align-items:flex-start}.ref-mini img{width:64px;aspect-ratio:9/12;object-fit:cover;border-radius:10px;background:#eceef5}
+.ref-flow{margin-top:10px;font-size:14px;line-height:1.6}.ref-flow ol{margin:0;padding-left:18px}
+.refmap{display:flex;flex-direction:column;gap:8px;margin-top:8px}.rm-row{display:grid;grid-template-columns:40px 1fr 1fr;gap:10px;font-size:13.5px;line-height:1.5;border-top:1px dashed var(--line);padding-top:8px}
+@media(max-width:640px){.f3{grid-template-columns:1fr}.sx-row{grid-template-columns:1fr;gap:6px}.rm-row{grid-template-columns:1fr}.sum-core p{font-size:19px}}
+.pill.tiny.main{background:#15171f;color:#bffe9e}.set-picked{margin:8px 0 10px;padding:10px 12px;border:1.5px dashed var(--line);border-radius:12px;background:#fbfbfd;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.set-picked b{margin-right:6px;font-size:13px}.set-picked .row{width:100%}
+.set-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.set-card{display:flex;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:14px 16px}.set-card.done{cursor:pointer}.set-card.done:hover{border-color:#b9bfd2;box-shadow:0 10px 24px rgba(20,25,60,.08)}.set-no{flex:0 0 34px;height:34px;border-radius:10px;background:#15171f;color:#bffe9e;font-weight:800;display:flex;align-items:center;justify-content:center}.set-body{min-width:0;display:flex;flex-direction:column;gap:6px;flex:1}.set-body>b{font-size:15.5px;line-height:1.35}.set-meta{display:flex;gap:6px;flex-wrap:wrap}.set-hook{font-size:15px;font-weight:700;line-height:1.4}.set-prep{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:#3b4052}
+.set-list{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;margin-bottom:8px}.set-chip{flex:0 0 260px;display:flex;flex-direction:column;gap:3px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;text-decoration:none;color:inherit;font-size:12.5px}.set-chip b{font-size:14px}
+.share{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px}.share-head h1{margin:4px 0 6px;font-size:26px}.share-card{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:20px 22px;position:relative}.share-card h2{margin:0 0 2px;font-size:20px}.share-no{display:inline-block;background:#15171f;color:#bffe9e;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:800;margin-bottom:8px}.share-script p{margin:0;font-size:19px;line-height:1.9;font-weight:500}.share-part{margin:14px 0 2px;font-size:12px;font-weight:800;color:var(--mute)}.share-part:first-child{margin-top:0}.share small{display:block;font-size:12px;font-weight:700;color:var(--mute);margin-bottom:3px}.share ul,.share ol{margin:0;padding-left:18px;line-height:1.7}
 .modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:8px 0 4px}.mode{text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:14px 14px 12px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;gap:3px;font:inherit;color:inherit}.mode:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(20,25,60,.10)}.mode.on{border-color:var(--ink);background:#15171f;color:#fff;box-shadow:0 0 0 3px rgba(21,23,31,.12)}.mode .mode-ic{font-size:22px;line-height:1}.mode b{font-size:15px;margin-top:4px}.mode small{font-size:12px;color:var(--mute)}.mode.on small{color:#c9cddb}.mode em{font-style:normal;font-size:11.5px;line-height:1.45;color:#3b4052;margin-top:4px}.mode.on em{color:#e6e8ef}
 .mf-box{margin:14px 0 0;border:1.5px dashed var(--line);border-radius:14px;padding:12px 14px;background:#fbfbfd}.mf-box>b{display:block;font-size:14px;margin-bottom:6px}.mf-row{margin:8px 0 0}.mf-row small{display:block;font-size:12px;font-weight:700;color:#3b4052;margin-bottom:4px}.mf-row .pills.small{margin:0}
 .mp-table th{width:150px;vertical-align:top}.mp-table ul{margin:0;padding-left:16px;line-height:1.55}.mp-table td{font-size:13.5px;line-height:1.5}.ez-sec.mp{border-color:#bffe9e;background:#f7fff1}
@@ -457,7 +490,7 @@ mark,.plan-hero .ttag,.title-card .ttag{background:linear-gradient(transparent 1
       <a href="#/settings" data-r="settings" class="admin-only"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2-1.2L14.3 3h-4l-.4 2.6a7 7 0 0 0-2 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 2 1.2l.4 2.6h4l.4-2.6a7 7 0 0 0 2-1.2l2.3.9 2-3.4-2-1.5A7 7 0 0 0 19 12z"/></svg> 설정 · 수집</a>
     </nav>
     <div id="acct" class="acct"></div>
-    <div class="foot"><b id="wsname">REELPD workspace</b><span id="count">-</span></div>
+    <div class="foot admin-only"><b id="wsname">REELPD workspace</b><span id="count">-</span></div>
   </aside>
   <main class="main" id="main"></main>
 </div>
@@ -465,7 +498,7 @@ mark,.plan-hero .ttag,.title-card .ttag{background:linear-gradient(transparent 1
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789616320"></script>
+<script src="static_api.js?v=1789630725"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; if (el.parentNode && el.parentNode.classList) el.parentNode.classList.add("nothumb"); return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
@@ -722,16 +755,22 @@ async function viewReels() {
       <div class="fgroup" style="align-self:flex-end"><button class="btn small" onclick="rfReset()">필터 초기화</button> <button class="btn small" onclick="R.fopen=false;viewReels()">닫기</button></div>
     </div>` : ""}
     <div class="row" style="margin:6px 0 10px">${ad ? `<button class="rcat ${R.sort==="running"?"on":""}" style="border-color:#0866ff;color:${R.sort==="running"?"#fff":"#0866ff"};background:${R.sort==="running"?"#0866ff":"#fff"}" onclick="R.sort='running';R.page=0;viewReels()">⏱ 오래 돌아가는 광고 (검증된 소재)</button>` : `<button class="rcat ${R.sort==="ratio"&&R.days==="7"?"on":""}" style="border-color:#f59e0b;color:${R.sort==="ratio"&&R.days==="7"?"#fff":"#b45309"};background:${R.sort==="ratio"&&R.days==="7"?"#f59e0b":"#fff"}" onclick="R.sort='ratio';R.days='7';R.page=0;viewReels()">🔥 이번 주 트렌드</button>`}<button class="rcat ${R.sort==="pick"?"on":""}" onclick="R.sort='pick';R.days='100';R.page=0;viewReels()">✨ 오늘의 추천</button>${ad ? "" : `<button class="rcat ${R.sort!=="ratio"&&R.sort!=="pick"?"on":""}" onclick="R.sort=R.plat==='youtube'?'views':'date';R.days='100';R.page=0;viewReels()">기본 정렬</button>`}${R.sort==="pick" ? `<span class="muted" style="font-size:12px;align-self:center">${todayLabel()} 기준 · 상위 ${Math.min(total,600)}개를 매일 다른 순서로 보여줘요 (자정에 바뀜)</span>` : ""}</div>
-    ${R.q && !yt ? `<div id="raccts"></div>` : ""}
-    <div class="rcount">${R.sort==="pick" ? `오늘의 추천 ${Math.min(total,600)}개` : total + "개"} · ${ad ? "메타 광고 라이브러리(한국·영상 광고) · 로그인·키 없이 매일 수집 · 게재일이 길수록 돈이 되는 검증된 소재" : yt ? "구독자 20만 미만 채널의 최근 60일 떡상 쇼츠 (매일 자동 갱신)" : "인플루언서 릴스 · 조회수가 없는 카드는 공식 API 수집분(좋아요 표시)"}${R.q && !yt ? ` · <button class="btn small" id="rlive" onclick="liveSearch()">🌐 인스타에서 더 가져오기 (약 11크레딧)</button> <span id="rlivemsg" class="muted"></span>` : ""}</div>
+    ${R.q && !yt && !ad ? `<div id="raccts"></div>` : ""}
+    <div class="rcount">${R.sort==="pick" ? `오늘의 추천 ${Math.min(total,600)}개` : total + "개"} · ${ad ? "메타 광고 라이브러리(한국·영상 광고) · 로그인·키 없이 매일 수집 · 게재일이 길수록 돈이 되는 검증된 소재" : yt ? "구독자 20만 미만 채널의 최근 60일 떡상 쇼츠 (매일 자동 갱신)" : "인플루언서 릴스 · 조회수가 없는 카드는 공식 API 수집분(좋아요 표시)"}${R.q && !yt && !ad && document.body.classList.contains("admin") ? ` · <button class="btn small" id="rlive" onclick="liveSearch()">🌐 인스타에서 더 가져오기 (약 11크레딧)</button> <span id="rlivemsg" class="muted"></span>` : ""}</div>
     ${items.length ? `<div class="rgrid">${items.map(rcard).join("")}</div>` : `<div class="empty"><b>${ad ? "이 조건의 광고가 아직 없어요" : "이 조건의 릴스가 아직 없어요"}</b>${ad ? "설정 → 메타 광고 라이브러리에서 검색어로 바로 수집할 수 있어요 (30초)." : "기간을 늘리거나 설정에서 이 카테고리를 수집하세요."}</div>`}
     <div class="row" style="justify-content:center;margin:18px 0">${R.page > 0 ? `<button class="btn" onclick="R.page--;viewReels()">← 이전</button>` : ""}${(R.page + 1) * 60 < total ? `<button class="btn" onclick="R.page++;viewReels();window.scrollTo(0,0)">다음 →</button>` : ""}</div>`;
-  if (R.q && !yt) {   // 스니핏식 계정 줄 + 결과가 적으면 자동으로 외부 수집 1회
+  if (R.q && !yt && !ad) {   // 스니핏식 계정 발굴 줄(모두) + 브랜드 저장·외부 수집은 관리자만
     api("/api/accounts?" + new URLSearchParams({ q: R.q, platform: "instagram", limit: 10 })).then(list => {
       const el = $("#raccts"); if (!el || !list.length) return;
-      el.innerHTML = `<div class="racctrow">${list.map(a => `<div class="racct"><div class="rh"><b>${esc(a.name || a.handle)}</b><a href="https://www.instagram.com/${esc(a.handle)}/" target="_blank" rel="noopener">@${esc(a.handle)}</a></div><div class="muted">릴스 ${a.count}개${a.max_views ? " · 최고 ▶ " + fmt(a.max_views) : ""}${a.industry ? " · " + esc(a.industry) : ""}</div>${a.saved ? `<span class="muted">✔ 등록됨</span>` : `<button class="btn small" onclick="saveAcct('${esc(a.handle)}','${esc((a.name || "").replace(/'/g, ""))}','${esc(a.industry || "")}',this)">🏷 브랜드 저장</button>`}</div>`).join("")}</div>`;
+      const admin = document.body.classList.contains("admin");
+      el.innerHTML = `<div class="ra-head"><b>🔎 계정 발굴</b><span>"${esc(R.q)}" 릴스를 올린 계정 ${list.length}개 · 릴스 수와 최고 조회수가 높은 순${admin ? " · 브랜드 저장을 누르면 새 릴스를 계속 모읍니다" : ""}</span></div>
+      <div class="racctrow">${list.map(a => `<div class="racct">
+        <div class="ra-top"><span class="ra-av">${esc((a.name || a.handle || "?").trim().slice(0, 1).toUpperCase())}</span><div class="ra-id"><b title="${esc(a.name || a.handle)}">${esc(a.name || a.handle)}</b><a href="https://www.instagram.com/${esc(a.handle)}/" target="_blank" rel="noopener" title="인스타그램에서 보기">@${esc(a.handle)} ↗</a></div></div>
+        <div class="ra-meta"><span>릴스 <b>${a.count}</b>개</span>${a.max_views ? `<span>최고 <b>▶ ${fmt(a.max_views)}</b></span>` : ""}${a.industry ? `<span class="ind">${esc(a.industry)}</span>` : ""}</div>
+        ${admin ? (a.saved ? `<span class="ra-saved">✔ 브랜드 등록됨</span>` : `<button class="btn small" onclick="saveAcct('${esc(a.handle)}','${esc((a.name || "").replace(/'/g, ""))}','${esc(a.industry || "")}',this)">🏷 브랜드 저장</button>`) : ""}
+      </div>`).join("")}</div>`;
     }).catch(() => {});
-    const key = "live:" + R.q; if (total < 30 && !sessionStorage.getItem(key)) { sessionStorage.setItem(key, "1"); liveSearch(); }
+    const key = "live:" + R.q; if (total < 30 && document.body.classList.contains("admin") && !sessionStorage.getItem(key)) { sessionStorage.setItem(key, "1"); liveSearch(); }   // 외부 수집(크레딧)은 관리자만
   }
   const q = $("#rq"); q.addEventListener("keydown", e => { if (e.key === "Enter") {
     const v = q.value.trim(); const hit = cats.find(c => c[0].replace(/\s|·|\//g, "") === v.replace(/\s|·|\//g, "")) || cats.find(c => c[0].includes(v) && v.length >= 2);
@@ -772,7 +811,7 @@ async function openReel(id) {
       <div class="pills">${it.music && (it.music.artist || it.music.title) ? pill("🎤", "작곡가", esc(it.music.artist || "-")) + pill("🎵", "음원제목", esc(it.music.title || (it.music.original ? "오리지널 오디오" : "-"))) : `<span class="pill muted">🎵 음원 정보 없음 (벤더 수집분에 표시)</span>`}${pill("📅", "작성일", esc(it.posted_at || "-"))}${it.industry ? pill("🏷", "카테고리", esc(it.industry)) : ""}${it.duration ? pill("⏱", "길이", Math.round(it.duration) + "초") : ""}</div>`}
       <div class="rcaph">✏️ 캡션</div><div class="rcapbox">${esc(it.caption || "").replace(/\n/g, "<br>") || '<span class="muted">캡션 없음</span>'}</div>
       ${it.description ? `<div class="rcaph">🧠 AI 설명</div><div class="rcapbox">${esc(it.description)}</div>` : ""}
-      <div class="row" style="margin-top:12px"><button class="btn p" onclick="pickBoard(${id})">보드에 저장</button><button class="btn" onclick="closeAll();openItem(${id})">메모·수정</button>${it.platform === "instagram" ? `<button class="btn" id="planbtn-${id}" onclick="togglePlanRef(${id})">${PLANREFS().includes(id) ? "✅ 담김" : "✍️ 기획에 담기"}</button>` : ""}${document.body.classList.contains("admin") ? (() => { let v = null; try { v = it.visual ? JSON.parse(it.visual) : null; } catch (e) {} return v && v.aid ? `<a class="btn" href="#/analyze/${esc(v.aid)}" onclick="closeAll()">🔬 분석 결과 · ${esc(v.production || "")}</a>` : `<button class="btn" onclick="closeAll();raStart({item_id:${id}})">🔬 레퍼런스 분석</button>`; })() : ""}<a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">원본 열기 ↗</a></div>
+      <div class="row" style="margin-top:12px">${document.body.classList.contains("admin") ? `<button class="btn p" onclick="pickBoard(${id})">보드에 저장</button><button class="btn" onclick="closeAll();openItem(${id})">메모·수정</button>${it.platform === "instagram" ? `<button class="btn" id="planbtn-${id}" onclick="togglePlanRef(${id})">${PLANREFS().includes(id) ? "✅ 담김" : "✍️ 기획에 담기"}</button>` : ""}` : ""}${document.body.classList.contains("admin") ? (() => { let v = null; try { v = it.visual ? JSON.parse(it.visual) : null; } catch (e) {} return v && v.aid ? `<a class="btn" href="#/analyze/${esc(v.aid)}" onclick="closeAll()">🔬 분석 결과 · ${esc(v.production || "")}</a>` : `<button class="btn" onclick="closeAll();raStart({item_id:${id}})">🔬 레퍼런스 분석</button>`; })() : ""}<a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">원본 열기 ↗</a></div>
     </div>
     <div class="rstrip"><button class="nav" onclick="${idx > 0 ? `openReel(${list[idx - 1].id})` : ""}" ${idx > 0 ? "" : "disabled"}>‹</button><div class="thumbs">${strip}</div><button class="nav" onclick="${idx < list.length - 1 ? `openReel(${list[idx + 1].id})` : ""}" ${idx < list.length - 1 ? "" : "disabled"}>›</button></div>
     <div class="rsim" id="rsim"><div class="rcaph">🔎 유사한 릴스 <small style="color:var(--mute);font-weight:400">같은 카테고리 · 캡션·해시태그·썸네일 유사도</small></div><div class="rsimgrid">불러오는 중…</div></div>`;
@@ -851,6 +890,7 @@ let PLAN = { current: null };
 async function viewPlan(arg, sub) {
   updatePlanBadge();
   if (arg === "new") return viewPlanWizard();
+  if (arg === "set" && sub) return viewPlanSet(sub);
   if (arg) return viewPlanWizard(arg, sub);
   return viewPlanHome();
 }
@@ -927,7 +967,8 @@ async function route() {
   let h = location.hash.replace(/^#\/?/, "") || "reels"; let parts = h.split("/"); let [r, arg] = parts;
   const me = await ensureMe();
   document.body.classList.toggle("guest", !me); document.body.classList.toggle("admin", !!me && me.role === "admin"); document.body.classList.toggle("member", !!me && me.role !== "admin");
-  if (!me) { if (r === "login") { curRoute = r; viewLogin(arg); return; } if (r !== "landing") { history.replaceState(null, "", "#/landing"); } curRoute = "landing"; return viewLanding(); }
+  if (!me) { if (r === "share" && arg) { try { sessionStorage.setItem("hc_after", "#/share/" + arg); } catch (e) {} toast("로그인하면 촬영 안내가 열려요"); }
+    if (r === "login") { curRoute = r; viewLogin(arg); return; } if (r !== "landing") { history.replaceState(null, "", "#/landing"); } curRoute = "landing"; return viewLanding(); }
   if (r === "landing" || r === "login") { location.replace("#/reels"); return; }
   if (me.role !== "admin" && TOOL_ROUTES.has(r)) { toast("기획 도구는 별도 상품이에요. 준비되면 열립니다"); location.replace("#/reels"); return; }
   curRoute = r;
@@ -935,7 +976,7 @@ async function route() {
   $$(".nav a[data-r]").forEach(a => a.classList.toggle("on", a.dataset.r === r)); renderCatNav();
   try {
     if (r === "explore") await viewExplore(); else if (r === "brands") await viewBrands(arg ? decodeURIComponent(arg) : null); else if (r === "trends") await viewTrends();
-    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "analyze") await viewAnalyze(arg); else if (r === "plan") await viewPlan(arg, parts[2]); else if (r === "edit") await viewEdit(); else if (r === "ytedit") await viewYtEdit(); else if (r === "login") viewLogin(arg); else if (r === "account") await viewAccount(); else if (r === "support") await viewSupport(arg); else if (r === "pricing") await viewPricing(); else if (r === "admin") await viewAdmin(); else await viewExplore();
+    else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "analyze") await viewAnalyze(arg); else if (r === "plan") await viewPlan(arg, parts[2]); else if (r === "share") await viewShare(arg); else if (r === "edit") await viewEdit(); else if (r === "ytedit") await viewYtEdit(); else if (r === "login") viewLogin(arg); else if (r === "account") await viewAccount(); else if (r === "support") await viewSupport(arg); else if (r === "pricing") await viewPricing(); else if (r === "admin") await viewAdmin(); else await viewExplore();
     const s = await api("/api/stats"); $("#count").textContent = `레퍼런스 ${s.items} · 브랜드 ${s.brands} · 보드 ${s.boards}`;
   } catch (e) { $("#main").innerHTML = `<div class="empty"><b>서버 연결 실패</b>${esc(e.message)}<br>터미널에서 <code>python3 server.py</code> 를 실행하세요.</div>`; }
 }
@@ -944,9 +985,9 @@ window.addEventListener("hashchange", () => { document.body.classList.remove("na
   try { const tk = new URLSearchParams(location.search).get("hc_token"); if (tk && ["localhost", "127.0.0.1"].includes(location.hostname)) { localStorage.setItem("hc_token", tk); history.replaceState(null, "", location.pathname + location.hash); } } catch (e) {}
   try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=44"></script>
+<script src="static/plan.js?v=48"></script>
 <script src="static/refan.js?v=4"></script>
-<script src="static/account.js?v=9"></script>
+<script src="static/account.js?v=10"></script>
 <script src="static/chat.js?v=4"></script>
 <script src="static/ytedit.js?v=6"></script>
 <script>window.addEventListener("DOMContentLoaded", () => { if (window.loadMe) loadMe(); });</script>
