@@ -1,12 +1,50 @@
 // ✍️ 릴스 기획 — 5단계 고르기(직업 → 타깃 → 키워드 → 참고 릴스 → 주제) → 기획안. 레퍼런스 최대 3개, 캡컷 기준.
 (function () {
-  const W = { step: 1, job: "", target: [], keyword: "", subs: [], selSubs: [], refs: [], topic: "", topics: [], extra: {}, refsCache: [], urls: "" };
+  const W = { step: 1, mode: "own", job: "", target: [], keyword: "", subs: [], selSubs: [], refs: [], topic: "", topics: [], extra: {}, refsCache: [], urls: "" };
   try { Object.assign(W, JSON.parse(localStorage.getItem("planWiz") || "{}")); } catch (e) {}
   const save = () => { try { localStorage.setItem("planWiz", JSON.stringify({ ...W, refsCache: W.refsCache.slice(0, 24), topics: W.topics.slice(0, 10) })); } catch (e) {} };
   const JOBS = ["카페·베이커리", "식당·요식업", "뷰티샵·네일", "피부과·병원", "헬스·필라테스", "강사·코치", "인플루언서", "쇼핑몰·공동구매", "N잡러·프리랜서", "보험·금융", "부동산·공인중개사", "육아맘·주부", "개발자·IT", "여행·숙박업"];
   const AGES = ["10대", "20대", "30대", "40대", "50대+"]; const LIFE = ["직장인", "자영업 사장님", "학생", "주부", "육아맘", "자취생", "커플·신혼", "운동하는 사람", "창업 준비"];
   const HOOKS = ["질문형", "숫자형", "반전형", "고백형", "금지형", "발견형", "비교형", "경고형"];
   const HOOK_FORMULAS = ["금지명령형", "발견선언형", "소외공포형", "비밀누설형", "랭킹형", "조합공식형", "자가테스트형", "통념반전형", "공감저격형", "성과인증형", "시각증명형", "스토리형", "정리본형", "대조형", "비밀형", "지적형", "수치형", "원인찾기형", "경고형", "손해형", "비교형", "반전형", "도전형", "공감형", "증명형", "첫마디형", "질문형", "숫자형", "고백형"];
+  // ---------- 기획 모드(대상별): 내 가게 / 브랜드·제품 / 대행사(클라이언트) / 커머스 위탁판매 — 준희 님 강의·클라이언트 기획안 노하우를 모드별로 질문·규칙·결과에 반영
+  const MODES = [
+    ["own", "🏪", "내 가게·내 계정", "자영업 사장님 · 강사 · 개인 브랜딩", "페르소나 한 문장 → 자영업 릴스 4종(과정·스토리·노출·트렌드) → 콕 집기·이득·손해 훅"],
+    ["brand", "🏷", "브랜드·제품", "브랜드 계정 · 제품 홍보 · 공구", "이 편의 역할(인지·첫 구매·공구) → 소구점 축 하나 → 광고 티 없는 커머스 스토리텔링 → 신뢰 스택"],
+    ["agency", "🎬", "숏폼 대행사", "클라이언트(사장님) 계정을 대신 기획", "컨셉안(손님·페인포인트) → 바이럴용/전환용 → PD 문답 → 제안 3줄 · 촬영 준비물 · 점검 5항목"],
+    ["consign", "📦", "커머스 위탁판매", "재고 없이 스마트스토어·쿠팡에 파는 분", "실물 없을 때 촬영 대안 → 상세페이지·리뷰에서 소재 → 발견·손해·비교 훅 → 링크 CTA"]];
+  const MODE_NAME = Object.fromEntries(MODES.map(m => [m[0], m[2]]));
+  const JOBS_BY = { own: JOBS,
+    brand: ["뷰티·화장품", "식품·건강식품", "리빙·생활용품", "패션·잡화", "유아·키즈", "반려동물", "디지털·가전", "취미·문구", "교육·서비스 브랜드", "F&B 프랜차이즈"],
+    agency: ["카페·베이커리", "식당·요식업", "뷰티샵·네일·눈썹", "피부과·병원·한의원", "헬스·필라테스", "학원·강사·코치", "쇼핑몰·브랜드", "부동산·공인중개사", "꽃집·공방", "기타 자영업"],
+    consign: ["리빙·주방", "뷰티·화장품", "식품·간식", "패션·잡화", "유아·키즈", "반려동물", "디지털·가전", "건강·운동용품", "계절·시즌템"] };
+  const JOB_Q = { own: ["지금 어떤 일을 하고 계세요?", "대본의 말하는 사람(화자) 관점을 정하는 데 씁니다."], brand: ["어떤 제품·브랜드인가요?", "제품 카테고리를 고르고, 아래에 제품 한 줄과 이 편의 목적을 적어주세요."], agency: ["클라이언트는 어떤 업종인가요?", "대본의 화자는 클라이언트(사장님)입니다. 아래에 클라이언트 재료를 넣을수록 대본이 진짜가 됩니다."], consign: ["어떤 제품을 파세요?", "위탁이라 실물이 없어도 됩니다. 아래에서 실물 여부와 소싱 자료를 알려주세요."] };
+  // 모드별 추가 질문: [key, label, chips|null, placeholder, multi]
+  const MF = {
+    own: [["reel_type", "이 편의 유형", ["과정(손이 움직이는 곳)", "스토리(실패담·손님 사연)", "자연스러운 노출(정보 안에 가게)", "트렌드·밈"]], ["pain", "손님의 속마음(막힌 것)", null, "예: 실패하면 어떡하지 / 돈만 날릴까 봐 / 뭐부터 할지 모르겠다"]],
+    brand: [["product", "제품·서비스 한 줄", null, "예: 무향 섬유탈취제 500ml, 1만원 미만, 올리브영 입점"], ["goal", "이 편의 목적", ["인지(처음 알리기)", "첫 구매", "공구·이벤트", "재구매"]], ["axis", "소구점 축 (하나만)", ["구성", "가격", "상황", "성분·기능", "디자인", "후기"]], ["channel", "판매 채널", ["자사몰", "스마트스토어", "쿠팡", "올리브영·오프라인", "공구 링크"]], ["shoot", "찍을 수 있는 것", ["제품 실물", "사용 장면", "비포·애프터", "대표 얼굴", "직원·손님", "화면녹화"], "", true]],
+    agency: [["client", "클라이언트(가게·원장님) 한 줄", null, "예: 수원 눈썹문신 샵 원장님, 10년차, 재시술 문의가 고민"], ["client_goal", "클라이언트 목표", ["문의·예약", "방문", "매출·판매", "팔로워", "브랜딩"]], ["role", "이 편의 역할", ["바이럴용(조회수·유입)", "전환용(문의·예약)"]], ["cast", "출연 형태", ["사장님 얼굴", "직원·손님", "손·과정만", "PD 문답", "나레이션(얼굴 없이)"]], ["materials", "클라이언트 재료", null, "예: 자주 받는 질문 3개 / 실패담 / 숫자(10년, 재시술 0건) / 손님 후기"]],
+    consign: [["product", "파는 제품 한 줄", null, "예: 접이식 빨래건조대, 2만원대, 배송 2일"], ["platform", "판매 플랫폼", ["스마트스토어", "쿠팡", "공구", "기타"]], ["sample", "실물 보유", ["샘플 있음", "없음(공급사 영상·상세페이지로)", "곧 받을 예정"]], ["face", "얼굴 노출", ["가능", "손·제품만", "나레이션(얼굴 없이)"]], ["sources", "소싱 자료", null, "예: 상세페이지 링크, 리뷰 캡처 5개(칭찬·불만), 공급사 영상"]] };
+  const TARGET_Q = { own: ["누구에게 보여주고 싶어요?", "나이와 상황을 같이 고를 수 있어요 (여러 개 가능)."], brand: ["누가 사나요?", "구매자를 좁힐수록 소구점이 날카로워집니다 (여러 개 가능)."], agency: ["클라이언트의 손님은 누구인가요?", "사장님 손님 기준으로 고르세요. 페인 포인트 하나가 릴스 주제 하나가 됩니다."], consign: ["누가 사나요?", "리뷰에 자주 보이는 구매자를 고르세요 (여러 개 가능)."] };
+  const LIFE_BY = { own: LIFE, brand: ["직장인 여성", "직장인 남성", "육아맘", "자취생·1인 가구", "신혼·커플", "40~50대 부모님", "반려인", "선물 구매자", "운동하는 사람", "자영업 사장님"], agency: [...LIFE, "첫 방문 손님", "단골", "예약 망설이는 사람"], consign: ["직장인 여성", "직장인 남성", "육아맘", "자취생·1인 가구", "신혼·커플", "40~50대 부모님", "반려인", "선물 구매자", "캠핑·취미인", "학생"] };
+  window.wizMode = (m) => { if (W.mode === m) return; W.mode = m; if (!JOBS_BY[m].includes(W.job)) W.job = ""; W.extra.mf = {}; W.topics = []; save(); renderWizard(); };
+  window.wizMf = (k, el) => { W.extra.mf = W.extra.mf || {}; W.extra.mf[k] = el.value; save(); };
+  window.wizMfPick = (k, v, multi) => { W.extra.mf = W.extra.mf || {}; const cur = W.extra.mf[k] || "";
+    if (multi) { const a = cur ? cur.split(", ").filter(Boolean) : []; const i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); W.extra.mf[k] = a.join(", "); }
+    else W.extra.mf[k] = cur === v ? "" : v;
+    save(); renderWizard(); };
+  const mfHtml = () => { const mf = W.extra.mf || {}; const rows = (MF[W.mode] || []).map(([k, label, chips, ph, multi]) => `<div class="mf-row"><small>${esc(label)}</small>${chips ? `<div class="pills small">${chips.map(v => pill(v, multi ? (mf[k] || "").split(", ").includes(v) : mf[k] === v, `wizMfPick('${k}','${esc(v)}',${multi ? "true" : "false"})`)).join("")}</div>` : `<input class="wiz-input" style="padding:8px 12px;font-size:13px" placeholder="${esc(ph || "")}" value="${esc(mf[k] || "")}" oninput="wizMf('${k}', this)">`}</div>`).join("");
+    return rows ? `<div class="mf-box"><b>${esc(MODE_NAME[W.mode])} 모드에서 꼭 보는 것 <small class="muted">비워도 되지만, 채울수록 대본이 내 것이 됩니다</small></b>${rows}</div>` : ""; };
+  const modeCards = () => `<div class="modes">${MODES.map(([k, ic, name, who, flow]) => `<button class="mode ${W.mode === k ? "on" : ""}" onclick="wizMode('${k}')"><span class="mode-ic">${ic}</span><b>${esc(name)}</b><small>${esc(who)}</small><em>${esc(flow)}</em></button>`).join("")}</div>`;
+  const MP_LABEL = { persona_line: "페르소나 한 문장", reel_type: "릴스 유형", inner_problem: "건드리는 속마음", structure: "구조", funnel: "영상 끝에서 보내는 곳", next_3: "이어 찍을 3편", role: "이 편의 역할", appeal_axis: "소구점 축", trust_stack: "신뢰 근거", safety_line: "안전 소구", price_line: "가격 문장", cta_rule: "CTA 규칙", funnel_check: "올린 뒤 확인", content_ratio: "콘텐츠 비중 칸", variants: "같은 제품 다른 축", concept_line: "클라이언트 컨셉 한 줄", persona_pain: "손님 · 페인 포인트", owner_guide: "사장님이 채울 자리(가이드 질문)", proposal: "클라이언트에게 보낼 제안 3줄", client_prep: "사장님 준비물", review_checks: "대본 점검 5항목", batch: "촬영 회차", shoot_alt: "촬영 방식(실물 여부)", source_material: "상세페이지·리뷰에서 뽑은 소재", honest_line: "단점 한 줄", sell_path: "판매 경로 · CTA", search_keywords: "검색어", disclosure: "광고 표기", checks: "올리기 전 확인" };
+  const mpVal = (v) => Array.isArray(v) ? `<ul>${v.map(x => `<li>${typeof x === "object" && x ? `${esc(x.persona || "")} — ${esc(x.pain || "")}${x.this_reel ? ' <span class="tag ok">이 편</span>' : ""}` : phHtml(String(x))}</li>`).join("")}</ul>` : (typeof v === "object" && v) ? esc(JSON.stringify(v)) : phHtml(String(v));
+  function modePackHtml(plan, where) {
+    const mp = plan && plan.mode_pack; if (!mp || typeof mp !== "object") return "";
+    const name = MODE_NAME[mp.mode] || "모드"; const rows = Object.entries(mp).filter(([k, v]) => k !== "mode" && v && (!Array.isArray(v) || v.length)).map(([k, v]) => `<tr><th>${esc(MP_LABEL[k] || k)}</th><td>${mpVal(v)}</td></tr>`).join("");
+    if (!rows) return "";
+    return where === "side" ? `<details class="side-sec fold mp" open><summary><b>${esc(name)} 체크</b><small>이 모드에서 꼭 볼 것</small></summary><table class="gtable mp-table">${rows}</table></details>`
+      : `<section class="ez-sec mp"><h3>⑤ ${esc(name)} 체크 <small>준희 님 노하우로 이 편에서 꼭 볼 것만 뽑았어요</small></h3><table class="gtable mp-table">${rows}</table></section>`;
+  }
   window.reSketch = async (pid, no) => { toast("스케치 그리는 중… (10초)"); const r = await post("/api/plans/" + pid + "/sketches", { only: no ? [no] : null }); if (r.error) return toast(r.error); CUR = r; renderPlan2(r); };
   window.likeScript = async (pid) => { const note = prompt("이 대본에서 특히 좋은 점을 한 줄 (비워도 됨)", ""); if (note === null) return; try { const r = await post("/api/plans/" + pid + "/like", { note }); if (r.error) throw new Error(r.error); toast(`예시로 저장했어요 (총 ${r.count}개). 다음 기획안부터 이 수준을 참고합니다`); } catch (e) { toast(e.message); } };
   let THUMB_T = null;
@@ -89,17 +127,21 @@
 
   async function renderWizard() {
     const s = W.step; const pct = (s / 5) * 100;
-    const head = `<div class="wiz-head"><div class="wiz-top"><button class="btn ghost" onclick="wizGo(${s - 1})" ${s === 1 ? "disabled" : ""}>←</button><div class="wiz-step">STEP ${s} OF 5</div><a class="btn ghost" href="#/plan" onclick="wizReset(event)">처음부터</a></div><div class="wiz-bar"><i style="width:${pct}%"></i></div></div>`;
+    const head = `<div class="wiz-head"><div class="wiz-top"><button class="btn ghost" onclick="wizGo(${s - 1})" ${s === 1 ? "disabled" : ""}>←</button><div class="wiz-step">STEP ${s} OF 5 <span class="tag" style="margin-left:6px">${esc(MODE_NAME[W.mode] || "")}</span></div><a class="btn ghost" href="#/plan" onclick="wizReset(event)">처음부터</a></div><div class="wiz-bar"><i style="width:${pct}%"></i></div></div>`;
     let body = "", next = "";
     if (s === 1) {
-      body = `<h1>지금 어떤 일을 하고 계세요?</h1><p class="muted">대본의 말하는 사람(화자) 관점을 정하는 데 씁니다.</p>
-      <div class="pills">${JOBS.map(j => pill(j, W.job === j, `wizSet('job','${esc(j)}')`)).join("")}</div>
-      <label class="wiz-label">목록에 없으면 직접 적어주세요</label><input class="wiz-input" placeholder="예: 공인중개사, 꽃집 사장" value="${JOBS.includes(W.job) ? "" : esc(W.job)}" oninput="wizInput('job', this)">`;
+      const jobs = JOBS_BY[W.mode] || JOBS; const [q1, q1s] = JOB_Q[W.mode] || JOB_Q.own;
+      body = `<div class="wiz-sub" style="margin-top:0">누구를 위한 기획인가요? <small class="muted">모드에 따라 질문·규칙·결과가 달라집니다</small></div>${modeCards()}
+      <h1 style="margin-top:18px">${esc(q1)}</h1><p class="muted">${esc(q1s)}</p>
+      <div class="pills">${jobs.map(j => pill(j, W.job === j, `wizSet('job','${esc(j)}')`)).join("")}</div>
+      <label class="wiz-label">목록에 없으면 직접 적어주세요</label><input class="wiz-input" placeholder="${W.mode === "agency" ? "예: 세차장, 꽃집, 공인중개사" : W.mode === "own" ? "예: 공인중개사, 꽃집 사장" : "예: 종이꽃 포토존, 무향 탈취제"}" value="${jobs.includes(W.job) ? "" : esc(W.job)}" oninput="wizInput('job', this)">
+      ${mfHtml()}`;
       next = `<button class="btn p big" onclick="${W.job ? "wizGo(2)" : "toast('직업을 골라주세요')"}">다음</button>`;
     } else if (s === 2) {
-      body = `<h1>누구에게 보여주고 싶어요?</h1><p class="muted">나이와 상황을 같이 고를 수 있어요 (여러 개 가능).</p>
-      <div class="pills">${AGES.map(a => pill(a, W.target.includes(a), `wizToggle('target','${a}')`)).join("")}</div><div class="wiz-sub">라이프스타일</div>
-      <div class="pills">${LIFE.map(a => pill(a, W.target.includes(a), `wizToggle('target','${a}')`)).join("")}</div>
+      const [q2, q2s] = TARGET_Q[W.mode] || TARGET_Q.own; const life = LIFE_BY[W.mode] || LIFE;
+      body = `<h1>${esc(q2)}</h1><p class="muted">${esc(q2s)}</p>
+      <div class="pills">${AGES.map(a => pill(a, W.target.includes(a), `wizToggle('target','${a}')`)).join("")}</div><div class="wiz-sub">${W.mode === "brand" || W.mode === "consign" ? "구매자 상황" : "라이프스타일"}</div>
+      <div class="pills">${life.map(a => pill(a, W.target.includes(a), `wizToggle('target','${a}')`)).join("")}</div>
       <label class="wiz-label">직접 적기</label><input class="wiz-input" placeholder="예: 릴스 올려도 조회수 300 나오는 사장님" value="${esc(W.extra.target_free || "")}" oninput="wizExtra('target_free', this)">`;
       next = `<button class="btn p big" onclick="${W.target.length || W.extra.target_free ? "wizGo(3)" : "toast('타깃을 하나 이상 골라주세요')"}">다음</button>`;
     } else if (s === 3) {
@@ -118,7 +160,7 @@
     $("#main").innerHTML = `<div class="wiz">${head}<div class="wiz-body">${body}</div><div class="wiz-foot"><button class="btn big" onclick="wizGo(${s - 1})" ${s === 1 ? "disabled" : ""}>이전</button>${next}</div></div>`;
     if (s === 4 && !W.refsCache.length && (W.keyword || W.selSubs.length)) wizSearchRefs();
   }
-  window.wizReset = (e) => { e.preventDefault(); Object.assign(W, { step: 1, job: "", target: [], keyword: "", subs: [], selSubs: [], refs: [], topic: "", topics: [], extra: {}, refsCache: [], urls: "" }); save(); renderWizard(); };
+  window.wizReset = (e) => { e.preventDefault(); Object.assign(W, { step: 1, job: "", target: [], keyword: "", subs: [], selSubs: [], refs: [], topic: "", topics: [], extra: {}, refsCache: [], urls: "" }); save(); renderWizard(); };   // 모드는 유지
 
   window.wizSubs = async function () {
     W.keyword = ($("#wiz-kw") || {}).value || W.keyword; if (!W.keyword) return toast("키워드를 적어주세요");
@@ -230,9 +272,9 @@
 
       </div></details>
     <div class="row" style="margin:6px 0 10px;gap:8px;align-items:center"><span class="muted" style="font-size:12px">생성 모드</span>${pill("빠름 (1분 안팎)", W.mode === "fast", "wizSet('mode','fast')")}${pill("정밀 (2~3분)", W.mode !== "fast", "wizSet('mode','precise')")}</div>
-    <div class="wiz-summary"><b>정리</b> ${esc(W.job)} → ${esc(W.target.join(", "))}${W.extra.target_free ? " · " + esc(W.extra.target_free) : ""} · #${esc(W.keyword)} ${W.selSubs.map(k => "#" + esc(k)).join(" ")} · 참고 릴스 ${W.refs.length}개 · ${esc(W.extra.length || 30)}초</div>`;
+    <div class="wiz-summary"><b>정리</b> <span class="tag">${esc(MODE_NAME[W.mode] || "")}</span> ${esc(W.job)}${Object.values(W.extra.mf || {}).filter(Boolean).length ? " · " + esc(Object.values(W.extra.mf || {}).filter(Boolean).join(" / ")) : ""} → ${esc(W.target.join(", "))}${W.extra.target_free ? " · " + esc(W.extra.target_free) : ""} · #${esc(W.keyword)} ${W.selSubs.map(k => "#" + esc(k)).join(" ")} · 참고 릴스 ${W.refs.length}개 · ${esc(W.extra.length || 30)}초</div>`;
   }
-  const brief = () => ({ edit_prefs: Object.fromEntries(Object.entries(W.prefs || {}).filter(([k, v]) => v && v !== "레퍼런스대로" && v !== "auto")), job: W.job, target: [...W.target, W.extra.target_free].filter(Boolean).join(", "), keyword: [W.keyword, ...W.selSubs].filter(Boolean).join(", "), topic: W.topic, length: W.extra.length || 30, tone: W.extra.tone, scene: W.extra.scene, numbers: W.extra.numbers, cta: W.extra.cta, shooting: W.extra.shooting });
+  const brief = () => ({ mode: W.mode || "own", mode_fields: Object.fromEntries(Object.entries(W.extra.mf || {}).filter(([k, v]) => v)), edit_prefs: Object.fromEntries(Object.entries(W.prefs || {}).filter(([k, v]) => v && v !== "레퍼런스대로" && v !== "auto")), job: W.job, target: [...W.target, W.extra.target_free].filter(Boolean).join(", "), keyword: [W.keyword, ...W.selSubs].filter(Boolean).join(", "), topic: W.topic, length: W.extra.length || 30, tone: W.extra.tone, scene: W.extra.scene, numbers: W.extra.numbers, cta: W.extra.cta, shooting: W.extra.shooting });
   window.wizTopics = async function (more) {
     if (TOPICS_LOADING) return; TOPICS_LOADING = true;
     const dirEl = $("#wiz-dir"); if (dirEl) { W.direction = dirEl.value; save(); }
@@ -423,6 +465,7 @@
       <section class="ez-sec"><h3>대본 <small>${esc(plan.length_sec)}초 · 색 띠가 흐름입니다 · 이대로 읽으면 됩니다</small><span class="row" style="margin-left:auto;gap:6px"><button class="btn small" onclick="navigator.clipboard.writeText(${JSON.stringify(script).replace(/"/g, "&quot;")});toast('대본 복사됨')">복사</button><button class="btn small p" onclick="openPrompter()">크게 보기</button></span></h3><div class="ez-script">${parts}</div></section>
       <section class="ez-sec"><h3>③ 순서대로 찍기 <small>${scenesAll.length}장면 · 장면마다 2번씩</small></h3><div class="ez-scenes">${scenesAll.map(sceneCard).join("")}</div></section>
       <section class="ez-sec"><h3>④ 올릴 때</h3><table class="gtable"><tr><th>캡션</th><td><div style="white-space:pre-wrap">${phHtml(B.caption_text || "-")}</div><button class="btn small" style="margin-top:6px" onclick="navigator.clipboard.writeText(${JSON.stringify(B.caption_text || "").replace(/"/g, "&quot;")});toast('캡션 복사됨')">캡션 복사</button></td></tr><tr><th>마지막 멘트</th><td>${phHtml((B.cta || {}).say || "-")}</td></tr><tr><th>댓글 질문</th><td>${phHtml((B.cta || {}).comment_question || "-")}</td></tr>${B.music ? `<tr><th>음악</th><td>${esc(B.music)}</td></tr>` : ""}</table></section>
+      ${modePackHtml(plan, "ez")}
       </div></div></div>`;
   }
 
@@ -435,6 +478,7 @@
       <div class="side-sec"><h3>첫 문장(훅) 고르기 <small>누르면 씬 1에 바로 적용</small></h3><ol class="hooklist">${hookRows}</ol>
         <details class="wiz-more small"><summary>다른 훅 공식으로 더 뽑기 · 말투 다듬기</summary><div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap"><select id="hook-formula" class="chip" style="max-width:170px">${HOOK_FORMULAS.map(f => `<option>${f}</option>`).join("")}</select><button class="btn small" onclick="genHooks('${esc(p.id)}')">이 공식으로 3개 더</button><button class="btn small" onclick="rewriteOpening('${esc(p.id)}', ${rec})">훅에 맞춰 씬 1~2 다시 쓰기</button><button class="btn small" onclick="humanize('${esc(p.id)}')">내 말투로 다듬기</button><span id="hook-msg" class="muted" style="font-size:12px"></span></div></details></div>
       ${plan.script_full ? `<details class="side-sec fold"><summary><b>전체 대본</b><small>한 호흡으로 읽기 · 프롬프터용</small></summary>${ed("script_full", plan.script_full, "capbox script")}<div class="row" style="margin-top:6px;gap:6px"><button class="btn small" onclick="navigator.clipboard.writeText(CUR.plan.script_full);toast('대본 복사됨')">복사</button><button class="btn small" onclick="likeScript('${esc(p.id)}')" title="이 대본을 좋은 예시로 저장 → 다음 기획안이 이 수준을 따라감">이 대본 좋아요 (예시로 학습)</button></div></details>` : ""}
+      ${modePackHtml(plan, "side")}
       <details class="side-sec fold"><summary><b>다음에 할 일</b><small>4단계</small></summary><ol class="todo"><li>[확인 필요] 자리를 내 숫자로 채우기</li><li>씬 순서대로 폰으로 촬영 (씬당 2번씩)</li><li>"편집 외주용" 탭을 편집자에게 보내거나 캡컷에서 그대로 따라 편집</li><li>캡션 복사해서 올리고 댓글 질문에 답하기</li></ol></details>
       <details class="side-sec fold"><summary><b>캡션 · 음악 · 마지막 멘트</b></summary>${ed("B_plan.caption_text", B.caption_text, "capbox")}<div class="muted" style="margin:8px 0 4px">${esc(B.music || "-")}</div><div><b>마지막 멘트</b> ${ed("B_plan.cta.say", (B.cta || {}).say, "inline", "span")}</div><div class="muted">자막: ${ed("B_plan.cta.caption", (B.cta || {}).caption, "inline", "span")} · 댓글 유도: ${ed("B_plan.cta.comment_question", (B.cta || {}).comment_question, "inline", "span")}</div></details>
       <details class="side-sec fold"><summary><b>찍을 것 · 준비물 · 초보 실수</b><small>${(B.shot_list || []).length + (B.prep || []).length}개</small></summary><ul>${(B.shot_list || []).map(x => `<li>${esc(x)}</li>`).join("")}${(B.prep || []).map(x => `<li class="muted">${esc(x)}</li>`).join("")}</ul><b>초보 실수</b><ul>${(B.tips || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul></details>
@@ -526,8 +570,8 @@
   window.newFolder = async (pid) => { const name = (prompt("새 폴더 이름 (예: 9월 카페 시리즈)") || "").trim(); if (!name) return; if (pid) await setPlanMeta(pid, { folder: name }); else { PF.folder = "전체"; toast("폴더는 기획을 넣는 순간 생깁니다. 카드에서 '" + name + "'을 고르세요"); const plans = await api("/api/plans").catch(() => []); if (plans[0]) await setPlanMeta(plans[0].id, { folder: name }); } };
   window.viewPlanHome = async function () {
     const plans = await api("/api/plans").catch(() => []);
-    $("#main").innerHTML = `<div class="plan-home"><div class="hero"><div><div class="ph-kicker">콘텐츠 기획</div><h1>5단계만 고르면<br>씬별 대본과 캡컷 편집표까지.</h1><p>직업 → 타깃 → 키워드 → 참고 릴스(최대 3개) → 주제. 참고 릴스는 컷·자막·대사·효과음까지 뜯어서 내 기획안에 옮깁니다.</p><button class="btn p big" onclick="wizStart()">+ 새 기획 만들기</button> ${W.job ? `<button class="btn big ghost2" onclick="wizResume()">이어서 하기 (STEP ${W.step})</button>` : ""}</div><div class="hero-art"><i></i><i></i><i></i></div></div>
-    <div class="panel soft" style="margin-bottom:14px"><b>처음이세요? 이렇게 됩니다 (5분)</b><ol style="margin:6px 0 0 18px;line-height:1.8"><li>하는 일과 보여줄 사람을 버튼으로 고릅니다</li><li>키워드 하나 적으면 참고할 릴스가 뜹니다. 마음에 드는 걸 1~3개 누르세요</li><li>주제를 고르면 30초짜리 대본이 기·승·전·결로 나옵니다. 씬마다 무엇을 찍고 뭐라고 말할지 그림과 함께</li><li>마음에 안 드는 문장은 눌러서 고치고, 엑셀로 받아 편집자에게 넘기면 끝</li></ol></div>
+    $("#main").innerHTML = `<div class="plan-home"><div class="hero"><div><div class="ph-kicker">콘텐츠 기획</div><h1>누구를 위한 기획인지 고르면<br>씬별 대본과 캡컷 편집표까지.</h1><p>내 가게 · 브랜드·제품 · 대행사(클라이언트) · 커머스 위탁판매 — 모드를 고르고 타깃 → 키워드 → 참고 릴스(최대 3개) → 주제만 정하면 됩니다. 모드마다 준희 님 강의 노하우(훅 3종·자영업 릴스 4종·소구점 축·PD 문답·촬영 대안)가 대본과 체크리스트에 들어갑니다.</p><button class="btn p big" onclick="wizStart()">+ 새 기획 만들기</button> ${W.job ? `<button class="btn big ghost2" onclick="wizResume()">이어서 하기 (STEP ${W.step})</button>` : ""}</div><div class="hero-art"><i></i><i></i><i></i></div></div>
+    <div class="panel soft" style="margin-bottom:14px"><b>처음이세요? 이렇게 됩니다 (5분)</b><ol style="margin:6px 0 0 18px;line-height:1.8"><li>누구를 위한 기획인지(내 가게 / 브랜드·제품 / 대행사 / 위탁판매) 고르고, 하는 일과 보여줄 사람을 버튼으로 고릅니다</li><li>키워드 하나 적으면 참고할 릴스가 뜹니다. 마음에 드는 걸 1~3개 누르세요</li><li>주제를 고르면 30초짜리 대본이 기·승·전·결로 나옵니다. 씬마다 무엇을 찍고 뭐라고 말할지 그림과 함께</li><li>마음에 안 드는 문장은 눌러서 고치고, 엑셀로 받아 편집자에게 넘기면 끝</li></ol></div>
     ${planListHtml(plans)}</div>`;
   };
   window.wizStart = () => { Object.assign(W, { step: 1, topic: "", topics: [] }); save(); if (location.hash !== "#/plan/new") location.hash = "#/plan/new"; else renderWizard(); };
