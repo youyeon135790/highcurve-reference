@@ -333,7 +333,7 @@ h1{letter-spacing:-.03em;font-weight:800}h2{font-weight:800;letter-spacing:-.02e
 body.guest .side,body.guest .topbar{display:none!important}body.guest .app{grid-template-columns:1fr}body.guest .main{max-width:none;padding:0}
 body.guest .auth-wrap{min-height:100vh;align-items:center;padding:20px}
 body:not(.admin) .nav .tools,body:not(.admin) .admin-only,body.member .topbar .btn.small{display:none}
-body.tooluser .nav .tools{display:block}body.tooluser .nav .tools a:not([data-r="plan"]){display:none}
+body.tooluser .nav .tools{display:block}body.tooluser .nav .tools a:not([data-r="plan"]):not([data-r="planbox"]){display:none}
 .land{max-width:1120px;margin:0 auto;padding:0 28px 60px}
 .land-top{display:flex;align-items:center;justify-content:space-between;padding:22px 0}.land-top nav{display:flex;gap:8px}.land-top .wm{font-size:20px}
 .land-hero{padding:56px 0 30px;max-width:760px}.land-kicker{font-family:"Plus Jakarta Sans",sans-serif;font-weight:800;letter-spacing:.18em;font-size:12px;color:var(--brand)}
@@ -599,6 +599,155 @@ body.route-plan .wiz .pill{border-radius:10px!important}
 .pv .thumb-mock{border-radius:8px}.pv .thumb-label{font-size:14.5px}.pv .thumb-input{font-size:15.5px;border-radius:8px;border-width:1.5px}.pv .tcand{border-radius:8px;font-size:14px}
 body.route-plan .refsec{border-radius:12px}body.route-plan .chip2{font-size:14px;padding:6px 11px}
 body.route-plan .brief-bar .btn{font-size:14.5px}
+
+/* ===================== 9/17 밤: 기다리는 화면 · 진행 알림 · 세트 탭 · 키워드 · 내 이야기 · 휴지통 ===================== */
+.pv-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:1000px){.pv-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pv-set{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
+.pv-set-l{display:flex;flex-direction:column;justify-content:center;padding:0 6px 0 2px;font-size:13px;font-weight:700;color:#6b7280;line-height:1.3}.pv-set-l b{font-size:18px;color:#15171f}
+.pv-set a{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:2px;padding:10px 14px;background:#fff;border:1.5px solid var(--line);border-radius:10px;text-decoration:none;color:#15171f}
+.pv-set a b{font-size:15px;font-weight:800}.pv-set a span{font-size:13.5px;color:#3b4052;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pv-set a em{font-style:normal;font-size:12.5px;color:#b45309;font-weight:700}
+.pv-set a:hover{border-color:#15171f}.pv-set a.on{background:#15171f;border-color:#15171f;color:#fff}.pv-set a.on span{color:#bffe9e}.pv-set a.wait{border-style:dashed}
+.pv-set a.pv-set-all{flex:0 0 auto;justify-content:center;font-size:14px;font-weight:800;color:#3b4052}
+.mk{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:14px;color:#15171f;word-break:keep-all;overflow-wrap:anywhere}
+.mk-head{background:#15171f;color:#fff;border-radius:14px;padding:22px 26px}
+.mk-kicker{font-size:14px;font-weight:800;color:#bffe9e;letter-spacing:.02em}
+.mk-head h1{font-size:30px;line-height:1.3;margin:8px 0 12px;color:#fff;text-wrap:balance}
+.mk-eta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:16px;color:#d8dbe4}.mk-eta b{color:#fff}
+.mk-bar{height:10px;border-radius:5px;background:rgba(255,255,255,.14);overflow:hidden;margin:14px 0 12px}.mk-bar i{display:block;height:100%;background:#bffe9e;border-radius:5px;transition:width .6s}
+.mk-free{margin:0;font-size:15.5px;line-height:1.6;color:#d8dbe4}.mk-free b{color:#fff}
+.mk.done .mk-head{background:#fff;color:#15171f;border:1.5px solid var(--line)}.mk.done .mk-head h1{color:#15171f}.mk.done .mk-kicker{color:#15803d}.mk.done .mk-free{color:#3b4052}
+.mk-list{background:#fff;border:1.5px solid var(--line);border-radius:12px;overflow:hidden}
+.mk-row{display:grid;grid-template-columns:70px minmax(0,1fr) 170px;gap:14px;align-items:center;padding:14px 18px;border-top:1px solid var(--line)}.mk-row:first-child{border-top:0}
+.mk-no{font-size:17px;font-weight:800}.mk-t{display:flex;flex-direction:column;gap:3px;min-width:0}.mk-t>b{font-size:17px;line-height:1.4}
+.mk-hook{font-size:15px;color:#3b4052}.mk-st{font-size:14px;color:#6b7280;font-weight:600}.mk-row.ready .mk-st{color:#15803d}.mk-row.err .mk-st{color:#b91c1c}
+.mk-p{display:flex;justify-content:flex-end}.mk-mini{display:block;width:100%;height:8px;border-radius:4px;background:#eef0f5;overflow:hidden}.mk-mini i{display:block;height:100%;background:#15171f;border-radius:4px;transition:width .6s}
+.mk-while{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:16px 18px}.mk-while h2{font-size:19px;margin:0 0 12px}
+.mk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mk-grid>button,.mk-grid>a,.mk-grid>.mk-off{font:inherit;text-align:left;display:flex;flex-direction:column;gap:4px;padding:14px 16px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:#15171f;text-decoration:none;cursor:pointer}
+.mk-grid>button:hover,.mk-grid>a:hover{border-color:#15171f}.mk-grid b{font-size:16px}.mk-grid span{font-size:14px;color:#6b7280;line-height:1.5}.mk-grid>.mk-off{cursor:default;background:#f7f8fb;color:#9ca3af}.mk-grid>.mk-off b{color:#9ca3af}
+@media(max-width:760px){.mk-row{grid-template-columns:52px minmax(0,1fr)}.mk-p{grid-column:1/-1;justify-content:stretch}.mk-grid{grid-template-columns:1fr}.mk-head h1{font-size:24px}}
+.mk-dock{position:fixed;right:20px;bottom:20px;z-index:80;display:flex;align-items:center;gap:12px;max-width:min(440px,calc(100vw - 32px));background:#15171f;color:#fff;border-radius:12px;padding:12px 14px 12px 16px;box-shadow:0 10px 30px rgba(17,19,24,.28)}
+.mk-dock-t{display:flex;flex-direction:column;gap:3px;min-width:0}.mk-dock-t b{font-size:15px}.mk-dock-t span{font-size:13px;color:#c9ccd6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-dock-bar{display:block;height:5px;border-radius:3px;background:rgba(255,255,255,.16);overflow:hidden;margin-top:3px}.mk-dock-bar i{display:block;height:100%;background:#bffe9e}
+.mk-dock .pv-btn{flex:none}.mk-dock.done{background:#fff;color:#15171f;border:2px solid #15171f}.mk-dock.done .mk-dock-t span{color:#3b4052}
+.mk-x{font:inherit;border:0;background:transparent;color:inherit;font-size:16px;cursor:pointer;padding:4px 6px}
+.kw-box{border:2px solid #15171f;border-radius:12px;background:#fff;padding:14px 16px;margin:10px 0 6px}
+.kw-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-bottom:10px}.kw-head b{font-size:17px}.kw-head span{font-size:14px;color:#6b7280}
+.kw-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.kw{font:inherit;font-size:15px;font-weight:700;padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:#6b7280;cursor:pointer}
+.kw:hover{border-color:#15171f;color:#15171f}.kw.on{background:#15171f;border-color:#15171f;color:#fff}.kw.more{border-style:dashed;color:#3b4052;font-weight:600}
+.kw-add{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.kw-add .wiz-input{flex:1 1 260px;font-size:15px!important;padding:10px 12px!important;border-radius:8px!important}.kw-add .btn{border-radius:8px}
+.ref-fill-sep{grid-column:1/-1;background:#fffaf0;border:1.5px solid #f2c94c;border-radius:10px;padding:12px 14px;font-size:14.5px;line-height:1.55;color:#3b4052}
+.tell-box{border:2px solid #15171f;border-radius:12px;background:#fff;padding:14px 16px;margin:12px 0}
+.tell-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-bottom:10px}.tell-head b{font-size:18px}.tell-head span{font-size:14px;color:#6b7280}
+.tell-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}@media(max-width:820px){.tell-grid{grid-template-columns:1fr}}
+.tell-f{display:flex;flex-direction:column;gap:5px}.tell-f small{font-size:14px;font-weight:800;color:#3b4052}.tell-f .wiz-input{font-size:15.5px!important;padding:11px 13px!important;border-radius:8px!important}
+.tell-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}.tell-foot .btn{border-radius:8px}
+.topic-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.tag.hk{background:#15171f;color:#bffe9e;border-color:#15171f}
+.topic-own{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin:6px 0 4px}.topic-own label{flex:1 1 320px;display:flex;flex-direction:column;gap:5px}.topic-own small{font-size:14px;font-weight:800;color:#3b4052}.topic-own .wiz-input{font-size:15px!important;padding:10px 12px!important;border-radius:8px!important}
+.sel-bar{position:sticky;top:8px;z-index:20;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#15171f;color:#fff;border-radius:10px;padding:10px 14px;margin:0 0 10px}.sel-bar b{font-size:15px}.sel-bar .muted{color:#c9ccd6;font-size:13px;margin-right:auto}
+.sel-bar .pv-btn{background:#fff}.sel-bar .pv-btn.danger{color:#b91c1c}.sel-bar .pv-btn[disabled]{opacity:.5;cursor:not-allowed}
+.plancard.selmode{cursor:pointer}.plancard.selmode .pc-cover{position:relative}.plancard.sel{outline:3px solid #15171f;outline-offset:-1px}
+.pc-check{position:absolute;right:10px;top:10px;z-index:2;width:28px;height:28px;border-radius:6px;border:2px solid #fff;background:rgba(21,23,31,.55);color:#bffe9e;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px}
+.plancard.sel .pc-check{background:#15171f}
+.trash{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:14px;word-break:keep-all;overflow-wrap:anywhere}
+.trash-head{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:16px 18px}.trash-head>div{flex:1 1 300px}
+.trash-head h1{font-size:26px;margin:0 0 4px}.trash-head h1 small{font-size:16px;color:#6b7280}.trash-head p{margin:0}
+.trash-tbl td{vertical-align:middle}.trash-act{display:flex;gap:6px;flex-wrap:wrap}
+@media(max-width:760px){.mk-dock{right:12px;left:12px;bottom:12px;max-width:none}}
+
+.wiz .topic-tags{align-items:center}.wiz .topic-tags .tag{display:inline-flex;align-items:center;height:auto;font-size:13px;font-weight:700;line-height:1.3;padding:4px 9px;border:0;border-radius:6px!important;background:#eef0f5;color:#3b4052}
+.wiz .topic-tags .tag.hk{background:#15171f;color:#bffe9e}.wiz .topic-tags .tag.ok{background:#e9f9e3;color:#166534}
+.wiz .topic.on .topic-tags .tag{background:rgba(255,255,255,.16);color:#fff}.wiz .topic.on .topic-tags .tag.hk{background:#bffe9e;color:#15171f}
+
+/* 9/17 심야: 전체 보기 · 훅 바꾸기 · 장면 그림 · 하나 더 만들기 · 만드는 방식 */
+@media(max-width:1150px){.pv-side{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.pv-hooks2{min-width:760px}.pv-hooks2 td{vertical-align:top}.pv-hooks2 tr.on>td{background:#f4ffe9}.pv-hooks2 tr.on>td:first-child{box-shadow:inset 5px 0 0 #15171f}
+.pv-hooks2 .c-type b{display:block;font-size:16px;font-weight:800}.pv-hooks2 .c-type span{display:inline-block;margin-top:5px;font-size:12px;font-weight:800;color:#4b5263;background:#eef0f5;border-radius:4px;padding:1px 6px}
+.pv-hooks2 .c-act{text-align:center;vertical-align:middle}.pv-hooks2 .c-act em{font-style:normal;font-size:13.5px;font-weight:800;color:#166534;background:#dcfce7;border-radius:6px;padding:5px 9px;white-space:nowrap}
+.hk-el .c-line:first-child{margin-top:0}.hk-el .c-line{margin-top:6px}.hk-pat{margin-top:6px;font-size:13px}
+.hk-change{margin-top:14px;border:1.5px solid #15171f;border-radius:10px;padding:14px 16px;background:#fff}
+.hk-change-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-bottom:10px}.hk-change-h b{font-size:17px}.hk-change-h span{font-size:14px;color:#6b7280}
+.hk-types{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}@media(max-width:900px){.hk-types{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:560px){.hk-types{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.hk-types button{font:inherit;font-size:15px;font-weight:700;padding:11px 6px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:#15171f;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hk-types button:hover:not([disabled]){border-color:#15171f;background:#f6f7fa}.hk-types button[disabled]{opacity:.55;cursor:default}.hk-types button.busy{opacity:1;background:#15171f;color:#bffe9e;border-color:#15171f}
+.pv-script{min-width:860px}.pv-shoot{min-width:900px}
+:is(.pv-script,.pv-shoot) td.c-sk{padding:8px!important;vertical-align:top}
+.c-sk img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:6px;border:1px solid var(--line);display:block;background:#f1f2f6}
+.sk-btn{font:inherit;display:block;width:100%;padding:0;border:0;background:transparent;cursor:zoom-in}
+.sk-btn.empty{aspect-ratio:1/1;border:1.5px dashed var(--line);border-radius:6px;font-size:12.5px;font-weight:700;color:#8a90a2;background:#f7f8fb;cursor:pointer}.sk-btn.empty:hover{border-color:#15171f;color:#15171f}
+.modal.scenemodal{max-width:1040px}
+.sm{display:grid;grid-template-columns:340px minmax(0,1fr);gap:22px;align-items:start;word-break:keep-all;overflow-wrap:anywhere}@media(max-width:820px){.sm{grid-template-columns:1fr}}
+.sm-img{display:flex;flex-direction:column;gap:10px;align-items:flex-start}.sm-img img{width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+.sm-empty{width:100%;aspect-ratio:1/1;border:1.5px dashed var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#8a90a2;font-weight:700;background:#f7f8fb}
+.sm-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;font-size:15px}.sm-head .no{width:34px;height:34px;border-radius:8px;background:#15171f;color:#bffe9e;display:flex;align-items:center;justify-content:center;font-size:16px}.sm-head .part{font-weight:800}
+.sm .pv-kv th{width:104px}
+.pv-btn.more{border-color:#15171f;border-style:dashed}.pv-set a.pv-set-all.add{border-style:dashed;border-color:#15171f;color:#15171f}
+.append-note{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;background:#15171f;color:#fff;border-radius:10px;padding:12px 16px;margin:10px 0 4px;font-size:14.5px;line-height:1.55}
+.append-note b{font-size:16px;color:#bffe9e}.append-note span{color:#d8dbe4;flex:1 1 320px}.append-note a{color:#fff;text-decoration:underline;font-weight:700;white-space:nowrap}
+.wiz .topic.made{opacity:.5;cursor:default;border-style:dashed}
+.speed-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0 6px}.speed-row>b{font-size:17px}
+.speed-opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;flex:1 1 420px}
+.speed-opts button{font:inherit;text-align:left;display:flex;flex-direction:column;gap:3px;padding:12px 16px;border:2px solid var(--line);border-radius:10px;background:#fff;color:#15171f;cursor:pointer}
+.speed-opts button b{font-size:16.5px}.speed-opts button span{font-size:13.5px;color:#6b7280}.speed-opts button:hover{border-color:#15171f}
+.speed-opts button.on{background:#15171f;border-color:#15171f;color:#fff}.speed-opts button.on span{color:#bffe9e}
+.brief-wait p{margin:0 0 4px;font-size:15.5px;line-height:1.65;color:#3b4052}.brief-wait .mk-bar{background:#eef0f5;margin:12px 0 2px}.brief-wait .mk-bar i{background:#15171f}
+
+/* 9/17 심야 v4: 소구점 검사받기 · 눌림 개선 · 내 저장소 · 카드 표시 */
+.wiz.s1{max-width:1160px}.s1-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:20px;align-items:start;margin-top:6px}@media(max-width:1040px){.s1-grid{grid-template-columns:1fr}}
+.usp-panel{position:sticky;top:12px;border:2px solid #15171f;border-radius:12px;background:#fff;padding:16px;display:flex;flex-direction:column;gap:12px;word-break:keep-all;overflow-wrap:anywhere}
+.usp-panel-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.usp-panel-h b{font-size:19px}.usp-panel-h span{font-size:13.5px;color:#6b7280}
+.usp-intro{margin:0;font-size:15px;line-height:1.65;color:#3b4052}.usp-panel>small{font-size:13px}
+.usp-busy{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;padding:14px;border:1.5px dashed var(--line);border-radius:10px;background:#f7f8fb}
+.usp-busy i{width:16px;height:16px;border:3px solid #d5d8e2;border-top-color:#15171f;border-radius:50%;animation:uspspin .8s linear infinite;flex:none}@keyframes uspspin{to{transform:rotate(360deg)}}
+.usp-verdict{border-radius:10px;padding:11px 13px;display:flex;flex-direction:column;gap:3px;font-size:14.5px;line-height:1.55}.usp-verdict b{font-size:15.5px}
+.usp-verdict.ok{background:#f0fdf4;border:1.5px solid #86efac;color:#14532d}.usp-verdict.bad{background:#fffaf0;border:1.5px solid #f2c94c;color:#5f4300}
+.usp-refined{border:1.5px solid #15171f;border-radius:10px;padding:11px 13px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}.usp-refined small{font-size:12.5px;font-weight:800;color:#6b7280}.usp-refined b{font-size:16px;line-height:1.5}
+.usp-prev small{display:block;font-size:12.5px;font-weight:800;color:#6b7280;margin-bottom:5px}.usp-prev ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}.usp-prev li{font-size:14px;line-height:1.5;display:flex;flex-direction:column}.usp-prev li span{color:#6b7280;font-size:13px}
+.usp-panel .usp-q-item{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:7px}.usp-panel .usp-q-q{display:flex;gap:8px;align-items:baseline;font-size:15.5px;font-weight:700;line-height:1.5}
+.usp-panel .usp-q-q em{font-style:normal;font-size:12px;font-weight:800;color:#bffe9e;background:#15171f;border-radius:4px;padding:2px 6px;flex:none}.usp-panel .usp-q-why{font-size:13px;color:#6b7280}
+.usp-panel .usp-q-opts{display:grid;grid-template-columns:1fr;gap:5px}.usp-panel .usp-q-opts button{font:inherit;font-size:14.5px;font-weight:600;text-align:left;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:#15171f;cursor:pointer}
+.usp-panel .usp-q-opts button:hover{border-color:#15171f}.usp-panel .usp-q-opts button.on{background:#15171f;border-color:#15171f;color:#fff}
+.usp-panel .wiz-input{font-size:14.5px!important;padding:9px 11px!important;border-radius:8px!important;border-width:1.5px!important}
+.usp-panel .usp-q-foot{display:flex;gap:6px;flex-wrap:wrap}.usp-panel .btn{border-radius:8px}
+.h1-sub{font-size:17px;font-weight:700;color:#6b7280;margin-left:6px}
+.kw-head em{font-style:normal;font-size:12.5px;font-weight:800;color:#4b5263;background:#eef0f5;border-radius:4px;padding:2px 7px}
+.wiz .wiz-sel{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:2px solid #15171f;border-radius:10px;background:#fff;padding:10px 12px;margin:10px 0}.wiz .wiz-sel>b{font-size:15.5px;margin-right:4px}
+.selchip{display:inline-flex;align-items:stretch;border:1.5px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;font-size:14px}.selchip i{font-style:normal;font-weight:700;padding:7px 10px}
+.selchip button{font:inherit;font-size:13px;font-weight:800;border:0;background:#f1f2f6;color:#3b4052;padding:0 10px;cursor:pointer}.selchip button:hover{background:#15171f;color:#fff}
+.selchip.is-main{border-color:#15171f}.selchip.is-main button:first-child{background:#15171f;color:#bffe9e}
+.wiz-foot{pointer-events:none}.wiz-foot>*{pointer-events:auto}.wiz-body{padding-bottom:30px}
+.wiz .topic{position:relative;padding-right:70px;user-select:none;-webkit-tap-highlight-color:transparent}
+.topic-save{position:absolute;right:10px;top:10px;font:inherit;font-size:12.5px;font-weight:800;padding:5px 9px;border:1.5px solid var(--line);border-radius:6px;background:#fff;color:#3b4052;cursor:pointer}.topic-save:hover{border-color:#15171f;color:#15171f}
+.wiz .topic.on .topic-save{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
+.speed-opts button b em{font-style:normal;font-size:12px;font-weight:800;margin-left:6px;padding:2px 6px;border-radius:4px;background:#eef0f5;color:#4b5263;vertical-align:1px}.speed-opts button.on b em{background:#bffe9e;color:#15171f}
+.mk-dock.up{bottom:104px}
+.wiz-more.tune>summary i{border-radius:8px!important}.wiz-more.tune[open]>summary i{font-size:0!important}.wiz-more.tune[open]>summary i::after{content:"접기"!important;font-size:14px}
+.pc-state{position:absolute;left:8px;top:8px;z-index:1;font-size:12.5px;font-weight:800;line-height:1;padding:5px 8px;border-radius:4px;background:#e5e7ee;color:#3b4052}.pc-state.ok{background:#15171f;color:#bffe9e}
+.pc-meta{align-items:center}.pc-trash{font:inherit;margin-left:auto;font-size:12px;font-weight:700;padding:4px 8px;border:1.5px solid var(--line);border-radius:6px;background:#fff;color:#8a90a2;cursor:pointer}.pc-trash:hover{border-color:#b91c1c;color:#b91c1c}
+.nav a.navsub{padding:6px 10px 6px 38px;font-size:13px;color:#6b7280}.nav a.navsub.on{color:var(--ink);font-weight:700;background:var(--brand2)}
+.box{max-width:1160px;margin:0 auto;display:flex;flex-direction:column;gap:14px;word-break:keep-all;overflow-wrap:anywhere}
+.box-add{display:flex;gap:8px;margin-bottom:12px}.box-add .wiz-input{flex:1;font-size:15.5px;padding:11px 13px;border-radius:8px}
+.box-tbl td{vertical-align:middle}.box-tbl{min-width:720px}
+.box-refs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.box-ref{display:grid;grid-template-columns:84px minmax(0,1fr);gap:12px;border:1.5px solid var(--line);border-radius:10px;padding:10px;background:#fff}
+.box-ref img{width:84px;aspect-ratio:9/14;object-fit:cover;border-radius:6px;background:#eceef5;cursor:pointer}.box-ref-b{display:flex;flex-direction:column;gap:3px;min-width:0}.box-ref-b b{font-size:15.5px}.box-ref-b span{font-size:13px;color:#6b7280}.box-ref-b p{margin:0 0 4px;font-size:13.5px;color:#3b4052;line-height:1.5}
+.next-act{width:220px;white-space:nowrap}.next-act .pv-btn+.pv-btn{margin-left:6px}
+/* 레퍼런스 뜯어보기(9/17 밤) */
+.rf{display:flex;flex-direction:column;gap:14px;word-break:keep-all;overflow-wrap:anywhere}
+.rf-card{display:flex;flex-direction:column;gap:14px}
+.rf-head{display:flex;gap:16px;align-items:flex-start}.rf-head>img{width:84px;aspect-ratio:9/14;object-fit:cover;border-radius:8px;background:#eceef5;flex:none}
+.rf-id{min-width:0;display:flex;flex-direction:column;gap:4px}.rf-kicker{font-size:13px;font-weight:800;color:#15803d}.rf-name{font-size:20px;font-weight:800;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rf-one{font-size:16px;font-weight:600;color:#15171f;margin-top:2px}
+.rf-card .pv-info{margin-top:0}
+.rf-sec h3{font-size:19px;font-weight:800;margin:0 0 10px;color:#15171f}.rf-sec h3 small{font-size:14px;color:#6b7280;font-weight:600;margin-left:6px}
+.rf-why th{width:230px}.rf-why td{font-size:15.5px}
+.rf-hook-sum{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}.rf-hook-sum b{font-size:17px}
+.rf-hook{min-width:680px}.rf-hook .rf-t{font-weight:800;white-space:nowrap;font-size:14px}
+.rf-cuts{min-width:900px}.rf-cuts .rf-img{padding:6px!important}.rf-cuts .rf-img img{width:58px;aspect-ratio:9/16;object-fit:cover;border-radius:6px;display:block;background:#eceef5}
+.rf-cuts td{font-size:14.5px}.rf-cuts .c-no b{display:block;font-size:18px;font-weight:800}.rf-cuts .c-no span{display:block;font-size:12.5px;color:#6b7280;margin-top:2px;white-space:nowrap}.rf-txt{font-weight:600;color:#15171f}
+.rf-wait{background:#f6f7fa;border:1.5px dashed var(--line);border-radius:10px;padding:12px 14px;font-size:14.5px;line-height:1.6;color:#3b4052;margin-top:8px}.rf-wait.err{border-color:#f5b5b5;background:#fff5f5}
+.rf-more summary{font-size:15px}
+@media(max-width:760px){.rf-why th{width:120px}.rf-head>img{width:64px}}
 /* 마법사: 소구점 질문 · 저장된 클라이언트 · 편수 */
 .client-bar{display:flex;align-items:center;gap:12px;margin:10px 0 2px;flex-wrap:wrap}.client-bar label{font-size:16px;font-weight:800}.client-bar select{max-width:420px;padding:11px 14px;font-size:16px;border-radius:10px}
 .save-client{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:#3b4052;cursor:pointer}.save-client input{width:18px;height:18px}
@@ -636,6 +785,7 @@ body.route-plan .brief-bar .btn{font-size:14.5px}
       <a href="#/boards" data-r="boards"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg> 보드</a>
       <a href="#/analyze" data-r="analyze"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="12" height="17" rx="2"/><path d="M3 8h12M3 15h12"/><circle cx="17" cy="15" r="3.2"/><path d="M19.4 17.4L22 20"/></svg> 레퍼런스 분석 <span class="tag">NEW</span></a>
       <a href="#/plan" data-r="plan"><svg viewBox="0 0 24 24"><path d="M4 20h16M6 16l10-10 2 2L8 18l-3 1z"/></svg> 콘텐츠 기획</a>
+      <a href="#/plan/box" data-r="planbox" class="navsub">내 저장소</a>
       <a href="#/edit" data-r="edit"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M8 5v14"/></svg> 편집 툴 <span class="tag">β</span></a>
       <a href="#/ytedit" data-r="ytedit"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M10 9l5 3-5 3z"/></svg> 유튜브 쇼츠 양산 <span class="tag">β</span></a>
       </div>
@@ -653,7 +803,7 @@ body.route-plan .brief-bar .btn{font-size:14.5px}
 <div class="drawer" id="drawer"></div>
 <div class="modal" id="modal"></div>
 <div class="toast" id="toast"></div>
-<script src="static_api.js?v=1789645132"></script>
+<script src="static_api.js?v=1789659542"></script>
 <script>
 const $ = (s, el=document) => el.querySelector(s); const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 window.imgRetry = (el) => { const n = Number(el.dataset.r || 0); if (n >= 2) { el.style.visibility = "hidden"; if (el.parentNode && el.parentNode.classList) el.parentNode.classList.add("nothumb"); return; } el.dataset.r = n + 1; const src = el.getAttribute("src").split("?")[0]; setTimeout(() => { el.src = src + "?r=" + Date.now(); }, 800 * (n + 1)); };
@@ -895,7 +1045,8 @@ async function viewReels() {
   const [bmin, bmax] = (R.band || ",").split(",");
   const F = R.f || {};
   const qs = new URLSearchParams({ platform: R.plat, kind: yt ? "shorts" : ad ? "ad" : "reel", creator: (yt || ad) ? "" : (F.creator === "all" ? "" : "creator"), sort: R.sort, days: ad ? "" : R.days, limit: 60, offset: R.page * 60, industry: inds, q: R.q, min_followers: F.min_followers || bmin, max_followers: F.max_followers || bmax, classified: (R.q || ad) ? "" : "1", min_views: F.min_views || "", max_views: F.max_views || "", min_likes: F.min_likes || "", max_likes: F.max_likes || "", min_comments: F.min_comments || "", max_comments: F.max_comments || "", paid: F.paid ? "1" : "" });
-  const { items, total } = await api("/api/items?" + qs.toString()); R.items = items;
+  const qstr = qs.toString(); R.cache = R.cache || new Map(); const hit = R.cache.get(qstr);
+  const { items, total } = (hit && Date.now() - hit.at < 600000) ? hit.data : await api("/api/items?" + qstr); if (!hit || Date.now() - hit.at >= 600000) { R.cache.set(qstr, { at: Date.now(), data: { items, total } }); if (R.cache.size > 16) R.cache.delete(R.cache.keys().next().value); } R.items = items;
   $("#main").innerHTML = `<div class="rsearch"><div class="search">🔍 <input id="rq" placeholder="검색어가 포함된 캡션 혹은 해시태그를 가진 영상이 검색됩니다." value="${esc(R.q)}"><button class="btn" onclick="R.q='';R.page=0;viewReels()">✖</button></div>
       <select class="chip" onchange="R.sort=this.value;R.page=0;viewReels()">${(ad ? [["pick","✨ 오늘의 추천"],["running","오래 돌아가는 순 (검증된 소재)"],["date","최신 게재순"]] : yt ? [["pick","✨ 오늘의 추천"],["views","조회수 높은 순"],["daily","일일 조회수 순"],["followers","구독자 많은 순"],["ratio","구독자 대비"],["date","최신순"]] : [["pick","✨ 오늘의 추천"],["date","최신순"],["views","조회수순"],["likes","좋아요순"],["ratio","팔로워 대비"]]).map(([v,l]) => `<option value="${v}" ${R.sort===v?"selected":""}>${l}</option>`).join("")}</select>
       ${yt ? `<select class="chip" onchange="R.band=this.value;R.page=0;viewReels()">${BANDS.map(([v,l]) => `<option value="${v}" ${R.band===v?"selected":""}>구독자 ${l}</option>`).join("")}</select>` : ""}
@@ -915,6 +1066,7 @@ async function viewReels() {
     <div class="rcount">${R.sort==="pick" ? `오늘의 추천 ${Math.min(total,600)}개` : total + "개"} · ${ad ? "메타 광고 라이브러리(한국·영상 광고) · 로그인·키 없이 매일 수집 · 게재일이 길수록 돈이 되는 검증된 소재" : yt ? "구독자 20만 미만 채널의 최근 60일 떡상 쇼츠 (매일 자동 갱신)" : "인플루언서 릴스 · 조회수가 없는 카드는 공식 API 수집분(좋아요 표시)"}${R.q && !yt && !ad && document.body.classList.contains("admin") ? ` · <button class="btn small" id="rlive" onclick="liveSearch()">🌐 인스타에서 더 가져오기 (약 11크레딧)</button> <span id="rlivemsg" class="muted"></span>` : ""}</div>
     ${items.length ? `<div class="rgrid">${items.map(rcard).join("")}</div>` : `<div class="empty"><b>${ad ? "이 조건의 광고가 아직 없어요" : "이 조건의 릴스가 아직 없어요"}</b>${ad ? "설정 → 메타 광고 라이브러리에서 검색어로 바로 수집할 수 있어요 (30초)." : "기간을 늘리거나 설정에서 이 카테고리를 수집하세요."}</div>`}
     <div class="row" style="justify-content:center;margin:18px 0">${R.page > 0 ? `<button class="btn" onclick="R.page--;viewReels()">← 이전</button>` : ""}${(R.page + 1) * 60 < total ? `<button class="btn" onclick="R.page++;viewReels();window.scrollTo(0,0)">다음 →</button>` : ""}</div>`;
+  if (window.restoreScrollOnce) restoreScrollOnce();
   if (R.q && !yt && !ad) {   // 스니핏식 계정 발굴 줄(모두) + 브랜드 저장·외부 수집은 관리자만
     api("/api/accounts?" + new URLSearchParams({ q: R.q, platform: "instagram", limit: 10 })).then(list => {
       const el = $("#raccts"); if (!el || !list.length) return;
@@ -1039,7 +1191,7 @@ async function demo() { await post("/api/demo"); toast("샘플 24건 추가 (설
 // ---------------- 도구 페이지
 // ---------------- ✍️ 기획 (레퍼런스 4~5개 → 분석 → 하이커브 양식 기획안)
 const PLANREFS = () => { try { return JSON.parse(localStorage.getItem("planRefs") || "[]"); } catch (e) { return []; } };
-const setPlanRefs = (a) => { localStorage.setItem("planRefs", JSON.stringify([...new Set(a)].slice(0, 6))); updatePlanBadge(); };
+const setPlanRefs = (a) => { localStorage.setItem("planRefs", JSON.stringify([...new Set(a)].slice(-30))); updatePlanBadge(); };
 function togglePlanRef(id) { const a = PLANREFS(); const i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); setPlanRefs(a); toast(i >= 0 ? "기획 바구니에서 뺐어요" : `기획 바구니에 담았어요 (${PLANREFS().length}개)`); const b = $("#planbtn-" + id); if (b) b.textContent = i >= 0 ? "✍️ 기획에 담기" : "✅ 담김"; }
 function updatePlanBadge() { const n = PLANREFS().length; const a = $('a[data-r="plan"]'); if (a) a.innerHTML = `<svg viewBox="0 0 24 24"><path d="M4 20h16M6 16l10-10 2 2L8 18l-3 1z"/></svg> 콘텐츠 기획 ${n ? `<span class="tag" style="background:#EFE9FF;color:#5E4BD6">${n}</span>` : ""}`; }
 let PLAN = { current: null };
@@ -1047,6 +1199,8 @@ async function viewPlan(arg, sub) {
   updatePlanBadge();
   if (arg === "new") return viewPlanWizard();
   if (arg === "set" && sub) return viewPlanSet(sub);
+  if (arg === "trash") return viewPlanTrash();
+  if (arg === "box") return viewPlanBox();
   if (arg) return viewPlanWizard(arg, sub);
   return viewPlanHome();
 }
@@ -1128,8 +1282,9 @@ async function route() {
   if (r === "landing" || r === "login") { location.replace("#/reels"); return; }
   if (me.role !== "admin" && TOOL_ROUTES.has(r) && !(me.tools && r === "plan")) { toast(me.tools ? "이 메뉴는 관리자 전용이에요" : "기획 도구는 수강생·체험·유료 플랜에서 열려요"); location.replace(me.tools ? "#/plan" : "#/reels"); return; }
   curRoute = r; document.body.classList.toggle("route-plan", r === "plan"); document.body.classList.toggle("route-share", r === "share");
-  if (r === "reels") { R.plat = parts[1] || R.plat || "instagram"; R.cat = parts[2] ? decodeURIComponent(parts[2]) : ""; R.page = 0; if (R.plat === "youtube" && R.sort === "date") R.sort = "views"; if (R.plat === "meta_ad" && !["pick", "running", "date"].includes(R.sort)) R.sort = "pick"; if (R.plat !== "meta_ad" && R.sort === "running") R.sort = "pick"; }
+  if (r === "reels") { R.plat = parts[1] || R.plat || "instagram"; R.cat = parts[2] ? decodeURIComponent(parts[2]) : ""; const navKey = R.plat + "|" + R.cat; if (R.navKey !== navKey) { R.page = 0; R.navKey = navKey; } if (R.plat === "youtube" && R.sort === "date") R.sort = "views"; if (R.plat === "meta_ad" && !["pick", "running", "date"].includes(R.sort)) R.sort = "pick"; if (R.plat !== "meta_ad" && R.sort === "running") R.sort = "pick"; }
   $$(".nav a[data-r]").forEach(a => a.classList.toggle("on", a.dataset.r === r)); renderCatNav();
+  { const inBox = r === "plan" && arg === "box"; const sb = $('a[data-r="planbox"]'); if (sb) sb.classList.toggle("on", inBox); if (inBox) { const pl = $('a[data-r="plan"]'); if (pl) pl.classList.remove("on"); } }
   try {
     if (r === "explore") await viewExplore(); else if (r === "brands") await viewBrands(arg ? decodeURIComponent(arg) : null); else if (r === "trends") await viewTrends();
     else if (r === "reels") await viewReels(); else if (r === "boards") await viewBoards(arg); else if (r === "settings") await viewSettings(); else if (r === "analyze") await viewAnalyze(arg); else if (r === "plan") await viewPlan(arg, parts[2]); else if (r === "share") await viewShare(arg); else if (r === "edit") await viewEdit(); else if (r === "ytedit") await viewYtEdit(); else if (r === "login") viewLogin(arg); else if (r === "account") await viewAccount(); else if (r === "support") await viewSupport(arg); else if (r === "pricing") await viewPricing(); else if (r === "admin") await viewAdmin(); else await viewExplore();
@@ -1137,12 +1292,14 @@ async function route() {
   } catch (e) { const net = /Failed to fetch|NetworkError|Load failed/i.test(e.message || "");
     $("#main").innerHTML = net ? `<div class="empty"><b>서버에 연결하지 못했어요</b>잠시 뒤 새로고침해 주세요. 계속되면 문의에 남겨 주세요.</div>` : `<div class="empty"><b>이 화면을 불러오지 못했어요</b>${esc(e.message === "없음" ? "찾는 항목이 없어요(지워졌거나 만드는 중에 끊겼을 수 있어요)." : e.message)}<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" onclick="route()">다시 시도</button></div></div>`; }
 }
-window.addEventListener("hashchange", () => { document.body.classList.remove("nav-open"); route(); });
+const SCROLLS = {}; let PENDING_RESTORE = null;
+window.addEventListener("hashchange", (e) => { try { const old = new URL(e.oldURL).hash || "#/reels"; SCROLLS[old] = window.scrollY; } catch (x) {} PENDING_RESTORE = location.hash || "#/reels"; document.body.classList.remove("nav-open"); route(); });
+window.restoreScrollOnce = () => { const h = location.hash || "#/reels"; if (PENDING_RESTORE !== h) return; PENDING_RESTORE = null; const y = SCROLLS[h]; if (y > 0) setTimeout(() => window.scrollTo(0, y), 40); };
 (async () => {
   try { const tk = new URLSearchParams(location.search).get("hc_token"); if (tk && ["localhost", "127.0.0.1"].includes(location.hostname)) { localStorage.setItem("hc_token", tk); history.replaceState(null, "", location.pathname + location.hash); } } catch (e) {}
   try { META = await api("/api/meta"); } catch (e) {} renderCatNav(); route(); })();
 </script>
-<script src="static/plan.js?v=58"></script>
+<script src="static/plan.js?v=66"></script>
 <script src="static/refan.js?v=4"></script>
 <script src="static/account.js?v=12"></script>
 <script src="static/chat.js?v=4"></script>
