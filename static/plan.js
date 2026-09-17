@@ -1,9 +1,15 @@
 // ✍️ 릴스 기획 — 5단계 고르기(직업 → 타깃 → 키워드 → 참고 릴스 → 주제) → 기획안. 레퍼런스 최대 3개, 캡컷 기준.
 (function () {
   const W = { step: 1, mode: "own", job: "", target: [], keyword: "", subs: [], selSubs: [], refs: [], topic: "", topics: [], extra: {}, refsCache: [], urls: "" };
-  try { Object.assign(W, JSON.parse(localStorage.getItem("planWiz") || "{}")); } catch (e) {}
+  // 작성 중인 기획은 계정별로 저장(같은 브라우저에서 계정을 바꿔도 섞이지 않게)
+  const curUid = () => { try { return String(((window.authState && window.authState()) || {}).id || "0"); } catch (e) { return "0"; } };
+  const WKEY = () => "planWiz:" + curUid();
+  function syncUser() { const uid = curUid(); if (W.__uid === uid) return; const blank = { step: 1, mode: "own", job: "", target: [], keyword: "", subs: [], selSubs: [], refs: [], topic: "", topics: [], extra: {}, refsCache: [], urls: "", about: "", product: "", targetText: "", usp: "", sugg: null, profile: null, profileFor: "", mainRef: null, setTopics: [], autoOff: null, making: null, multi: false, moreOpen: false };
+    for (const k of Object.keys(W)) delete W[k]; Object.assign(W, blank);
+    try { const raw = localStorage.getItem(WKEY()) || (uid === "1" ? localStorage.getItem("planWiz") : null); if (raw) Object.assign(W, JSON.parse(raw)); } catch (e) {}
+    W.__uid = uid; }
   if (!["own", "brand", "agency", "consign"].includes(W.mode)) { if (W.mode === "fast") W.speed = "fast"; W.mode = "own"; }
-  const save = () => { try { localStorage.setItem("planWiz", JSON.stringify({ ...W, refsCache: W.refsCache.slice(0, 24), topics: W.topics.slice(0, 10) })); } catch (e) {} };
+  const save = () => { try { localStorage.setItem(WKEY(), JSON.stringify({ ...W, refsCache: W.refsCache.slice(0, 24), topics: W.topics.slice(0, 10) })); } catch (e) {} };
   const JOBS = ["카페·베이커리", "식당·요식업", "뷰티샵·네일", "피부과·병원", "헬스·필라테스", "강사·코치", "인플루언서", "쇼핑몰·공동구매", "N잡러·프리랜서", "보험·금융", "부동산·공인중개사", "육아맘·주부", "개발자·IT", "여행·숙박업"];
   const AGES = ["10대", "20대", "30대", "40대", "50대+"]; const LIFE = ["직장인", "자영업 사장님", "학생", "주부", "육아맘", "자취생", "커플·신혼", "운동하는 사람", "창업 준비"];
   const HOOKS = ["질문형", "숫자형", "반전형", "고백형", "금지형", "발견형", "비교형", "경고형"];
@@ -43,8 +49,7 @@
     const mp = plan && plan.mode_pack; if (!mp || typeof mp !== "object") return "";
     const name = MODE_NAME[mp.mode] || "모드"; const rows = Object.entries(mp).filter(([k, v]) => k !== "mode" && v && (!Array.isArray(v) || v.length)).map(([k, v]) => `<tr><th>${esc(MP_LABEL[k] || k)}</th><td>${mpVal(v)}</td></tr>`).join("");
     if (!rows) return "";
-    return where === "side" ? `<details class="side-sec fold mp" open><summary><b>${esc(name)} 체크</b><small>이 모드에서 꼭 볼 것</small></summary><table class="gtable mp-table">${rows}</table></details>`
-      : `<section class="ez-sec mp"><h3>⑤ ${esc(name)} 체크 <small>준희 님 노하우로 이 편에서 꼭 볼 것만 뽑았어요</small></h3><table class="gtable mp-table">${rows}</table></section>`;
+    return `<section class="pv-card"><div class="pv-h"><h2>${esc(name)} 체크</h2><span>이 모드에서 꼭 볼 것</span></div><table class="pv-kv">${rows}</table></section>`;
   }
   window.reSketch = async (pid, no) => { toast("스케치 그리는 중… (10초)"); const r = await post("/api/plans/" + pid + "/sketches", { only: no ? [no] : null }); if (r.error) return toast(r.error); CUR = r; renderPlan2(r); };
   window.likeScript = async (pid) => { const note = prompt("이 대본에서 특히 좋은 점을 한 줄 (비워도 됨)", ""); if (note === null) return; try { const r = await post("/api/plans/" + pid + "/like", { note }); if (r.error) throw new Error(r.error); toast(`예시로 저장했어요 (총 ${r.count}개). 다음 기획안부터 이 수준을 참고합니다`); } catch (e) { toast(e.message); } };
@@ -112,13 +117,18 @@
   window.hideWait = () => { if (WAIT) { clearInterval(WAIT.timer); WAIT.el.remove(); WAIT = null; } if (ORB) { cancelAnimationFrame(ORB); ORB = null; } };
 
   window.viewPlanWizard = async function (arg, sub) {
-    if (arg) { if (sub && ["plan", "easy", "refs", "pro"].includes(sub)) TAB = sub; else if (!CUR || CUR.id !== arg) TAB = "easy"; const p = await api("/api/plans/" + arg); CUR = p; return renderPlan2(p); }
+    syncUser(); if (!arg) loadClients();
+    if (arg) { if (sub && /^easy-(sum|script|prep|check)$/.test(sub)) { TAB = "easy"; EZSEC = sub.slice(5); } else if (sub && ["plan", "easy", "refs", "pro", "shoot"].includes(sub)) TAB = sub; else if (!CUR || CUR.id !== arg) TAB = "easy";
+      let p = null; try { p = await api("/api/plans/" + arg); } catch (e) { if (W.making === arg) { W.making = null; save(); }
+        $("#main").innerHTML = `<div class="empty"><b>이 기획안을 찾을 수 없어요</b>만드는 도중에 끊겼거나 지워진 기획안이에요. 차감된 횟수가 있다면 문의에 남겨 주세요.<div class="row" style="justify-content:center;margin-top:12px;gap:8px"><a class="btn p" href="#/plan/new">다시 만들기</a><a class="btn" href="#/plan">기획 홈</a></div></div>`; return; }
+      CUR = p; return renderPlan2(p); }
     // 릴스 상세창에서 담아둔 바구니 → 참고 릴스에 자동 반영
     const basket = (typeof PLANREFS === "function" ? PLANREFS() : []).slice(0, 3); W.basketSeen = W.basketSeen || [];
     for (const id of basket) if (!W.basketSeen.includes(id) && !W.refs.includes(id) && W.refs.length < 3) { W.refs.push(id); W.basketSeen.push(id); }
+    if (W.refs.length > 1) W.multi = true; if (W.refs.length && !W.refs.includes(W.mainRef)) W.mainRef = W.refs[0];
     save(); renderWizard();
   };
-  const STEPS = 6;
+  const STEPS = 3;
   window.wizGo = (n) => { W.step = Math.max(1, Math.min(STEPS, n)); save(); renderWizard(); };
   window.wizCh = (k, v) => { W.extra.ch = W.extra.ch || {}; W.extra.ch[k] = W.extra.ch[k] === v ? "" : v; save(); renderWizard(); };
   window.wizChIn = (k, el) => { W.extra.ch = W.extra.ch || {}; W.extra.ch[k] = el.value; save(); };
@@ -131,63 +141,103 @@
   window.wizExtraSet = (k, v) => { W.extra[k] = v; save(); renderWizard(); };
   window.wizPref = (k, v) => { W.prefs = W.prefs || {}; W.prefs[k] = W.prefs[k] === v ? "" : v; save(); renderWizard(); };
 
+  const ABOUT_EX = ["수원에서 1:1 필라테스 센터 해요", "동네 카페 사장이에요", "스마트스토어에서 리빙템 위탁판매해요", "뷰티 브랜드 마케터예요", "숏폼 대행사인데 클라이언트가 꽃집이에요"];
   async function renderWizard() {
     if (W.step > STEPS) W.step = STEPS;
     const s = W.step; const pct = (s / STEPS) * 100;
-    const head = `<div class="wiz-head"><div class="wiz-top"><button class="btn ghost" onclick="wizGo(${s - 1})" ${s === 1 ? "disabled" : ""}>←</button><div class="wiz-step">STEP ${s} OF ${STEPS} <span class="tag" style="margin-left:6px">${esc(MODE_NAME[W.mode] || "")}</span></div><a class="btn ghost" href="#/plan" onclick="wizReset(event)">처음부터</a></div><div class="wiz-bar"><i style="width:${pct}%"></i></div></div>`;
+    const head = `<div class="wiz-head"><div class="wiz-top"><button class="btn ghost" onclick="wizGo(${s - 1})" ${s === 1 ? "disabled" : ""}>←</button><div class="wiz-step">STEP ${s} OF ${STEPS}</div><a class="btn ghost" href="#/plan" onclick="wizReset(event)">처음부터</a></div><div class="wiz-bar"><i style="width:${pct}%"></i></div></div>`;
     let body = "", next = "";
     if (s === 1) {
-      const jobs = JOBS_BY[W.mode] || JOBS; const [q1, q1s] = JOB_Q[W.mode] || JOB_Q.own;
-      body = `<div class="wiz-sub" style="margin-top:0">누구를 위한 기획인가요? <small class="muted">모드에 따라 질문·규칙·결과가 달라집니다</small></div>${modeCards()}
-      <h1 style="margin-top:18px">${esc(q1)}</h1><p class="muted">${esc(q1s)}</p>
-      <div class="pills">${jobs.map(j => pill(j, W.job === j, `wizSet('job','${esc(j)}')`)).join("")}</div>
-      <label class="wiz-label">목록에 없으면 직접 적어주세요</label><input class="wiz-input" placeholder="${W.mode === "agency" ? "예: 세차장, 꽃집, 공인중개사" : W.mode === "own" ? "예: 공인중개사, 꽃집 사장" : "예: 종이꽃 포토존, 무향 탈취제"}" value="${jobs.includes(W.job) ? "" : esc(W.job)}" oninput="wizInput('job', this)">
-      ${mfHtml()}`;
-      next = `<button class="btn p big" onclick="${W.job ? "wizGo(2)" : "toast('직업을 골라주세요')"}">다음</button>`;
+      const sg = W.sugg || {}; const cl = CLIENTS || [];
+      const fld = (k, label, ph, hint) => `<div class="f-field"><label>${label}${hint ? ` <small>${hint}</small>` : ""}</label><input id="wf-${k}" class="wiz-input" placeholder="${esc(ph)}" value="${esc(W[k] || "")}" oninput="wizInput('${k}', this)" onkeydown="if(event.key==='Enter')wizQuick()"></div>`;
+      const uq = W.uspQ || []; const qa = W.uspQA || [];
+      const answered = qa.filter(x => x && x.a);
+      const qPanel = (uq.length && !W.uspDone) ? `<section class="usp-q" id="usp-q"><div class="usp-q-head"><b>소구점을 조금만 더 알려주세요</b><span>${esc(W.uspWhy || "지금 적어주신 소구점만으로는 기승전결의 '전'에서 무엇을 말할지 정하기 어려워요.")} 답해 주신 내용이 대본의 알맹이가 됩니다.</span></div>
+        ${uq.map((q, i) => { const a = (qa[i] || {}).a || ""; return `<div class="usp-q-item"><div class="usp-q-q"><em>질문 ${i + 1}</em><span>${esc(q.q)}</span></div>${q.why ? `<div class="usp-q-why">${esc(q.why)}</div>` : ""}<div class="usp-q-opts">${(q.options || []).map((o, j) => `<button class="${a === o ? "on" : ""}" onclick="wizUspPick(${i}, ${j})">${esc(o)}</button>`).join("")}</div><input class="wiz-input" placeholder="보기에 없으면 직접 적어 주세요" value="${(q.options || []).includes(a) ? "" : esc(a)}" oninput="wizUspType(${i}, this)"></div>`; }).join("")}
+        <div class="usp-q-foot"><button class="btn p big" onclick="wizQuick(false, true)">답하고 참고 릴스 찾기 →</button><button class="btn" onclick="wizQuick(false, true, true)">건너뛰고 진행</button></div></section>`
+        : (W.uspDone && answered.length) ? `<section class="usp-done"><div><b>소구점 답변 ${answered.length}개</b>가 기획에 들어갑니다</div><ul>${answered.map(x => `<li><span>${esc(x.q)}</span><b>${esc(x.a)}</b></li>`).join("")}</ul><button class="btn small" onclick="wizUspReset()">다시 답하기</button></section>` : "";
+      body = `<h1>네 가지만 알려주세요.</h1><p class="muted">이 네 줄이 기획의 알맹이예요. 말투·구조·길이는 다음 화면에서 고르는 릴스를 그대로 따라갑니다.</p>${connectBox()}
+      ${cl.length ? `<div class="client-bar"><label for="wf-client">저장된 클라이언트 불러오기</label><select id="wf-client" class="wiz-input" onchange="wizClientPick(this.value)"><option value="">새로 적기</option>${cl.map(c => `<option value="${c.id}" ${String(W.clientId || "") === String(c.id) ? "selected" : ""}>${esc(c.name)}${c.updated_at ? " · " + esc(String(c.updated_at).slice(5, 10)) : ""}</option>`).join("")}</select></div>` : ""}
+      <div class="f-grid">
+        ${fld("about", "① 나는 어떤 사람인가요?", "예: 수원에서 1:1 필라테스 센터를 운영해요", "")}
+        ${fld("product", "② 주 상품·서비스", "예: 1:1 체형교정 필라테스, 첫 체험 3만원", "지금 제일 팔고 싶은 것 하나")}
+        <div class="f-field"><label>③ 주 타깃 <small>누가 사나요? 좁을수록 좋아요</small></label><input id="wf-target" class="wiz-input" placeholder="예: 거북목·허리 통증으로 고민하는 30~40대 직장인 여성" value="${esc(W.targetText || "")}" oninput="wizInput('targetText', this)" onkeydown="if(event.key==='Enter')wizQuick()">${(sg.target || []).length ? `<div class="sugg"><span>AI 제안 — 눌러서 넣기</span>${sg.target.map((x, i) => `<button class="pill" onclick="wizSugg('targetText', ${i})">${esc(x)}</button>`).join("")}</div>` : ""}</div>
+        <div class="f-field"><label>④ 소구점 <small>손님이 다른 데 말고 나를 고르는 이유 — 기능·성분·방법·숫자로 적을수록 좋아요</small></label><input id="wf-usp" class="wiz-input" placeholder="예: 향으로 덮는 게 아니라 탈취 성분이 땀냄새 자체를 없앰" value="${esc(W.usp || "")}" oninput="wizInput('usp', this)" onkeydown="if(event.key==='Enter')wizQuick()">${(sg.usp || []).length ? `<div class="sugg"><span>AI 제안 — 맞는 것만 눌러서 넣기 (예시는 내 사실로 고쳐 쓰세요)</span>${sg.usp.map((x, i) => `<button class="pill" onclick="wizSugg('usp', ${i})">${esc(x)}</button>`).join("")}</div>` : ""}</div>
+      </div>
+      <div class="row" style="gap:12px;margin-top:10px;flex-wrap:wrap;align-items:center"><button class="btn" onclick="wizQuick(true)">타깃·소구점을 잘 모르겠어요 — AI 제안 받기</button><label class="save-client"><input type="checkbox" ${W.saveClient === false ? "" : "checked"} onchange="wizSaveClient(this.checked)"> 이 네 줄을 클라이언트로 저장해 두기</label></div>
+      ${qPanel}
+      ${W.refs.length ? `<div class="panel soft" style="margin-top:14px">릴스 <b>${W.refs.length}개</b>가 담겨 있어요. 다음 화면에서 바로 그 릴스로 시작합니다.</div>` : ""}`;
+      next = (uq.length && !W.uspDone) ? `<button class="btn p big" onclick="wizQuick(false, true)">답하고 참고 릴스 찾기 →</button>` : `<button class="btn p big" onclick="wizQuick()">참고 릴스 찾기 →</button>`;
     } else if (s === 2) {
-      const [q2, q2s] = TARGET_Q[W.mode] || TARGET_Q.own; const life = LIFE_BY[W.mode] || LIFE;
-      body = `<h1>${esc(q2)}</h1><p class="muted">${esc(q2s)}</p>
-      <div class="pills">${AGES.map(a => pill(a, W.target.includes(a), `wizToggle('target','${a}')`)).join("")}</div><div class="wiz-sub">${W.mode === "brand" || W.mode === "consign" ? "구매자 상황" : "라이프스타일"}</div>
-      <div class="pills">${life.map(a => pill(a, W.target.includes(a), `wizToggle('target','${a}')`)).join("")}</div>
-      <label class="wiz-label">직접 적기</label><input class="wiz-input" placeholder="예: 릴스 올려도 조회수 300 나오는 사장님" value="${esc(W.extra.target_free || "")}" oninput="wizExtra('target_free', this)">`;
-      next = `<button class="btn p big" onclick="${W.target.length || W.extra.target_free ? "wizGo(3)" : "toast('타깃을 하나 이상 골라주세요')"}">다음</button>`;
-    } else if (s === 3) {
-      const ch = W.extra.ch || {}; const hasProduct = (MF[W.mode] || []).some(x => x[0] === "product");
-      body = `<h1>카메라 앞에 서는 사람은 어떤 캐릭터인가요?</h1><p class="muted">대본의 말투는 캐릭터에 맞춥니다. 무뚝뚝한 분께 호들갑 대사를 드리지 않으려고요.</p>
-      <div class="modes">${CHARS.map(([n, d]) => `<button class="mode ${ch.preset === n ? "on" : ""}" onclick="wizCh('preset','${n}')"><b>${esc(n)}</b><small>${esc(d)}</small></button>`).join("")}</div>
-      <div class="mf-box"><div class="mf-row"><small>텐션</small><div class="pills small">${["차분", "보통", "높음"].map(v => pill(v, ch.tension === v, `wizCh('tension','${v}')`)).join("")}</div></div>
-        <div class="mf-row"><small>말투</small><div class="pills small">${["존댓말", "반말", "섞어서"].map(v => pill(v, ch.speech === v, `wizCh('speech','${v}')`)).join("")}</div></div>
-        <div class="mf-row"><small>웃음기·유머</small><div class="pills small">${["적음", "보통", "많음"].map(v => pill(v, ch.humor === v, `wizCh('humor','${v}')`)).join("")}</div></div>
-        <div class="mf-row"><small>외모·분위기 한 줄 (선택)</small><input class="wiz-input" style="padding:8px 12px;font-size:13px" placeholder="예: 단정한 운동복, 조용한 센터 / 앞치마, 시끌벅적한 주방" value="${esc(ch.vibe || "")}" oninput="wizChIn('vibe', this)"></div>
-        <div class="mf-row"><small>기존 영상 링크 (선택 — 말투를 파악할 영상)</small><input class="wiz-input" style="padding:8px 12px;font-size:13px" placeholder="https://www.instagram.com/reel/..." value="${esc(ch.sample || "")}" oninput="wizChIn('sample', this)"></div></div>
-      <h1 style="margin-top:22px;font-size:22px">영상 끝에서 어디로 보낼까요?</h1><p class="muted">CTA는 퍼널에 맞춥니다.</p>
-      <div class="pills">${FUNNELS.map(v => pill(v, W.extra.funnel === v, `wizExtraSet('funnel','${esc(v)}')`)).join("")}</div>
-      <input class="wiz-input" style="margin-top:8px" placeholder="직접 적기 (예: 댓글 '교정' → 체형 체크표 → 첫 체험 예약)" value="${FUNNELS.includes(W.extra.funnel) ? "" : esc(W.extra.funnel || "")}" oninput="wizExtra('funnel', this)">
-      <div class="mf-box"><b>내 재료 <small class="muted">채울수록 지어낸 말이 줄어듭니다</small></b>
-        ${hasProduct ? "" : `<div class="mf-row"><small>제품·서비스 한 줄</small><input class="wiz-input" style="padding:8px 12px;font-size:13px" placeholder="예: 1:1 체형교정 필라테스, 첫 체험 3만원" value="${esc(W.extra.product || "")}" oninput="wizExtra('product', this)"></div>`}
-        <div class="mf-row"><small>내가 실제로 겪은 장면 1개</small><input class="wiz-input" style="padding:8px 12px;font-size:13px" placeholder="예: 목이 아프다고 온 회원인데 골반이 틀어져 있었다" value="${esc(W.extra.scene || "")}" oninput="wizExtra('scene', this)"></div>
-        <div class="mf-row"><small>쓸 수 있는 숫자·사례</small><input class="wiz-input" style="padding:8px 12px;font-size:13px" placeholder="예: 8년차, 회원 300명, 재등록률은 모름" value="${esc(W.extra.numbers || "")}" oninput="wizExtra('numbers', this)"></div>
-        <div class="mf-row"><small>촬영 가능 환경</small><input class="wiz-input" style="padding:8px 12px;font-size:13px" placeholder="예: 얼굴 노출 OK, 매장 촬영 가능, 손님 뒷모습만" value="${esc(W.extra.shooting || "")}" oninput="wizExtra('shooting', this)"></div></div>`;
-      next = `<button class="btn p big" onclick="${ch.preset ? "wizGo(4)" : "toast('캐릭터를 하나 골라주세요')"}">다음</button>`;
-    } else if (s === 4) {
-      body = `<h1>핵심 키워드 하나만 적어주세요.</h1>${connectBox()}<p class="muted">이 키워드로 우리 저장소(릴스 ${fmt(META?.stats?.items || 9000)}개)에서 같이 쓰인 단어를 뽑고, 참고 릴스를 찾아요.</p>
-      <div class="row"><input id="wiz-kw" class="wiz-input" placeholder="예: 카페 신메뉴, 릴스 만드는 법, 홈트" value="${esc(W.keyword)}" oninput="wizInput('keyword', this)" onkeydown="if(event.key==='Enter')wizSubs()"><button class="btn p" onclick="wizSubs()">서브 키워드 뽑기</button></div>
-      <div class="wiz-sub">서브 키워드 ${W.subs.length ? (W.subsSource === "cli" || W.subsSource === "api" ? '<span class="tag ok">AI가 뽑음</span>' : '<span class="tag">저장소 통계</span>') : ""}<small class="muted">${W.subs.length ? `${W.selSubs.length}/${W.subs.length} 선택 · 눌러서 켜고 끄기` : "키워드를 넣고 뽑기를 누르세요 (AI가 5~10초)"}</small></div>
-      <div class="pills" id="wiz-subs">${W.subs.map(k => pill("#" + k, W.selSubs.includes(k), `wizToggle('selSubs','${esc(k)}')`)).join("")}</div>`;
-      next = `<button class="btn p big" onclick="${W.keyword ? "wizGo(5)" : "toast('키워드를 적어주세요')"}">참고 릴스 고르기 →</button>`;
-    } else if (s === 5) {
       body = await renderRefsStep();
-      next = `<button class="btn p big" id="wiz-next4" onclick="${W.refs.length ? "wizAnalyzeThenTopics()" : "toast('참고 릴스를 1개 이상 골라주세요')"}">주제 고르기 →</button>`;
+      next = `<button class="btn p big" id="wiz-next4" onclick="${W.refs.length ? "wizAnalyzeThenTopics()" : "toast('따라 하고 싶은 릴스를 하나 골라주세요')"}">이 릴스로 주제 고르기 →</button>`;
     } else {
       body = renderTopicStep(); const n = Number(W.setN || 3);
-      next = STATIC ? `<button class="btn p big" disabled title="체험판에서는 생성 불가">기획안 만들기 (서버 연결 필요)</button>` : W.making ? `<button class="btn p big" onclick="location.hash='#/plan/${esc(W.making)}'">만드는 중인 기획안 보기</button>`
+      next = STATIC ? `<button class="btn p big" disabled title="체험판에서는 생성 불가">기획안 만들기 (서버 연결 필요)</button>`
         : n > 1 ? `<button class="btn p big" id="wiz-make" onclick="wizMakeSet()">촬영 1회차 세트 만들기 <small style="font-weight:500">(${(W.setTopics || []).length}편 · ${(W.setTopics || []).length}회 차감)</small></button>`
         : `<button class="btn p big" id="wiz-make" onclick="wizMake()">기획안 만들기 <small style="font-weight:500">(1회 차감)</small></button>`;
     }
     $("#main").innerHTML = `<div class="wiz">${head}<div class="wiz-body">${body}</div><div class="wiz-foot"><button class="btn big" onclick="wizGo(${s - 1})" ${s === 1 ? "disabled" : ""}>이전</button>${next}</div></div>`;
-    if (s === 5 && !W.refsCache.length && (W.keyword || W.selSubs.length)) wizSearchRefs();
+    if (s === 2 && !W.refsCache.length && (W.keyword || W.selSubs.length)) wizSearchRefs();
   }
-  window.wizReset = (e) => { e.preventDefault(); Object.assign(W, { step: 1, job: "", target: [], keyword: "", subs: [], selSubs: [], refs: [], topic: "", topics: [], extra: {}, refsCache: [], urls: "" }); save(); renderWizard(); };   // 모드는 유지
+  window.wizSugg = (k, i) => { const arr = ((W.sugg || {})[k === "usp" ? "usp" : "target"]) || []; const v = String(arr[i] || "").replace(/^예:\s*/, ""); if (!v) return; if (k === "usp") { const cur = (W.usp || "").split(/\s*,\s*/).filter(Boolean); if (!cur.includes(v)) cur.push(v); W.usp = cur.join(", "); } else W.targetText = v; save(); renderWizard(); };
+  function applyProfile(r) { W.profile = r; W.mode = MODE_NAME[r.mode] ? r.mode : "own"; W.job = r.job || W.about; W.target = []; W.extra.target_free = W.targetText || r.target || ""; const kw = (r.keywords || []).filter(Boolean); W.keyword = kw[0] || W.about; W.subs = kw.slice(1); W.selSubs = kw.slice(1); W.extra.product = W.product || r.product || W.about; }
+  let CLIENTS = null;
+  function loadClients() { if (STATIC || CLIENTS !== null) return; CLIENTS = []; api("/api/clients").then(list => { CLIENTS = Array.isArray(list) ? list : []; if (W.step === 1 && location.hash.indexOf("#/plan/new") === 0 && CLIENTS.length) renderWizard(); }).catch(() => {}); }
+  const step1Key = () => [W.about, W.product, W.targetText, W.usp].map(x => (x || "").trim()).join("|");
+  function readStep1() { ["about", "product"].forEach(k => { const el = $("#wf-" + k); if (el) W[k] = el.value.trim(); }); const te = $("#wf-target"); if (te) W.targetText = te.value.trim(); const ue = $("#wf-usp"); if (ue) W.usp = ue.value.trim(); }
+  window.wizSaveClient = (on) => { W.saveClient = !!on; save(); };
+  window.wizUspPick = (i, j) => { const q = (W.uspQ || [])[i]; if (!q) return; W.uspQA = W.uspQA || []; const o = (q.options || [])[j]; const cur = (W.uspQA[i] || {}).a; W.uspQA[i] = { q: q.q, a: cur === o ? "" : o }; save(); renderWizard(); const el = document.querySelectorAll(".usp-q-item")[i]; if (el) el.scrollIntoView({ block: "nearest" }); };
+  window.wizUspType = (i, el) => { const q = (W.uspQ || [])[i]; if (!q) return; W.uspQA = W.uspQA || []; W.uspQA[i] = { q: q.q, a: el.value }; save(); };
+  window.wizUspReset = () => { W.uspQ = []; W.uspQA = []; W.uspDone = false; W.uspFor = ""; save(); wizQuick(); };
+  window.wizClientPick = (id) => { if (!id) { W.clientId = null; save(); return renderWizard(); } const c = (CLIENTS || []).find(x => String(x.id) === String(id)); if (!c) return;
+    const qa = (c.usp_qa || []).filter(x => x && x.a);
+    Object.assign(W, { clientId: c.id, about: c.about || "", product: c.product || "", targetText: c.target || "", usp: c.usp || "", uspQA: qa, uspQ: qa.map(x => ({ q: x.q, options: [], why: "" })), uspDone: qa.length > 0, sugg: null, profile: null, profileFor: "" });
+    W.uspFor = qa.length ? step1Key() : ""; save(); renderWizard(); toast(`'${c.name}' 내용을 불러왔어요`); };
+  window.wizQuick = async function (suggestOnly, answered, skipQ) {
+    readStep1();
+    if (!W.about) return toast("① 나는 어떤 사람인지 한 줄 적어주세요"); if (!W.product) return toast("② 주 상품·서비스를 적어주세요");
+    const key = step1Key();
+    if (W.uspFor && W.uspFor !== key) { W.uspQ = []; W.uspQA = []; W.uspDone = false; W.uspFor = ""; }      // 네 줄이 바뀌면 소구점 질문을 다시
+    const quickBody = (force) => ({ text: W.about, product: W.product, target: W.targetText || "", usp: W.usp || "", force: !!force });
+    if (suggestOnly || !W.targetText || !W.usp) {
+      showWait("타깃·소구점 후보를 찾는 중", 10, "적어주신 내용으로 AI가 후보를 만들고 있어요");
+      let r = null, qerr = ""; try { r = STATIC ? null : await post("/api/plan/quick", quickBody(true)); } catch (e) { qerr = e.message; }
+      hideWait();
+      if (!r || r.error || !((r.target_suggest || []).length + (r.usp_suggest || []).length)) return toast("AI 제안을 못 가져왔어요" + (qerr ? " — " + qerr : "") + ". 한 번만 더 눌러주세요");
+      W.sugg = { target: r.target_suggest || [], usp: r.usp_suggest || [] }; save(); renderWizard();
+      setTimeout(() => { const el = document.querySelector(".sugg"); if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); }, 60);
+      return toast(suggestOnly ? "파란 칸이 AI 제안이에요 — 눌러서 넣고 고쳐 쓰세요" : "③ 주 타깃과 ④ 소구점을 채워주세요 — 아래 AI 제안을 눌러도 돼요");
+    }
+    if ((W.uspQ || []).length && !W.uspDone && (answered || skipQ)) { if (skipQ) W.uspQA = []; W.uspDone = true; W.uspFor = key; }
+    if ((W.uspQ || []).length && !W.uspDone) { const el = document.getElementById("usp-q"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); return toast("아래 소구점 질문에 답하거나 '건너뛰고 진행'을 눌러주세요"); }
+    let pr = null;
+    if (!W.uspDone) {
+      showWait("소구점을 확인하는 중", 16, "이야기의 '전'에서 말할 소구점이 충분히 구체적인지 보고 있어요");
+      const [qr, pq] = await Promise.all([STATIC ? null : post("/api/plan/usp_questions", { about: W.about, product: W.product, target: W.targetText, usp: W.usp }).catch(() => null), STATIC ? null : post("/api/plan/quick", quickBody(false)).catch(() => null)]);
+      hideWait(); pr = pq; W.uspFor = key;
+      if (qr && (qr.questions || []).length) {
+        W.uspQ = qr.questions; W.uspWhy = qr.why || ""; W.uspQA = qr.questions.map(q => ({ q: q.q, a: "" })); W.uspDone = false; W.pendingProfile = pq; save(); renderWizard();
+        setTimeout(() => { const el = document.getElementById("usp-q"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }, 80);
+        return toast("소구점을 조금만 더 알려주세요 — 보기를 누르기만 하면 돼요");
+      }
+      W.uspQ = []; W.uspDone = true;
+    }
+    showWait("내 일에 맞는 릴스를 찾는 중", 8, "업종·검색어를 정리하고 있어요");
+    let r = pr || W.pendingProfile || null;
+    if (!r || r.error) { try { r = STATIC ? null : await post("/api/plan/quick", quickBody(false)); } catch (e) { r = null; } }
+    if (!r || r.error) r = { mode: "own", job: W.about, keywords: [W.product.split(/\s+/)[0] || W.about], product: W.product };
+    applyProfile(r); W.pendingProfile = null; W.profileFor = key; W.refsCache = []; W.topics = [];
+    if (W.saveClient !== false && !STATIC) {
+      try { const c = await post("/api/clients", { id: W.clientId || null, about: W.about, product: W.product, target: W.targetText, usp: W.usp, usp_qa: (W.uspQA || []).filter(x => x && x.a) }); if (c && c.id) { W.clientId = c.id; CLIENTS = null; } } catch (e) {}
+    }
+    hideWait(); save(); wizGo(2);
+  };
+  window.wizProfileEdit = () => { W.profEdit = !W.profEdit; renderWizard(); };
+  window.wizProfileSave = () => { const g = (id) => ($(id) || {}).value || ""; W.mode = g("#pf-mode") || W.mode; W.job = g("#pf-job"); W.extra.target_free = g("#pf-target"); const kw = g("#pf-kw").split(/[,#\s]+/).filter(Boolean); W.keyword = kw[0] || W.keyword; W.subs = kw.slice(1); W.selSubs = kw.slice(1); W.profEdit = false; W.refsCache = []; W.topics = []; save(); renderWizard(); };
+  const profileLine = () => `<div class="pf-line"><span class="muted">AI가 파악한 내용</span> <span class="tag">${esc(MODE_NAME[W.mode] || "")}</span> <span class="tag">${esc(W.job || "")}</span>${W.extra.target_free ? ` <span class="tag">${esc(W.extra.target_free)}</span>` : ""} ${[W.keyword, ...W.selSubs].filter(Boolean).map(k => `<span class="pill on tiny">#${esc(k)}</span>`).join(" ")} <a href="#" onclick="event.preventDefault();wizProfileEdit()">${W.profEdit ? "닫기" : "틀렸으면 고치기"}</a></div>
+    ${W.profEdit ? `<div class="mf-box" style="margin-top:6px"><div class="mf-row"><small>누구를 위한 기획</small><select id="pf-mode" class="chip">${MODES.map(m => `<option value="${m[0]}" ${W.mode === m[0] ? "selected" : ""}>${esc(m[2])} — ${esc(m[3])}</option>`).join("")}</select></div><div class="mf-row"><small>업종</small><input id="pf-job" class="wiz-input" style="padding:8px 12px;font-size:13px" value="${esc(W.job || "")}"></div><div class="mf-row"><small>보여줄 사람</small><input id="pf-target" class="wiz-input" style="padding:8px 12px;font-size:13px" value="${esc(W.extra.target_free || "")}"></div><div class="mf-row"><small>릴스 검색어 (쉼표로)</small><input id="pf-kw" class="wiz-input" style="padding:8px 12px;font-size:13px" value="${esc([W.keyword, ...W.selSubs].filter(Boolean).join(", "))}"></div><button class="btn small p" style="margin-top:8px" onclick="wizProfileSave()">이대로 다시 찾기</button></div>` : ""}`;
+  window.wizReset = (e) => { e.preventDefault(); if (!confirm("처음부터 다시 적을까요? 지금까지 적은 내용이 지워집니다.")) return; Object.assign(W, WIZ_BLANK()); save(); renderWizard(); };
 
   window.wizSubs = async function () {
     W.keyword = ($("#wiz-kw") || {}).value || W.keyword; if (!W.keyword) return toast("키워드를 적어주세요");
@@ -202,13 +252,13 @@
     const sel = W.refs;
     const cards = W.refsCache.map(x => refCard(x, sel.includes(x.id))).join("");
     if (W.mainRef && !sel.includes(W.mainRef)) W.mainRef = sel[0] || null; if (!W.mainRef && sel.length) W.mainRef = sel[0];
-    return `<h1>참고할 릴스를 골라주세요 <small class="muted">(최대 3개)</small></h1>${connectBox()}<p class="muted"><b>대본은 ★ 주 레퍼런스 1개의 형식·느낌·말투에 고정</b>하고, 나머지는 훅과 편집만 참고합니다. 처음 고른 릴스가 주 레퍼런스가 되고, 아래에서 바꿀 수 있어요. 세트(3~4편)도 같은 주 레퍼런스 구조로 주제만 다르게 만듭니다.</p>
-    <div class="pills small">${[W.keyword, ...W.selSubs].filter(Boolean).map(k => `<span class="pill on">#${esc(k)}</span>`).join("")}<button class="btn small" onclick="wizSearchRefs()">다시 찾기</button>${STATIC ? "" : `<button class="btn small" onclick="wizCrossRefs()" title="업종은 달라도 구조가 좋으면 대입해 봅니다">다른 업종에서 터진 구조 보기</button>`}</div>
-    <div class="wiz-sel">${sel.length ? `선택 ${sel.length}/3 · ` + sel.map(id => `<span class="pill on tiny ${W.mainRef === id ? "main" : ""}"><span onclick="wizMain(${id})" title="주 레퍼런스로 지정">${W.mainRef === id ? "★ 주 레퍼런스" : "☆ 주로"}</span> @${esc((W.refsCache.find(x => x.id === id) || {}).account || id)} <span onclick="wizPick(${id})">✕</span></span>`).join(" ") : "아직 고른 릴스가 없어요"}</div>
+    return `<h1>따라 하고 싶은 릴스를 하나 고르세요.</h1>${connectBox()}<p class="muted">이 릴스의 <b>구조·말투·길이를 그대로</b> 가져와서 내 이야기로 바꿔 드려요. 업종이 달라도 괜찮아요 — 구조가 좋으면 더 잘 터집니다.</p>
+    <div class="urlbox"><b>따라 하고 싶은 릴스 링크가 있나요?</b><span>인스타 릴스 주소를 붙여넣으면 그 영상을 뜯어서 바로 씁니다 (20~40초)</span><div class="row"><input id="wiz-url" class="wiz-input" placeholder="https://www.instagram.com/reel/..." value="${esc(W.urls || "")}" oninput="wizInput('urls', this)" onkeydown="if(event.key==='Enter')wizAddUrls()"><button class="btn p" onclick="wizAddUrls()">이 릴스로 하기</button></div><div id="wiz-url-msg" class="muted"></div></div>
+    <div class="wiz-sub" style="margin-top:18px">또는 아래에서 고르세요 <small class="muted">내 일에 맞춰 찾은 터진 릴스예요</small></div>${profileLine()}
+    <div class="row" style="gap:8px;flex-wrap:wrap;margin:8px 0"><button class="btn" onclick="wizSearchRefs()">다시 찾기</button>${STATIC ? "" : `<button class="btn" onclick="wizCrossRefs()" title="업종은 달라도 구조가 좋으면 대입해 봅니다">다른 업종에서 터진 구조 보기</button>`}</div>
+    <div class="wiz-sel">${sel.length ? (W.multi ? `선택 ${sel.length}/3 · ` : "고른 릴스 · ") + sel.map(id => `<span class="pill on tiny ${W.mainRef === id ? "main" : ""}"><span onclick="wizMain(${id})" title="주 레퍼런스로 지정">${W.mainRef === id ? "★ 주 레퍼런스" : "☆ 주로"}</span> @${esc((W.refsCache.find(x => x.id === id) || {}).account || id)} <span onclick="wizPick(${id})">✕</span></span>`).join(" ") : "아직 고른 릴스가 없어요"} <a href="#" style="font-size:12px;margin-left:8px" onclick="event.preventDefault();wizMulti()">${W.multi ? "하나만 고르기" : "편집 참고용으로 더 담기(선택, 최대 3개)"}</a></div>
     <div id="wiz-refs-note" class="muted" style="font-size:12px;margin:2px 0 8px">${W.refsCache.length ? (W.refsSource && W.refsSource !== "db" ? "AI 추천순 · 카드의 파란 글은 고른 이유" : "저장소 기본 순서 · AI가 곧 다시 정렬합니다") : ""}</div>
-    <div class="refgrid" id="wiz-refs">${cards || '<div class="muted" style="padding:30px;text-align:center" id="wiz-refs-msg">저장소에서 찾는 중… (1~2초)</div>'}</div>
-    <div class="panel soft" style="margin-top:14px"><b>🔗 링크로 직접 넣기</b> <small class="muted">인스타 릴스 링크를 한 줄에 하나씩 (남은 자리 ${3 - sel.length}개)</small>
-    <div class="row" style="margin-top:8px;align-items:flex-start"><textarea class="wiz-input" rows="2" placeholder="https://www.instagram.com/reel/..." oninput="wizInput('urls', this)">${esc(W.urls || "")}</textarea><button class="btn" onclick="wizAddUrls()">분석해서 담기</button></div><div id="wiz-url-msg" class="muted"></div></div>`;
+    <div class="refgrid" id="wiz-refs">${cards || '<div class="muted" style="padding:30px;text-align:center" id="wiz-refs-msg">저장소에서 찾는 중… (1~2초)</div>'}</div>`;
   }
   function refCard(x, on) {
     return `<div class="refcard ${on ? "on" : ""}" onclick="wizPick(${x.id})">
@@ -217,7 +267,10 @@
       <div class="rc-meta">▶ ${fmt(x.views)} · ❤ ${fmt(x.likes)} · ${esc((x.posted_at || "").slice(0, 10))}</div>
       <div class="rc-actions"><a class="btn small" href="${esc(x.url || "https://www.instagram.com/reel/")}" target="_blank" onclick="event.stopPropagation()">원본 ↗</a><button class="btn small" onclick="event.stopPropagation();openReel(${x.id})">자세히</button></div></div></div>`;
   }
-  window.wizPick = (id) => { const i = W.refs.indexOf(id); if (i >= 0) W.refs.splice(i, 1); else { if (W.refs.length >= 3) return toast("참고 릴스는 최대 3개예요"); W.refs.push(id); } if (!W.refs.includes(W.mainRef)) W.mainRef = W.refs[0] || null; W.topics = []; save(); renderWizard(); };
+  window.wizPick = (id) => { const i = W.refs.indexOf(id);
+    if (!W.multi) { W.refs = i >= 0 ? [] : [id]; W.mainRef = W.refs[0] || null; }
+    else { if (i >= 0) W.refs.splice(i, 1); else { if (W.refs.length >= 3) return toast("참고 릴스는 최대 3개예요"); W.refs.push(id); } if (!W.refs.includes(W.mainRef)) W.mainRef = W.refs[0] || null; }
+    W.topics = []; W.setTopics = []; W.extra.length = ""; save(); renderWizard(); };
   window.wizMain = (id) => { W.mainRef = id; W.topics = []; save(); renderWizard(); toast("이 릴스에 대본을 고정합니다"); };
   window.wizCrossRefs = async function () {
     const cnt = {}; W.refsCache.forEach(x => { if (x.industry) cnt[x.industry] = (cnt[x.industry] || 0) + 1; }); const mine = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 1).map(x => x[0]).join(",");
@@ -249,12 +302,12 @@
     wizSearchRefs();
   };
   window.wizAddUrls = async function () {
-    const urls = (W.urls || "").split(/\s+/).filter(u => /instagram\.com/.test(u)).slice(0, 3 - W.refs.length);
-    if (!urls.length) return toast("인스타 릴스 링크를 넣어주세요 (남은 자리 " + (3 - W.refs.length) + ")");
+    const urls = (W.urls || "").split(/\s+/).filter(u => /instagram\.com/.test(u)).slice(0, W.multi ? Math.max(1, 3 - W.refs.length) : 1);
+    if (!urls.length) return toast("인스타 릴스 링크를 붙여넣어 주세요");
     const m = $("#wiz-url-msg");
     for (let i = 0; i < urls.length; i++) {
       m.textContent = `분석 중 ${i + 1}/${urls.length} — 영상 받고, 컷·자막·대사·효과음 뽑는 중 (20~40초)`;
-      try { const r = await post("/api/analyze", { url: urls[i] }); if (r.error) throw new Error(r.error); if (r.id && !W.refs.includes(r.id)) W.refs.push(r.id); const full = await api("/api/items/" + r.id); W.refsCache.unshift({ ...full, frames: true, label: "직접 추가" }); }
+      try { const r = await post("/api/analyze", { url: urls[i] }); if (r.error) throw new Error(r.error); if (r.id) { if (!W.multi) W.refs = [r.id]; else if (!W.refs.includes(r.id)) W.refs.push(r.id); W.mainRef = W.multi ? (W.mainRef || r.id) : r.id; W.topics = []; W.setTopics = []; W.extra.length = ""; } const full = await api("/api/items/" + r.id); W.refsCache.unshift({ ...full, frames: true, label: "직접 추가" }); }
       catch (e) { toast("분석 실패: " + e.message); }
     }
     W.urls = ""; save(); renderWizard();
@@ -276,35 +329,42 @@
       } catch (e) { toast("분석 건너뜀: " + e.message); }
       i++;
     }
-    hideWait(); W.topics = []; save(); wizGo(6);
+    hideWait(); W.topics = []; save(); wizGo(3);
   };
   let TOPICS_LOADING = false;
   function renderTopicStep() {
     const t = W.topics || [];
     if (!t.length && !TOPICS_LOADING && W.refs.length && !STATIC) setTimeout(() => wizTopics(), 50);
-    const LEN = ["15", "30", "45", "60", "90"]; if (!W.extra.length) W.extra.length = "30";
-    if (!W.setN) W.setN = "3"; W.setTopics = W.setTopics || []; const N = Number(W.setN); const isSet = N > 1;
-    return `<h1>어떤 주제로 찍을까요?</h1>${connectBox()}
-    <div class="wiz-sub">영상 길이 <small class="muted">기승전결이 다 들어가는 기준으로 씬을 나눕니다</small></div>
-    <div class="pills">${LEN.map(l => pill(l + "초", String(W.extra.length) === l, `wizExtraSet('length','${l}')`)).join("")}</div>
-    <div class="wiz-sub">몇 편을 한 번에 찍을까요? <small class="muted">촬영 1회차 세트 — 전부 같은 주 레퍼런스 구조로, 주제만 다르게 만듭니다</small></div>
-    <div class="pills">${[["1", "1편만"], ["3", "3편 세트"], ["4", "4편 세트"]].map(([v, l]) => pill(l, String(W.setN) === v, `wizSetN('${v}')`)).join("")}</div>
-    ${isSet ? `<div class="set-picked"><b>고른 주제 ${W.setTopics.length}/${N}</b>${W.setTopics.map((t, i) => `<span class="pill on tiny">${i + 1}. ${esc(t)} <span onclick="wizTopicDrop(${i})">✕</span></span>`).join("")}<div class="row" style="margin-top:6px;gap:6px"><input id="wiz-topic-add" class="wiz-input" style="padding:8px 12px;font-size:13px" placeholder="주제 직접 추가 (Enter)" onkeydown="if(event.key==='Enter'){wizTopicAdd(this.value);this.value=''}"><input class="wiz-input" style="padding:8px 12px;font-size:13px;max-width:220px" placeholder="세트 공통 댓글 키워드 (예: 교정)" value="${esc(W.extra.set_cta_keyword || "")}" oninput="wizExtra('set_cta_keyword', this)"></div></div>` : ""}<p class="muted">고른 참고 릴스의 구조에서 뽑은 주제예요. 하나 고르거나 직접 적어주세요. 주제는 전부 주 레퍼런스의 형식에 그대로 끼워 넣을 수 있게 나옵니다. 첫 문장(훅)은 콕 집기·이득·손해 3개로 뽑아요.</p>
-    <div class="row" style="margin-bottom:10px;flex-wrap:wrap;gap:6px"><input id="wiz-dir" class="wiz-input" style="flex:1;min-width:220px;padding:8px 12px;font-size:13px" placeholder="원하는 방향이 있으면 (예: 실패담 위주 / 손님 반응 / 가격 얘기는 빼고)" value="${esc(W.direction || "")}" oninput="wizInput('direction', this)"><button class="btn" onclick="wizTopics()">${t.length ? "이 방향으로 다시 뽑기" : "추천 주제 뽑기"}</button>${t.length ? `<button class="btn" onclick="wizTopics(true)">+ 다른 주제 8개 더</button>` : ""}<span id="wiz-topic-msg" class="muted" style="width:100%">${!t.length && !STATIC ? "준희 님 노하우(훅 공식·타깃 문제)를 적용해 주제 뽑는 중… (20~30초)" : STATIC ? "체험판에서는 주제 추천이 안 돼요. 직접 적어주세요." : ""}</span></div>
-    <div class="topics">${t.map((x, i) => `<div class="topic ${(isSet ? W.setTopics.includes(x.title) : W.topic === x.title) ? "on" : ""}" onclick="wizTopicPick(${i})"><b>${esc(x.title)}</b>${x.why ? `<div class="topic-why">${esc(x.why)}</div>` : ""}<div class="muted">${x.source && /터진/.test(x.source) ? `<span class="tag ok">${esc(x.source)}</span> ` : x.source ? `<span class="tag">${esc(x.source)}</span> ` : ""}${x.angle ? `<span class="tag">${esc(x.angle)}</span> ` : ""}${x.hook_type ? `<span class="tag">${esc(x.hook_type)}</span> ` : ""}${esc(x.from || "")}</div></div>`).join("")}</div>
-    ${isSet ? "" : `<label class="wiz-label">직접 적기 (비워두면 AI가 레퍼런스 구조에서 정합니다)</label><input class="wiz-input" placeholder="예: 조회수 800 나오던 카페 릴스, 첫 문장 바꿨더니 11만" value="${t.find(x => x.title === W.topic) ? "" : esc(W.topic)}" oninput="wizInput('topic', this)">`}
-    <div class="wiz-sub">편집은 어떻게? <small class="muted">고른 대로 캡컷 편집표·편집 외주서에 반영</small></div>
-    <div class="prefs">
-      <div><small>자막 스타일</small><div class="pills small">${["레퍼런스대로", "굵은 고딕+외곽선", "노란 강조 단어", "검정 박스 자막", "타자기 애니", "자막 최소"].map(v => pill(v, (W.prefs || {}).caption_style === v, `wizPref('caption_style','${v}')`)).join("")}</div></div>
-      <div><small>효과음</small><div class="pills small">${["레퍼런스대로", "많이", "포인트만", "없음"].map(v => pill(v, (W.prefs || {}).sfx === v, `wizPref('sfx','${v}')`)).join("")}</div></div>
-      <div><small>속도</small><div class="pills small">${["레퍼런스대로", "빠르게(1~2초 컷)", "보통", "차분하게"].map(v => pill(v, (W.prefs || {}).pace === v, `wizPref('pace','${v}')`)).join("")}</div></div>
-      <div><small>편집은 어느 레퍼런스를 따라갈까</small><div class="pills small">${[["가장 잘 맞는 것", "auto"], ...W.refs.map((id, i) => ["레퍼런스 " + (i + 1) + " @" + ((W.refsCache.find(x => x.id === id) || {}).account || id), String(i + 1)])].map(([l, v]) => pill(l, (W.prefs || {}).follow_ref === v, `wizPref('follow_ref','${v}')`)).join("")}</div></div>
-      <input class="wiz-input" style="padding:8px 12px;font-size:13px" placeholder="편집에서 꼭 넣고 싶은 것 / 빼고 싶은 것 (예: 줌인 많이, 이모지 자막 금지)" value="${esc((W.prefs || {}).memo || "")}" oninput="W.prefs=W.prefs||{};W.prefs.memo=this.value;save()">
-    </div>
-    <div class="row" style="margin:6px 0 10px;gap:8px;align-items:center"><span class="muted" style="font-size:12px">생성 모드</span>${pill("빠름 (1~2분)", W.speed === "fast", "wizSet('speed','fast')")}${pill("정밀 (3~4분)", W.speed !== "fast", "wizSet('speed','precise')")}</div>
-    <div class="wiz-summary"><b>정리</b> <span class="tag">${esc(MODE_NAME[W.mode] || "")}</span> ${esc(W.job)}${Object.values(W.extra.mf || {}).filter(Boolean).length ? " · " + esc(Object.values(W.extra.mf || {}).filter(Boolean).join(" / ")) : ""} → ${esc(W.target.join(", "))}${W.extra.target_free ? " · " + esc(W.extra.target_free) : ""} · #${esc(W.keyword)} ${W.selSubs.map(k => "#" + esc(k)).join(" ")} · 참고 릴스 ${W.refs.length}개 · ${esc(W.extra.length || 30)}초</div>`;
+    const LEN = ["15", "30", "45", "60", "90"]; const mr = W.refsCache.find(x => x.id === W.mainRef) || {};
+    if (!W.extra.length) { const d = Number(mr.duration || 0); const near = d ? LEN.reduce((a, b) => Math.abs(Number(b) - d) < Math.abs(Number(a) - d) ? b : a) : "30"; W.extra.length = Number(near) < 30 ? "30" : near; }   // 기본은 30초 이상(15초는 너무 짧다는 피드백)
+    if (!W.setN) W.setN = "3"; W.setTopics = W.setTopics || []; const N = Number(W.setN); const isSet = N > 1; const ch = W.extra.ch || {};
+    const moreOpen = W.moreOpen ? "open" : "";
+    return `<h1>어떤 주제로 찍을까요?</h1>${connectBox()}<p class="muted">@${esc(mr.account || "고른 릴스")}의 구조에 그대로 끼워 넣을 수 있는 주제만 뽑았어요. 고르기 어렵다면 <b>알아서 골라줘</b>를 누르세요.</p>
+    <div class="setn-row"><b>몇 편 만들까요?</b><div class="setn">${["1", "2", "3", "4"].map(v => `<button class="${String(W.setN) === v ? "on" : ""}" onclick="wizSetN('${v}')">${v}편</button>`).join("")}</div>${t.length ? `<button class="btn p" onclick="wizAutoPick()">알아서 골라줘</button>` : ""}<span class="muted">${isSet ? "촬영 한 번에 같은 구조로 여러 편 — 주제만 다르게 만들어요" : "한 편만 만들어요"}</span></div>
+    ${isSet ? `<div class="set-picked"><b>고른 주제 ${W.setTopics.length}/${N}</b>${W.setTopics.map((x, i) => `<span class="pill on tiny">${i + 1}. ${esc(x)} <span onclick="wizTopicDrop(${i})">✕</span></span>`).join("")}${W.setTopics.length ? "" : '<span class="muted" style="font-size:12px">아래에서 눌러 담으세요</span>'}</div>` : ""}
+    <div class="topics">${t.map((x, i) => `<div class="topic ${(isSet ? W.setTopics.includes(x.title) : W.topic === x.title) ? "on" : ""}" onclick="wizTopicPick(${i})"><b>${esc(x.title)}</b>${x.why ? `<div class="topic-why">${esc(x.why)}</div>` : ""}<div class="muted">${x.source && /터진/.test(x.source) ? `<span class="tag ok">${esc(x.source)}</span> ` : ""}${x.angle ? `<span class="tag">${esc(x.angle)}</span> ` : ""}</div></div>`).join("")}</div>
+    <span id="wiz-topic-msg" class="muted" style="display:block;margin:4px 0 8px">${!t.length && !STATIC ? "릴스 구조에 맞는 주제를 뽑는 중… (20~30초)" : STATIC ? "체험판에서는 주제 추천이 안 돼요. 아래 '더 자세한 내용 추가하기'에서 직접 적어주세요." : ""}</span>
+    ${t.length ? `<div class="row" style="gap:6px;margin-bottom:6px"><button class="btn small" onclick="wizTopics(true)">다른 주제 8개 더</button></div>` : ""}
+    <details class="wiz-more tune" ${moreOpen} ontoggle="wizMore(this.open)"><summary><b>더 자세한 내용 추가하기</b><span>주제 직접 적기 · 영상 길이 · 출연자 캐릭터 · 영상 끝에서 보낼 곳 · 내가 겪은 일 — 비워두면 고른 릴스를 그대로 따릅니다</span><i>열기</i></summary>
+      <div class="mf-row"><small>주제 직접 적기${isSet ? " (Enter로 세트에 추가)" : ""}</small>${isSet ? `<input id="wiz-topic-add" class="wiz-input" style="padding:8px 12px;font-size:13px" placeholder="예: 3개월 하고 그만두는 회원 이야기" onkeydown="if(event.key==='Enter'){wizTopicAdd(this.value);this.value=''}">` : `<input class="wiz-input" style="padding:8px 12px;font-size:13px" placeholder="예: 조회수 800 나오던 카페 릴스, 첫 문장 바꿨더니 11만" value="${t.find(x => x.title === W.topic) ? "" : esc(W.topic)}" oninput="wizInput('topic', this)">`}</div>
+      <div class="mf-row"><small>원하는 방향</small><div class="row" style="gap:6px"><input id="wiz-dir" class="wiz-input" style="flex:1;padding:8px 12px;font-size:13px" placeholder="예: 실패담 위주 / 손님 반응 / 가격 얘기는 빼고" value="${esc(W.direction || "")}" oninput="wizInput('direction', this)"><button class="btn small" onclick="wizTopics()">이 방향으로 다시 뽑기</button></div></div>
+      <div class="mf-row"><small>영상 길이 (기본: 30초, 고른 릴스가 더 길면 그 길이)</small><div class="pills small">${LEN.map(l => pill(l + "초", String(W.extra.length) === l, `wizExtraSet('length','${l}')`)).join("")}</div></div>
+      <div class="mf-row"><small>출연자 캐릭터 (기본: 릴스 말투 그대로)</small><div class="pills small">${CHARS.map(([n]) => pill(n, ch.preset === n, `wizCh('preset','${n}')`)).join("")}</div><div class="pills small" style="margin-top:4px">${["존댓말", "반말"].map(v => pill(v, ch.speech === v, `wizCh('speech','${v}')`)).join("")}</div></div>
+      <div class="mf-row"><small>영상 끝에서 보낼 곳 (기본: 댓글 남기면 자료 전송)</small><div class="pills small">${FUNNELS.map(v => pill(v, W.extra.funnel === v, `wizExtraSet('funnel','${esc(v)}')`)).join("")}</div></div>
+      <div class="mf-row"><small>내가 실제로 겪은 일 · 쓸 수 있는 숫자 (있으면 지어낸 말이 줄어요)</small><input class="wiz-input" style="padding:8px 12px;font-size:13px" placeholder="예: 목 아프다고 온 회원인데 골반이 틀어져 있었다 / 8년차" value="${esc(W.extra.scene || "")}" oninput="wizExtra('scene', this)"></div>
+      ${isSet ? `<div class="mf-row"><small>세트 공통 댓글 키워드</small><input class="wiz-input" style="padding:8px 12px;font-size:13px;max-width:240px" placeholder="예: 교정" value="${esc(W.extra.set_cta_keyword || "")}" oninput="wizExtra('set_cta_keyword', this)"></div>` : ""}
+      <div class="mf-row"><small>만드는 속도</small><div class="pills small">${pill("빠름 (기본)", W.speed !== "precise", "wizSet('speed','fast')")}${pill("정밀 (더 오래 걸려요)", W.speed === "precise", "wizSet('speed','precise')")}</div></div>
+    </details>
+    <div class="wiz-summary"><b>정리</b> ${esc(W.about || W.job)} · 따라 할 릴스 @${esc(mr.account || "-")}${mr.views ? " ▶ " + fmt(mr.views) : ""} · ${esc(W.extra.length || 30)}초 · ${isSet ? `${W.setTopics.length}편 세트` : "1편"}</div>`;
   }
-  const brief = () => ({ main_ref: Math.max(1, W.refs.indexOf(W.mainRef) + 1), character: W.extra.ch || {}, funnel: W.extra.funnel || "", product: W.extra.product || ((W.extra.mf || {}).product) || "", set_cta_keyword: W.extra.set_cta_keyword || "", mode: W.mode || "own", mode_fields: Object.fromEntries(Object.entries(W.extra.mf || {}).filter(([k, v]) => v)), edit_prefs: Object.fromEntries(Object.entries(W.prefs || {}).filter(([k, v]) => v && v !== "레퍼런스대로" && v !== "auto")), job: W.job, target: [...W.target, W.extra.target_free].filter(Boolean).join(", "), keyword: [W.keyword, ...W.selSubs].filter(Boolean).join(", "), topic: W.topic, length: W.extra.length || 30, tone: W.extra.tone, scene: W.extra.scene, numbers: W.extra.numbers, cta: W.extra.cta, shooting: W.extra.shooting });
+  window.wizMore = (open) => { if (W.moreOpen === open) return; W.moreOpen = open; save(); };
+  window.wizMulti = () => { W.multi = !W.multi; if (!W.multi && W.refs.length > 1) { W.refs = [W.mainRef || W.refs[0]]; } save(); renderWizard(); };
+  window.wizAutoPick = async () => { let t = W.topics || []; if (!t.length) return toast("주제를 뽑는 중이에요"); const N = Math.max(1, Number(W.setN || 3));
+    W.autoOff = (W.autoOff == null) ? 0 : W.autoOff + N;
+    if (W.autoOff + N > t.length) { if (t.length < 24 && !STATIC) { toast("새 주제를 더 뽑아서 골라드릴게요"); await wizTopics(true); t = W.topics || []; } if (W.autoOff + N > t.length) W.autoOff = 0; }
+    const pick = t.slice(W.autoOff, W.autoOff + N).map(x => x.title);
+    if (N > 1) W.setTopics = pick; else W.topic = pick[0]; save(); renderWizard(); toast(N > 1 ? `${N}편을 골랐어요 — 한 번 더 누르면 다른 조합이 나와요` : "주제를 골랐어요 — 한 번 더 누르면 다른 주제가 나와요"); };
+  const brief = () => ({ about: W.about || "", usp: W.usp || "", usp_qa: (W.uspQA || []).filter(x => x && x.a), client_id: W.clientId || null, main_ref: Math.max(1, W.refs.indexOf(W.mainRef) + 1), character: W.extra.ch || {}, funnel: W.extra.funnel || "", product: W.product || W.extra.product || ((W.extra.mf || {}).product) || "", set_cta_keyword: W.extra.set_cta_keyword || "", mode: W.mode || "own", mode_fields: Object.fromEntries(Object.entries(W.extra.mf || {}).filter(([k, v]) => v)), edit_prefs: Object.fromEntries(Object.entries(W.prefs || {}).filter(([k, v]) => v && v !== "레퍼런스대로" && v !== "auto")), job: W.job, target: [...W.target, W.extra.target_free].filter(Boolean).join(", "), keyword: [W.keyword, ...W.selSubs].filter(Boolean).join(", "), topic: W.topic, length: W.extra.length || 30, tone: W.extra.tone, scene: W.extra.scene, numbers: W.extra.numbers, cta: W.extra.cta, shooting: W.extra.shooting });
   window.wizSetN = (v) => { W.setN = v; if (Number(v) <= 1) W.setTopics = []; else W.setTopics = (W.setTopics || []).slice(0, Number(v)); save(); renderWizard(); };
   window.wizTopicPick = (i) => { const x = (W.topics || [])[i]; if (!x) return; if (Number(W.setN || 3) > 1) { const a = W.setTopics = W.setTopics || []; const k = a.indexOf(x.title); if (k >= 0) a.splice(k, 1); else { if (a.length >= Number(W.setN)) return toast(`세트는 ${W.setN}편까지예요`); a.push(x.title); } } else W.topic = x.title; save(); renderWizard(); };
   window.wizTopicAdd = (v) => { v = (v || "").trim(); if (!v) return; const a = W.setTopics = W.setTopics || []; if (a.length >= Number(W.setN || 3)) return toast(`세트는 ${W.setN}편까지예요`); if (!a.includes(v)) a.push(v); save(); renderWizard(); };
@@ -315,7 +375,7 @@
     const b = $("#wiz-make"); if (b) b.disabled = true;
     for (const id of W.refs) { const c = W.refsCache.find(x => x.id === id); if (c && c.frames) continue;
       try { const it = await api("/api/items/" + id); if (it.frames) continue; showWait("참고 릴스 뜯는 중", 35, `@${it.account} 영상을 받아 컷·자막·대사를 뽑는 중`); await post("/api/analyze", { url: it.url }); hideWait(); } catch (e) { hideWait(); toast("분석 건너뜀: " + e.message); } }
-    try { const r = await post("/api/plan/set", { ids: W.refs, brief: brief(), topics, mode: W.speed === "fast" ? "fast" : "precise" }); if (r.error) throw new Error(r.error);
+    try { const r = await post("/api/plan/set", { ids: W.refs, brief: brief(), topics, mode: W.speed === "precise" ? "precise" : "fast" }); if (r.error) throw new Error(r.error);
       W.topic = ""; W.topics = []; W.setTopics = []; W.step = 1; save(); location.hash = "#/plan/set/" + r.id; }
     catch (e) { toast("실패: " + e.message); if (b) b.disabled = false; }
   };
@@ -340,7 +400,7 @@
       try { const it = await api("/api/items/" + id); if (it.frames) continue; showWait("참고 릴스 뜯는 중", 35, `@${it.account} 영상을 받아 컷·자막·대사를 뽑는 중`); await post("/api/analyze", { url: it.url }); hideWait(); }
       catch (e) { hideWait(); toast("분석 건너뜀: " + e.message); }
     }
-    const fast = W.speed === "fast"; const expect = fast ? 150 : 240;
+    const fast = W.speed !== "precise"; const expect = fast ? 100 : 200;
     showWait("기획안 만드는 중", expect, "레퍼런스 프레임을 한 장씩 보면서 씬표를 쓰고 있어요");
     try {
       const r = await post("/api/plan", { ids: W.refs, brief: brief(), mode: fast ? "fast" : "precise" });
@@ -376,23 +436,51 @@
       catch (e) { clearInterval(EXTRA_T); }
     }, 4000);
   }
+  const TABS = [["easy", "쉬운 기획안", "사장님·PD가 보는 기획안", 1], ["plan", "상세 기획안", "장면별 구도·조명·편집", 0], ["shoot", "촬영 외주용", "촬영하는 사람에게", 2], ["pro", "편집 외주용", "편집하는 사람에게", 3], ["refs", "레퍼런스 뜯어보기", "따라 한 릴스 컷별 분석", 0]];
+  const secTxt = (v) => String(v == null ? "" : v).replace(/\.0(?=\D|$)/g, "").replace(/\s*[-~–]\s*/, "–");   // '11.0-13.0' → '11–13'
+  const cLine = (label, html) => html ? `<div class="c-line"><i>${label}</i><span>${html}</span></div>` : "";
+  const kvGrid = (rows, wide) => { const r = rows.filter(x => x[1]); let h = r.map(([k, v], i) => `<div class="k">${k}</div><div class="v${i === r.length - 1 && i % 2 === 0 ? " wide" : ""}">${v}</div>`).join("");
+    (wide || []).filter(x => x[1]).forEach(([k, v]) => { h += `<div class="k">${k}</div><div class="v wide">${v}</div>`; }); return h ? `<div class="pv-kvg">${h}</div>` : ""; };
+  const PARTROLE2 = { 기: "비주얼 후킹", 승: "문제 제기", 전: "해결", 결: "정보·CTA" };
+  const STAGES7 = ["후킹", "상식 깨기", "근거", "진정성", "정보", "정리", "마지막 한 마디"];
+  const noNum = (x) => String(x == null ? "" : x).replace(/^\s*(?:\d+[).]|[①-⑳])\s*/, "");
+  const liList = (arr) => (arr || []).filter(Boolean).map(x => `<li>${phHtml(noNum(x))}</li>`).join("");
+  const partOf = (x) => (x && x.part === "훅") ? "기" : ((x && x.part) || "");
+  const breathLines = (say) => String(say || "").replace(/([.?!])\s+/g, "$1\n").split(/\n+/).map(x => x.trim()).filter(Boolean);
+  const kvRows = (rows) => rows.filter(r => r[1]).map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("");
+  function heroInfo(plan, p) {
+    const B = plan.B_plan || {}; const S = plan.summary || {}; const sc = B.scenes || []; const mr = (p.refs || [])[(plan.main_ref || 1) - 1];
+    const cells = [["형식", esc(plan.format || "")], ["길이", plan.length_sec ? `${esc(plan.length_sec)}초 · ${sc.length}장면` : ""], ["컷 비율", esc(S.cut_ratio || "")], ["마무리", esc(plan.ending_type || "")],
+      ["따라 한 릴스", mr ? `@${esc(mr.account || "")}${mr.views ? ` <small>▶ ${fmt(mr.views)}</small>` : ""}` : ""], ["썸네일 문구", phHtml(String(plan.thumbnail_text || "").replace(/\n+/g, " / "))]];
+    return cells.filter(c => c[1]).map(([k, v]) => `<div class="pv-cell"><span>${k}</span><b>${v}</b></div>`).join("");
+  }
+  window.copyScript = () => { const sc = ((CUR.plan || {}).B_plan || {}).scenes || []; const t = sc.map(x => breathLines(x.say).join("\n")).join("\n").replace(/\[확인\s*필요[:：]?\s*([^\]]*)\]/g, "$1");
+    navigator.clipboard.writeText(t).then(() => toast("대본을 복사했어요")).catch(() => toast("복사하지 못했어요")); };
   function renderPlan2(p) {
     CUR = p;
     const hasBrief = !!(((p.plan || {}).pro || {}).edit_brief); const anySketch = ((((p.plan || {}).B_plan || {}).scenes) || []).some(s => s.sketch);
     const extrasPending = p.plan && (!hasBrief || !anySketch) && p.status === "done" && (p.engine === "cli" || p.engine === "api");
     if (extrasPending) watchExtras(p.id); else clearInterval(EXTRA_T);
-    const plan = p.plan || null; const refs = p.refs || []; const done = !!plan;
+    const plan = p.plan || null; const done = !!plan;
     const title = plan ? plan.title : ((p.brief || {}).topic || ((p.brief || {}).keyword || "기획 준비").split(",")[0]);
-    const tabs = [["easy", "쉬운 기획안"], ["plan", "상세 기획안"], ["refs", "레퍼런스 뜯어보기"], ["pro", "편집 외주용"]];
+    if (!TABS.some(t => t[0] === TAB)) TAB = "easy";
     let body = "";
     if (TAB === "refs") body = renderRefsTab(p);
     else if (TAB === "easy") body = done ? renderEasyTab(plan, p) : promptBox(p);
     else if (TAB === "pro") body = done ? renderProTab(plan, p) : promptBox(p);
+    else if (TAB === "shoot") body = done ? renderShootTab(plan, p) : promptBox(p);
     else body = done ? renderPlanTab(plan, p) : promptBox(p);
-    $("#main").innerHTML = `<div class="plan-hero"><a class="btn ghost" href="#/plan">← 기획</a><div class="ph-title"><span class="ph-kicker">${done ? "내 릴스 기획안" : "프롬프트 패키지"} · ${esc(p.created_at || "")}</span><h1>${phHtml(title)}</h1>${plan && plan.one_line ? `<p>${esc(plan.one_line)}</p>` : ""}${plan && plan.thumbnail_text ? `<div class="ph-thumbtext">썸네일 문구 <b>${esc(plan.thumbnail_text)}</b></div>` : ""}</div>
-      <div class="ph-actions"><a class="btn" href="/api/plans/${esc(p.id)}.csv">엑셀</a><button class="btn" onclick="navigator.clipboard.writeText(planJson());toast('복사됨')">JSON</button>${plan ? `<button class="btn" onclick="reSketch('${esc(p.id)}')" title="모든 씬 구도 스케치 생성 (씬당 3~5초)">스케치</button>` : ""}<button class="btn d" onclick="planDelete('${esc(p.id)}')">삭제</button></div></div>
-      ${extrasPending ? `<div class="panel warn" style="margin:0 0 10px;padding:8px 14px;font-size:13px">기획안은 완성됐어요. 씬 스케치와 편집 외주서는 뒤에서 만드는 중 (1~2분) — 끝나면 자동으로 채워집니다.</div>` : ""}
-      <div class="tabs">${tabs.map(([k, v]) => `<button class="tab ${TAB === k ? "on" : ""}" onclick="planTab('${k}')">${v}</button>`).join("")}</div>${body}`;
+    $("#main").innerHTML = `<div class="pv">
+      <header class="pv-hero">
+        <div class="pv-top"><a class="pv-btn" href="#/plan">← 기획 목록</a><span class="pv-date">${done ? "내 릴스 기획안" : "프롬프트 패키지"} · ${esc(p.created_at || "")}</span>
+          <div class="pv-tools"><a class="pv-btn" href="/api/plans/${esc(p.id)}.csv">엑셀</a><button class="pv-btn" onclick="navigator.clipboard.writeText(planJson());toast('복사됨')">JSON</button>${plan ? `<button class="pv-btn" onclick="reSketch('${esc(p.id)}')">스케치</button>` : ""}<button class="pv-btn danger" onclick="planDelete('${esc(p.id)}')">삭제</button></div></div>
+        <h1 class="pv-title">${phHtml(title)}</h1>${plan && plan.one_line ? `<p class="pv-one">${phHtml(plan.one_line)}</p>` : ""}
+        ${plan ? `<div class="pv-info">${heroInfo(plan, p)}</div>
+        <div class="pv-actions"><button class="pv-btn primary" onclick="sharePlan('${esc(p.id)}')">사장님께 보내기</button><button class="pv-btn" onclick="copyScript()">대본 복사</button><button class="pv-btn" onclick="openPrompter()">크게 보기(프롬프터)</button></div>` : ""}
+      </header>
+      ${extrasPending ? `<div class="pv-note">기획안은 완성됐어요. 장면 스케치와 편집 외주서는 뒤에서 만드는 중이에요(1~2분). 끝나면 자동으로 채워집니다.</div>` : ""}
+      <nav class="pv-tabs">${TABS.map(([k, v, d, n]) => `<button class="${TAB === k ? "on" : ""}" onclick="planTab('${k}')"><b>${n ? `<i class="pv-no">${n}</i>` : ""}${v}</b><span>${d}</span></button>`).join("")}</nav>
+      <div class="pv-body">${body}</div></div>`;
   }
   window.sharePlan = async (pid) => { try { const r = await post("/api/plans/" + pid + "/share", {}); if (r.error) throw new Error(r.error); const url = location.origin + location.pathname + "#/share/" + r.token; await navigator.clipboard.writeText(url).catch(() => {}); toast("사장님용 링크를 복사했어요 — 카톡에 붙여넣으세요 (로그인한 사람만 열 수 있어요)"); prompt("사장님께 보낼 링크 (복사됨)", url); } catch (e) { toast("실패: " + e.message); } };
   window.planDelete = async (id) => { if (!confirm("이 기획안을 지울까요?")) return; await post("/api/plans/" + id + "/delete", {}); location.hash = "#/plan"; };
@@ -492,7 +580,6 @@
   window.ppZoom = (d) => { const b = $("#pp-body"); const cur = parseInt(b.style.fontSize) || 30; b.style.fontSize = Math.max(18, Math.min(60, cur + d)) + "px"; };
   // ---------------- 쉬운 기획안(기본 화면) — 9/17 개편: 요약 → 훅 3개 → 대본 통째(호흡 줄바꿈 + 옆에 기승전결·붙잡는 장치) → 장면 → 촬영 준비 → 올릴 때 → 주의사항 → 모드 체크 → 레퍼런스(맨 뒤)
   const PARTROLE = { 기: "비주얼 후킹", 승: "자막·문제 제기", 전: "해결 방법", 결: "정보 제공·CTA" };
-  const breathLines = (say) => String(say || "").replace(/([.?!])\s+/g, "$1\n").split(/\n+/).map(x => x.trim()).filter(Boolean);
   function thumbBlockHtml(plan, p) {
     const thumbLines = String(plan.thumbnail_text || "").split(/\n/).filter(Boolean); const cands = (plan.thumb_candidates || []).filter(Boolean);
     return `<div class="thumb-block"><div class="thumb-mock"><div class="tm-text">${thumbLines.length ? thumbLines.map(l => `<span>${tmLine(l)}</span>`).join("") : '<span class="muted">문구 없음</span>'}</div><div class="tm-cap">썸네일 미리보기</div></div>
@@ -500,92 +587,150 @@
         <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn small" onclick="saveThumb('${esc(p.id)}')">저장</button><button class="btn small" onclick="thumbFromHook('${esc(p.id)}')">고른 훅에서 가져오기</button><button class="btn small" onclick="genThumbs('${esc(p.id)}')">AI로 후보 3개 뽑기</button></div>
         ${cands.length ? `<div class="thumb-cands">${cands.map(c => `<button class="tcand" onclick="pickThumb('${esc(p.id)}', ${JSON.stringify(c).replace(/"/g, "&quot;")})">${esc(c).replace(/\n/g, " / ")}</button>`).join("")}</div>` : ""}</div></div>`;
   }
+  const EZ = [["sum", "요약 · 첫 문장"], ["script", "대본"], ["prep", "촬영 · 올리기"], ["check", "검수 · 레퍼런스"]];
+  let EZSEC = (() => { try { const v = localStorage.getItem("ezsec2"); return EZ.some(x => x[0] === v) ? v : "sum"; } catch (e) { return "sum"; } })();
+  window.ezSec = (k) => { EZSEC = k; try { localStorage.setItem("ezsec2", k); } catch (e) {} renderPlan2(CUR); const el = document.querySelector(".pv-tabs"); if (el && el.getBoundingClientRect().top < 0) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 12 }); };
   function renderEasyTab(plan, p) {
-    const B = plan.B_plan || {}; const hooks = B.hooks || []; const rec = B.recommended_hook || 1; const scenesAll = B.scenes || []; const h = hooks[rec - 1] || {};
-    const S = plan.summary || {}; const F3 = S.first3 || {}; const PP = plan.prep_pack || {}; const C = plan.cautions || {}; const groups = phGroups(plan);
-    const partsMeta = Object.fromEntries((plan.parts || []).map(x => [x.part, x])); const mainRef = (p.refs || [])[(plan.main_ref || 1) - 1];
-    const core = S.core_message || plan.one_line || ""; const s0 = scenesAll[0] || {};
-    const f3 = [["말", F3.say || h.line || s0.say], ["화면", F3.screen || h.first_screen || s0.screen], ["자막", F3.caption || h.top_caption || h.first_caption || s0.caption]];
-    const cta = S.cta || (B.cta || {}).say || ""; const inserts = (S.must_inserts || []).length ? S.must_inserts : (B.shot_list || []).slice(0, 4); const melted = S.melted_points || [];
-    const script = scenesAll.map(x => x.say || "").join(" ");
-    const blocks = []; scenesAll.forEach(sc => { const k = sc.part === "훅" ? "기" : (sc.part || ""); const last = blocks[blocks.length - 1]; if (last && last.part === k) last.scenes.push(sc); else blocks.push({ part: k, scenes: [sc] }); });
-    const scriptHtml = blocks.map(bk => { const m = partsMeta[bk.part] || {};
-      return `<div class="sx-row part-${esc(bk.part)}"><div class="sx-side"><b>${esc(bk.part)}</b><span>${esc(m.role || PARTROLE[bk.part] || "")}</span>${m.device ? `<em title="${esc(m.how || "")}">${esc(m.device)}</em>` : ""}</div><div class="sx-lines">${bk.scenes.map(sc => breathLines(sc.say).map(l => `<p>${phHtml(l)}</p>`).join("")).join("")}</div></div>`; }).join("");
+    const fn = { sum: ezSummary, script: ezScript, prep: ezPrep, check: ezCheck }[EZSEC] || ezSummary;
+    return `<div class="pv-ez"><nav class="pv-side">${EZ.map(([k, l]) => `<button class="${EZSEC === k ? "on" : ""}" onclick="ezSec('${k}')">${l}</button>`).join("")}</nav><div class="pv-main">${fn(plan, p)}</div></div>`;
+  }
+  function ezSummary(plan, p) {
+    const B = plan.B_plan || {}; const hooks = B.hooks || []; const rec = Math.max(1, Number(B.recommended_hook || 1)); const h = hooks[rec - 1] || {}; const sc = B.scenes || []; const s0 = sc[0] || {}; const S = plan.summary || {}; const brief = p.brief || {};
+    const f3 = [["말", h.line || s0.say], ["화면", h.first_screen || s0.screen], ["자막", h.top_caption || h.first_caption || s0.caption]].filter(x => x[1]);
+    const core = S.core_message || plan.one_line || "";
+    const sumRows = kvRows([["핵심 메시지", core ? `<div class="pv-lead">${phHtml(core)}</div>` : ""], ["핵심 소구점", (S.key_usp || brief.usp) ? `<b>${phHtml(S.key_usp || brief.usp)}</b>` : ""],
+      ["첫 3초", f3.length ? `<dl class="pv-dl">${f3.map(([k, v]) => `<dt>${k}</dt><dd>${phHtml(v)}</dd>`).join("")}</dl>` : ""], ["CTA", phHtml(S.cta || (B.cta || {}).say || "")],
+      ["필수 인서트", (S.must_inserts || []).length ? `<ol>${liList(S.must_inserts)}</ol>` : ""], ["녹인 포인트", (S.melted_points || []).length ? `<ol>${liList(S.melted_points)}</ol>` : ""]]);
+    const HR = [["첫 문장", x => x.line, x => `<div class="pv-hookline">${phHtml(x.line || "")}</div>`], ["첫 화면", x => x.first_screen, x => phHtml(x.first_screen || "")], ["줌", x => x.zoom, x => esc(x.zoom || "")],
+      ["상단 자막", x => x.top_caption || x.first_caption, x => phHtml(x.top_caption || x.first_caption || "")], ["효과음", x => x.first_sfx, x => esc(x.first_sfx || "")], ["표정", x => x.face, x => esc(x.face || "")], ["훅 패턴", x => x.pattern, x => `<span class="pv-muted">${esc(x.pattern || "")}</span>`]];
+    const rows = HR.filter(([k, has]) => hooks.some(x => has(x)));
+    const hookTable = hooks.length ? `<div class="pv-scroll"><table class="pv-grid pv-hooks" style="min-width:${110 + hooks.length * 205}px"><colgroup><col style="width:110px">${hooks.map(() => "<col>").join("")}</colgroup>
+      <thead><tr><th></th>${hooks.map((x, i) => `<th class="${i + 1 === rec ? "on" : ""}"><div class="pv-hhead"><span>${esc(x.type || "훅 " + (i + 1))}${x.generated ? " · 새로 뽑음" : ""}</span>${i + 1 === rec ? "<em>✓ 적용됨</em>" : `<button class="pv-btn small" onclick="applyHook('${esc(p.id)}', ${i + 1})">이걸로</button>`}</div></th>`).join("")}</tr></thead>
+      <tbody>${rows.map(([k, has, cell]) => `<tr><th>${k}</th>${hooks.map((x, i) => `<td class="${i + 1 === rec ? "on" : ""}">${cell(x)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : `<div class="pv-muted">훅 후보가 없어요.</div>`;
+    return `<section class="pv-card"><div class="pv-h"><h2>요약</h2><span>이것만 봐도 영상이 그려지게</span></div><table class="pv-kv">${sumRows}</table></section>
+      <section class="pv-card"><div class="pv-h"><h2>첫 문장 고르기</h2><span>콕 집기 · 이득 · 손해 — 고르면 1번 장면과 썸네일 문구가 같이 바뀝니다</span></div>${hookTable}
+        <div class="pv-toolrow"><button class="pv-btn primary" onclick="openHookPicker('${esc(p.id)}')">내 훅 리스트 300개에서 직접 고르기</button><select id="hook-formula" class="pv-select">${HOOK_FORMULAS.map(f => `<option>${f}</option>`).join("")}</select><button class="pv-btn" onclick="genHooks('${esc(p.id)}')">이 공식으로 3개 더</button><button class="pv-btn" onclick="rewriteOpening('${esc(p.id)}', ${rec})">첫 문장에 맞춰 1~2번 장면 다시 쓰기</button><span id="hook-msg" class="pv-muted"></span></div></section>`;
+  }
+  function ezScript(plan, p) {
+    const B = plan.B_plan || {}; const sc = B.scenes || []; const groups = phGroups(plan); const pm = Object.fromEntries((plan.parts || []).map(x => [x.part, x]));
     const ctx = (g) => { const a0 = Math.max(0, g.start - 32), b1 = Math.min(g.text.length, g.end + 32); return `${a0 > 0 ? "…" : ""}${phHtml(g.text.slice(a0, g.start))}<span class="ph-slot">${esc(g.label)}</span>${phHtml(g.text.slice(g.end, b1))}${b1 < g.text.length ? "…" : ""}`; };
-    const PART = { 기: "기", 승: "승", 전: "전", 결: "결" };
-    const sceneCard = (sc, si) => { const g = sc.guide || {}; const f = sc.framing || {}; const img = sc.sketch ? `<img src="${esc(sc.sketch)}" loading="lazy">` : (refFrameImg(p, sc.ref_frame) || "");
-      const how = [g.composition || [f.shot, f.camera].filter(Boolean).join(" · "), g.action].filter(Boolean); const hasPh = /\[확인\s*필요/.test(sc.say || "");
-      return `<div class="ez-scene"><div class="ez-img">${img}<span class="ez-no">${sc.no}</span></div><div class="ez-body"><div class="ez-meta"><span class="tag part-${esc(sc.part || "")}">${esc(PART[sc.part] || (sc.part === "훅" ? "기" : sc.part) || "")}</span><span class="muted">${esc(sc.sec)}초</span>${sc.hold ? `<span class="ez-hold" title="이 장면에서 붙잡는 장치">${esc(sc.hold)}</span>` : ""}</div>
-        <div class="ez-say">${hasPh ? phHtml(sc.say) : ed("B_plan.scenes." + si + ".say", sc.say, "inline", "span")}</div>
-        ${sc.caption ? `<div class="ez-cap">자막 <b>${phHtml(sc.caption)}</b></div>` : ""}
-        ${how.length ? `<div class="ez-how">${how.map(x => `<div>${esc(x)}</div>`).join("")}</div>` : ""}
-        <details class="ez-more"><summary>자세히 (화면·조명·소품·의상·편집)</summary><dl class="ez-dl"><dt>화면</dt><dd>${phHtml(sc.screen || "-")}</dd>${g.camera ? `<dt>폰</dt><dd>${esc(g.camera)}</dd>` : ""}${g.light ? `<dt>조명</dt><dd>${esc(g.light)}</dd>` : ""}${g.props ? `<dt>소품</dt><dd>${esc(g.props)}</dd>` : ""}${g.wear ? `<dt>의상·배경</dt><dd>${esc(g.wear)}</dd>` : ""}${g.look ? `<dt>표정·시선</dt><dd>${esc(g.look)}</dd>` : ""}${g.take ? `<dt>테이크</dt><dd>${esc(g.take)}</dd>` : ""}</dl><div class="cchips">${chips(sc.capcut) || ""}</div>${sc.tip ? `<div class="sb-tip">${esc(sc.tip)}</div>` : ""}</details></div></div>`; };
-    const hookCard = (x, i) => `<div class="hk ${i + 1 == rec ? "on" : ""}"><div class="hk-top"><span class="tag htype">${esc(x.type || "")}</span>${i + 1 == rec ? '<span class="tag ok">적용됨</span>' : `<button class="hook-pick" onclick="applyHook('${esc(p.id)}', ${i + 1})">이걸로</button>`}</div><div class="hk-line">${phHtml(x.line || "")}</div>
-      <dl class="hk-dl">${x.first_screen ? `<dt>첫 화면</dt><dd>${esc(x.first_screen)}</dd>` : ""}${x.zoom ? `<dt>줌</dt><dd>${esc(x.zoom)}</dd>` : ""}${x.top_caption || x.first_caption ? `<dt>상단 자막</dt><dd>${phHtml(x.top_caption || x.first_caption)}</dd>` : ""}${x.first_sfx ? `<dt>효과음</dt><dd>${esc(x.first_sfx)}</dd>` : ""}${x.face ? `<dt>표정</dt><dd>${esc(x.face)}</dd>` : ""}${x.pattern ? `<dt>훅 패턴</dt><dd class="muted">${esc(x.pattern)}</dd>` : ""}</dl></div>`;
-    const list = (arr) => (arr || []).filter(Boolean).map(x => `<li>${phHtml(String(x))}</li>`).join("");
-    const prepItems = (PP.items || []).length ? PP.items : (B.prep || []); const order = (PP.order || []).length ? PP.order : [];
-    const hasCaution = (C.fact_check || []).length || (C.ad_review || []).length || C.meta_ads_version;
-    return `<div class="ez2">
-      <section class="sum-card">
-        <div class="sum-head"><div class="sum-tags">${plan.format ? `<span class="tag fmt">${esc(plan.format)}</span>` : ""}<span class="tag">${esc(plan.length_sec)}초 · ${scenesAll.length}장면</span>${S.cut_ratio ? `<span class="tag">${esc(S.cut_ratio)}</span>` : ""}${plan.ending_type ? `<span class="tag">끝: ${esc(plan.ending_type)}</span>` : ""}${mainRef ? `<span class="tag ref">주 레퍼런스 @${esc(mainRef.account || "")} ▶ ${fmt(mainRef.views)}</span>` : ""}</div>
-          <div class="sum-actions"><button class="btn small p" onclick="sharePlan('${esc(p.id)}')">사장님께 보내기</button><button class="btn small" onclick="navigator.clipboard.writeText(${JSON.stringify(scenesAll.map(x => breathLines(x.say).join("\n")).join("\n")).replace(/"/g, "&quot;")});toast('대본 복사됨')">대본 복사</button><button class="btn small" onclick="openPrompter()">크게 보기</button></div></div>
-        <div class="sum-core"><small>핵심 메시지</small><p>${phHtml(core)}</p></div>
-        <div class="f3"><div class="f3-title">첫 3초</div>${f3.map(([k, v]) => `<div class="f3-cell"><small>${k}</small><div>${phHtml(v || "-")}</div></div>`).join("")}</div>
-        <div class="sum-grid">${cta ? `<div><small>CTA</small><div>${phHtml(cta)}</div></div>` : ""}${inserts.length ? `<div><small>필수 인서트</small><ul>${list(inserts)}</ul></div>` : ""}${melted.length ? `<div><small>녹인 포인트</small><ul>${list(melted)}</ul></div>` : ""}</div>
-      </section>
-      <section class="ez-sec"><h3>첫 문장 고르기 <small>콕 집기 · 이득 · 손해 — 누르면 1번 장면과 썸네일 문구가 같이 바뀝니다</small></h3><div class="hks">${hooks.map(hookCard).join("")}</div>
-        <details class="ez-more" style="margin-top:8px"><summary>다른 훅 공식으로 더 뽑기 · 첫 장면 다시 쓰기</summary><div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px"><select id="hook-formula" class="chip" style="max-width:180px">${HOOK_FORMULAS.map(f => `<option>${f}</option>`).join("")}</select><button class="btn small" onclick="genHooks('${esc(p.id)}')">이 공식으로 3개 더</button><button class="btn small" onclick="rewriteOpening('${esc(p.id)}', ${rec})">첫 문장에 맞춰 1~2번 장면 다시 쓰기</button><span id="hook-msg" class="muted" style="font-size:12px"></span></div></details></section>
-      <section class="ez-sec"><h3>대본 <small>${esc(plan.length_sec)}초 · 한 줄이 한 호흡 · 왼쪽은 구간과 붙잡는 장치</small></h3><div class="sx">${scriptHtml}</div>
-        ${groups.length ? `<details class="ez-fill2" open><summary><b>빈칸 ${groups.length}곳</b> — 내 숫자로 채우면 대본·자막·캡션에 한 번에 들어갑니다 (모르면 비워 두세요)</summary><div class="fill-list">${groups.map((g, gi) => `<div class="fill-row"><div class="fr-ctx"><div class="fr-where">${esc(g.where.slice(0, 3).join(" · "))}${g.where.length > 3 ? ` 외 ${g.where.length - 3}곳` : ""}${g.occ.length > 1 ? ` <b class="fr-n">${g.occ.length}곳 같이 바뀜</b>` : ""}</div><div class="fr-text">${ctx(g)}</div></div><input class="fill-in" data-gi="${gi}" placeholder="${esc(phHint(g.label))}"></div>`).join("")}</div><button class="btn p" style="margin-top:10px" onclick="fillNumbers('${esc(p.id)}')">대본에 채우기</button></details>` : ""}</section>
-      <section class="ez-sec"><h3>장면 <small>${scenesAll.length}장면 · 장면마다 2번씩 찍으세요 · 대사는 눌러서 바로 고칠 수 있어요</small></h3><div class="ez-scenes">${scenesAll.map(sceneCard).join("")}</div></section>
-      <section class="ez-sec"><h3>촬영 준비 <small>사장님께 보내는 화면에도 이 내용이 나갑니다</small></h3><div class="prep-grid">
-        ${prepItems.length ? `<div><small>준비물</small><ul>${list(prepItems)}</ul></div>` : ""}${PP.wear ? `<div><small>의상</small><p>${esc(PP.wear)}</p></div>` : ""}${PP.location ? `<div><small>촬영 배경</small><p>${esc(PP.location)}</p></div>` : ""}${order.length ? `<div><small>촬영 순서</small><ol>${list(order)}</ol></div>` : ""}${(B.shot_list || []).length ? `<div><small>찍을 것 전체</small><ul>${list(B.shot_list)}</ul></div>` : ""}</div></section>
-      <section class="ez-sec"><h3>올릴 때</h3><div class="up-grid"><div><small>캡션</small><div class="up-cap">${phHtml(B.caption_text || "-")}</div><button class="btn small" style="margin-top:6px" onclick="navigator.clipboard.writeText(${JSON.stringify(B.caption_text || "").replace(/"/g, "&quot;")});toast('캡션 복사됨')">캡션 복사</button></div>
-        <div><small>마지막 멘트</small><p>${phHtml((B.cta || {}).say || "-")}</p><small>댓글 질문</small><p>${phHtml((B.cta || {}).comment_question || "-")}</p>${B.music ? `<small>음악</small><p>${esc(B.music)}</p>` : ""}</div></div>${thumbBlockHtml(plan, p)}</section>
-      ${hasCaution ? `<section class="ez-sec caution"><h3>주의사항 <small>올리기 전에 확인</small></h3><div class="prep-grid">${(C.fact_check || []).length ? `<div><small>사실 확인이 필요한 숫자·주장</small><ul>${list(C.fact_check)}</ul></div>` : ""}${(C.ad_review || []).length ? `<div><small>광고 심의 표현</small><ul>${list(C.ad_review)}</ul></div>` : ""}${C.meta_ads_version ? `<div><small>메타 광고로 돌릴 때 순화 버전</small><p>${phHtml(C.meta_ads_version)}</p></div>` : ""}</div></section>` : ""}
-      ${modePackHtml(plan, "ez")}
-      <section class="ez-sec"><h3>레퍼런스 <small>대본은 주 레퍼런스 1개에 고정했어요</small></h3>${mainRef ? `<div class="ref-mini"><img src="${esc(mainRef.thumbnail || "")}" onerror="this.style.visibility='hidden'"><div><b>@${esc(mainRef.account || "")}</b> <span class="muted">▶ ${fmt(mainRef.views)} · ${esc(mainRef.industry || "")}</span><div class="muted" style="font-size:13px">${esc(mainRef.description || "")}</div><div class="row" style="gap:6px;margin-top:6px"><a class="btn small" href="${esc(mainRef.url || "#")}" target="_blank" rel="noopener">원본 ↗</a><button class="btn small" onclick="planTab('refs')">레퍼런스 뜯어보기</button></div></div></div>` : ""}
-        ${(plan.ref_flow || []).length ? `<div class="ref-flow"><small>주 레퍼런스의 흐름 — 이 순서 그대로 내 소재를 넣었어요</small><ol>${plan.ref_flow.map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>` : ""}
-        ${(plan.ref_map || []).length ? `<details class="ez-more" style="margin-top:8px"><summary>레퍼런스 ↔ 내 대본 나란히 보기</summary><div class="refmap">${plan.ref_map.map(r => `<div class="rm-row"><span class="tag part-${esc(r.part || "")}">${esc(r.part || "")}</span><div><small>레퍼런스</small><p>${esc(r.ref || "")}</p></div><div><small>내 대본</small><p>${phHtml(r.mine || "")}</p></div></div>`).join("")}</div></details>` : ""}</section>
-    </div>`;
+    const fill = groups.length ? `<div class="pv-fill"><div class="pv-fill-head"><b>빈칸 ${groups.length}곳</b> 내 숫자로 채우면 대본·자막·캡션에 한 번에 들어갑니다. 모르면 비워 두세요.</div>
+      <table class="pv-kv">${groups.map((g, gi) => `<tr><td><div class="pv-muted">${esc(g.where.slice(0, 3).join(" · "))}${g.where.length > 3 ? ` 외 ${g.where.length - 3}곳` : ""}${g.occ.length > 1 ? ` · ${g.occ.length}곳 같이 바뀜` : ""}</div><div>${ctx(g)}</div></td><td class="pv-fill-in"><input class="fill-in" data-gi="${gi}" placeholder="${esc(phHint(g.label))}"></td></tr>`).join("")}</table>
+      <button class="pv-btn primary" onclick="fillNumbers('${esc(p.id)}')">대본에 채우기</button></div>` : "";
+    const seen = new Set();
+    const rows = sc.map((x, si) => { const part = partOf(x); const firstOfPart = !seen.has(part); seen.add(part);
+      const hold = x.hold || (firstOfPart ? ((pm[part] || {}).device || "") : ""); const stage = x.stage || PARTROLE2[part] || ""; const hasPh = /\[확인\s*필요/.test(x.say || "");
+      return `<tr class="p-${esc(part)}"><td class="c-no"><b>${esc(x.no)}</b><span>${esc(secTxt(x.sec))}초</span></td><td class="c-part"><b>${esc(part)}</b><span>${esc(stage)}</span></td><td class="c-say"><div>${hasPh ? phHtml(x.say) : ed("B_plan.scenes." + si + ".say", x.say, "inline", "span")}</div>${cLine("자막", phHtml(x.caption || ""))}</td><td class="c-sub">${phHtml(x.screen || "")}${cLine("장치", esc(hold))}</td></tr>`; }).join("");
+    return `<section class="pv-card"><div class="pv-h"><h2>대본</h2><span>${esc(plan.length_sec)}초 · ${sc.length}장면 · 대사를 누르면 바로 고칠 수 있어요</span><div class="pv-h-right"><button class="pv-btn" onclick="copyScript()">대본 복사</button><button class="pv-btn" onclick="openPrompter()">크게 보기</button></div></div>
+      ${fill}<div class="pv-scroll"><table class="pv-grid pv-script"><colgroup><col style="width:86px"><col style="width:112px"><col style="width:47%"><col></colgroup>
+      <thead><tr><th>#</th><th>구간</th><th>대사 · 자막</th><th>화면 · 붙잡는 장치</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
+  }
+  function ezPrep(plan, p) {
+    const B = plan.B_plan || {}; const PP = plan.prep_pack || {}; const C = plan.cautions || {}; const items = (PP.items || []).length ? PP.items : (B.prep || []);
+    const prep = kvRows([["준비물", items.length ? `<ul>${liList(items)}</ul>` : ""], ["의상", phHtml(PP.wear || "")], ["촬영 배경", phHtml(PP.location || "")], ["촬영 순서", (PP.order || []).length ? `<ol>${liList(PP.order)}</ol>` : ""], ["찍을 것 전체", (B.shot_list || []).length ? `<ul>${liList(B.shot_list)}</ul>` : ""]]);
+    const up = kvRows([["캡션", B.caption_text ? `<div class="pv-pre">${phHtml(B.caption_text)}</div><button class="pv-btn small" onclick="navigator.clipboard.writeText(CUR.plan.B_plan.caption_text||'');toast('캡션 복사됨')">캡션 복사</button>` : ""], ["마지막 멘트", phHtml((B.cta || {}).say || "")], ["댓글 질문", phHtml((B.cta || {}).comment_question || "")], ["음악", esc(B.music || "")]]);
+    const caution = kvRows([["사실 확인", (C.fact_check || []).length ? `<ul>${liList(C.fact_check)}</ul>` : ""], ["광고 심의", (C.ad_review || []).length ? `<ul>${liList(C.ad_review)}</ul>` : ""], ["메타 광고 순화", phHtml(C.meta_ads_version || "")]]);
+    return `<div class="pv-two"><section class="pv-card"><div class="pv-h"><h2>촬영 준비</h2><span>사장님께 보내는 링크에도 나가요</span></div>${prep ? `<table class="pv-kv">${prep}</table>` : '<div class="pv-muted">준비물 정보가 없어요.</div>'}</section>
+      <section class="pv-card"><div class="pv-h"><h2>올릴 때</h2></div>${up ? `<table class="pv-kv">${up}</table>` : ""}${thumbBlockHtml(plan, p)}</section></div>
+      ${caution ? `<section class="pv-card warn"><div class="pv-h"><h2>주의사항</h2><span>올리기 전에 확인</span></div><table class="pv-kv">${caution}</table></section>` : ""}`;
+  }
+  function refSectionHtml(plan, p) {
+    const mr = (p.refs || [])[(plan.main_ref || 1) - 1]; const flow = plan.ref_flow || []; const map = plan.ref_map || [];
+    if (!mr && !flow.length) return "";
+    return `<section class="pv-card"><div class="pv-h"><h2>이 기획안이 가져온 구조</h2><span>대본은 이 릴스의 흐름에 고정했어요</span></div>
+      ${mr ? `<div class="pv-ref">${mr.thumbnail ? `<img src="${esc(mr.thumbnail)}" onerror="this.style.visibility='hidden'">` : ""}<div><div class="pv-ref-name">@${esc(mr.account || "")}${mr.views ? ` <span class="pv-muted">▶ ${fmt(mr.views)}</span>` : ""}${plan.format ? ` <span class="pv-muted">· ${esc(plan.format)}</span>` : ""}</div>${mr.description ? `<div class="pv-muted">${esc(mr.description)}</div>` : ""}<div class="pv-toolrow"><a class="pv-btn" href="${esc(mr.url || "#")}" target="_blank" rel="noopener">원본 영상 ↗</a><button class="pv-btn" onclick="planTab('refs')">컷별 분석 보기</button></div></div></div>` : ""}
+      ${flow.length ? kvGrid(flow.map((x, i) => [`${i + 1}단계`, esc(String(x).replace(/^[①-⑳\d.)\s]+/, ""))])) : ""}
+      ${map.length ? `<details class="pv-details"><summary>구간별로 레퍼런스 ↔ 내 대본 나란히 보기</summary><div class="pv-scroll"><table class="pv-grid"><colgroup><col style="width:80px"><col><col></colgroup><thead><tr><th>구간</th><th>레퍼런스</th><th>내 대본</th></tr></thead><tbody>${map.map(r => `<tr><td><b>${esc(r.part || "")}</b></td><td>${esc(r.ref || "")}</td><td>${phHtml(r.mine || "")}</td></tr>`).join("")}</tbody></table></div></details>` : ""}</section>`;
+  }
+  function ezCheck(plan, p) {
+    const B = plan.B_plan || {}; const sc = B.scenes || []; const S = plan.summary || {}; const brief = p.brief || {}; const pm = Object.fromEntries((plan.parts || []).map(x => [x.part, x]));
+    const norm = (t) => String(t || "").replace(/\[확인\s*필요[:：]?\s*([^\]]*)\]/g, "$1").replace(/[\s.,!?~'"“”‘’…]/g, "");
+    const script = norm(sc.map(x => x.say || "").join(" "));
+    const hk = (B.hooks || [])[Math.max(1, Number(B.recommended_hook || 1)) - 1] || {}; const firstLine = hk.line || (sc[0] || {}).say || "";
+    const partRows = (firstLine ? `<tr><th>첫 문장</th><td><b>“${phHtml(firstLine)}”</b>${hk.type ? ` <span class="pv-muted">${esc(hk.type)}</span>` : ""}</td></tr>` : "") + ["기", "승", "전", "결"].map(k => { const first = sc.find(x => partOf(x) === k); const dev = (first && first.hold) || (pm[k] || {}).device || "";
+      return `<tr><th>${k} · ${PARTROLE2[k]}</th><td>${!first ? '<span class="bad">이 구간 장면이 없어요</span>' : dev ? `<span class="ok">있음</span> ${esc(dev)}` : '<span class="bad">없음</span> 이 구간 첫 장면에 줌·자막 강조·효과음 중 하나를 넣으세요'}</td></tr>`; }).join("");
+    const usp = S.key_usp || brief.usp || ""; const um = (S.usp_map || []).filter(x => x && x.sentence);
+    const uspCell = usp ? `<div class="pv-lead-s">${phHtml(usp)}</div>${um.length ? `<ul class="pv-checks">${um.map(x => { const ok = script.includes(norm(x.sentence).slice(0, 14)); return `<li><span class="${ok ? "ok" : "bad"}">${ok ? "대본에 있음" : "대본에 안 보임"}</span> ${x.scene ? esc(x.scene) + "번 장면 · " : ""}“${phHtml(x.sentence)}”</li>`; }).join("")}</ul>` : `<div class="pv-muted">어느 대사에 소구점을 넣었는지 기록이 없는 예전 기획안이에요.</div>`}` : `<span class="bad">소구점 입력이 없어요</span>`;
+    const have = new Set(sc.map(x => x.stage).filter(Boolean)); const must = ["후킹", "진정성", "정보", "마지막 한 마디"]; const miss = must.filter(n => !have.has(n));
+    const stageCell = have.size ? `<div class="pv-stages">${STAGES7.map(n => `<span class="${have.has(n) ? "ok" : "no"}">${have.has(n) ? "✓" : "–"} ${n}</span>`).join("")}</div><div class="${miss.length ? "bad" : "ok"}" style="margin-top:6px">${miss.length ? "꼭 들어가야 하는 단계가 빠졌어요: " + miss.join(", ") : "꼭 필요한 4단계(후킹·진정성·정보·마지막 한 마디)가 다 들어갔어요"}</div>` : `<div class="pv-muted">7단계 표시가 없는 예전 기획안이에요. 새로 만들면 장면마다 7단계가 붙습니다.</div>`;
+    const selfCheck = (plan.pro || {}).self_check || []; const qs = (plan.pro || {}).questions || [];
+    return `<section class="pv-card"><div class="pv-h"><h2>검수</h2><span>구간마다 후킹 포인트 · 소구점 · 맥락과 7단계</span></div><table class="pv-kv">
+        <tr><th><i class="pv-no">1</i>구간별 후킹</th><td><table class="pv-mini">${partRows}</table></td></tr>
+        <tr><th><i class="pv-no">2</i>소구점</th><td>${uspCell}</td></tr>
+        <tr><th><i class="pv-no">3</i>맥락 · 7단계</th><td>${stageCell}</td></tr>
+        ${selfCheck.length ? `<tr><th>AI 자가 점검</th><td><ul class="pv-checks">${selfCheck.map(c => `<li><span class="${c.ok ? "ok" : "bad"}">${c.ok ? "O" : "X"}</span> ${esc(c.q)}${c.why ? ` <span class="pv-muted">— ${esc(c.why)}</span>` : ""}</li>`).join("")}</ul></td></tr>` : ""}
+        ${qs.length ? `<tr><th>확인해 주세요</th><td><ul>${liList(qs)}</ul></td></tr>` : ""}</table></section>
+      ${modePackHtml(plan, "ez")}${refSectionHtml(plan, p)}`;
   }
 
+  const capcutText = (c) => c ? [c.text_style && "텍스트 · " + c.text_style, c.transition && "전환 · " + c.transition, c.sfx && "효과음 · " + c.sfx, c.effect && "효과 · " + c.effect].filter(Boolean).map(esc).join("<br>") : "";
   function renderPlanTab(plan, p) {
-    const B = plan.B_plan || {}; const hooks = B.hooks || []; const rec = B.recommended_hook || 1; const scenesAll = B.scenes || [];
-    const PART = { 기: "기 · 상황", 승: "승 · 전개", 전: "전 · 반전", 결: "결 · 마무리" };
-    // ---- 왼쪽: 훅 고르기(펼침) + 나머지는 접힌 카드(제목만 크게)
-    const hookRows = hooks.map((h, i) => `<li class="hook-row ${i + 1 == rec ? "on" : ""}"><span class="tag htype">${esc(h.type)}</span><div class="hline">${ed("B_plan.hooks." + i + ".line", h.line, "inline", "span")}${h.generated ? ' <span class="tag ok">new</span>' : ""}</div><button class="hook-pick" onclick="applyHook('${esc(p.id)}', ${i + 1})">${i + 1 == rec ? "✓ 적용됨" : "이걸로"}</button></li>`).join("");
-    const left = `<aside class="plan-side">${titleCardHtml(plan, p, hooks, rec, scenesAll)}
-      <div class="side-sec"><h3>첫 문장(훅) 고르기 <small>누르면 씬 1에 바로 적용</small></h3><ol class="hooklist">${hookRows}</ol>
-        <details class="wiz-more small"><summary>다른 훅 공식으로 더 뽑기 · 말투 다듬기</summary><div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap"><select id="hook-formula" class="chip" style="max-width:170px">${HOOK_FORMULAS.map(f => `<option>${f}</option>`).join("")}</select><button class="btn small" onclick="genHooks('${esc(p.id)}')">이 공식으로 3개 더</button><button class="btn small" onclick="rewriteOpening('${esc(p.id)}', ${rec})">훅에 맞춰 씬 1~2 다시 쓰기</button><button class="btn small" onclick="humanize('${esc(p.id)}')">내 말투로 다듬기</button><span id="hook-msg" class="muted" style="font-size:12px"></span></div></details></div>
-      ${plan.script_full ? `<details class="side-sec fold"><summary><b>전체 대본</b><small>한 호흡으로 읽기 · 프롬프터용</small></summary>${ed("script_full", plan.script_full, "capbox script")}<div class="row" style="margin-top:6px;gap:6px"><button class="btn small" onclick="navigator.clipboard.writeText(CUR.plan.script_full);toast('대본 복사됨')">복사</button><button class="btn small" onclick="likeScript('${esc(p.id)}')" title="이 대본을 좋은 예시로 저장 → 다음 기획안이 이 수준을 따라감">이 대본 좋아요 (예시로 학습)</button></div></details>` : ""}
-      ${modePackHtml(plan, "side")}
-      <details class="side-sec fold"><summary><b>다음에 할 일</b><small>4단계</small></summary><ol class="todo"><li>[확인 필요] 자리를 내 숫자로 채우기</li><li>씬 순서대로 폰으로 촬영 (씬당 2번씩)</li><li>"편집 외주용" 탭을 편집자에게 보내거나 캡컷에서 그대로 따라 편집</li><li>캡션 복사해서 올리고 댓글 질문에 답하기</li></ol></details>
-      <details class="side-sec fold"><summary><b>캡션 · 음악 · 마지막 멘트</b></summary>${ed("B_plan.caption_text", B.caption_text, "capbox")}<div class="muted" style="margin:8px 0 4px">${esc(B.music || "-")}</div><div><b>마지막 멘트</b> ${ed("B_plan.cta.say", (B.cta || {}).say, "inline", "span")}</div><div class="muted">자막: ${ed("B_plan.cta.caption", (B.cta || {}).caption, "inline", "span")} · 댓글 유도: ${ed("B_plan.cta.comment_question", (B.cta || {}).comment_question, "inline", "span")}</div></details>
-      <details class="side-sec fold"><summary><b>찍을 것 · 준비물 · 초보 실수</b><small>${(B.shot_list || []).length + (B.prep || []).length}개</small></summary><ul>${(B.shot_list || []).map(x => `<li>${esc(x)}</li>`).join("")}${(B.prep || []).map(x => `<li class="muted">${esc(x)}</li>`).join("")}</ul><b>초보 실수</b><ul>${(B.tips || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul></details>
-      ${(plan.pro || {}).questions && plan.pro.questions.length ? `<details class="side-sec fold warnbox" open><summary><b>확인해 주세요</b><small>${plan.pro.questions.length}개</small></summary><ul>${plan.pro.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ul></details>` : ""}</aside>`;
-    // ---- 오른쪽: 촬영 가이드(그림 가로 배치 + 표) / 대본(가로 표)
-    const bestRef = (p.refs || []).reduce((a, b) => ((b.views || 0) > ((a || {}).views || 0) ? b : a), null); const bestIdx = bestRef ? (p.refs || []).indexOf(bestRef) : -1; const bestA = ((plan.A_refs) || []).find(x => x.ref === bestIdx + 1);
-    const grow = (k, v) => v ? `<tr><th>${k}</th><td>${esc(v)}</td></tr>` : "";
-    const scene = (s) => { const f = s.framing || {}; const g = s.guide || {}; const si = scenesAll.indexOf(s);
-      const rf = s.ref_frame || {}; const rr = (p.refs || [])[(rf.ref || 0) - 1]; const rfr = rr ? ((rr.frames || [])[(rf.frame || 1) - 1] || {}) : {}; const cut = rr && rr.analysis && rr.analysis.timeline ? rr.analysis.timeline.find(c => rfr.t != null && c.t0 <= rfr.t && rfr.t < c.t1) : null;
-      return `<div class="scene v-guide"><div class="scene-head"><span class="scene-no">${s.no}</span><span class="scene-sec">${esc(s.sec)}초</span><span class="tag part-${esc(s.part || "")}">${esc(PART[s.part] || s.part || "")}</span>${f.shot ? `<span class="muted">${esc(f.shot)}${f.camera ? " · " + esc(f.camera) : ""}</span>` : ""}</div>
-        <div class="scene-body2">
-          <div class="scene-visual2">${s.sketch ? `<figure class="sb-ref sk-img"><img src="${esc(s.sketch)}" loading="lazy" title="${esc(s.sketch_prompt || "")}"><figcaption>내 구도 <a href="#" onclick="event.preventDefault();reSketch('${esc(p.id)}', ${s.no})">다시 그리기</a></figcaption></figure>` : sketch(f)}${refFrameImg(p, s.ref_frame)}</div>
-          ${cut || rf.why ? `<div class="ref-line"><b>이 장면의 레퍼런스${rr ? " · @" + esc(rr.account) + " ▶ " + fmt(rr.views) : ""}</b>${cut ? ` <span>${esc(cut.t0)}~${esc(cut.t1)}초 · ${esc(cut.transition)}${cut.script ? ` · "${esc(cut.script.slice(0, 40))}"` : ""}${(cut.captions || []).length ? ` · 자막 ${esc(cut.captions.map(c => c.text).join(" / ").slice(0, 30))}` : ""}${(cut.sfx || []).length ? ` · ${esc(cut.sfx.map(e => e.name || "").join(","))}` : ""}</span>` : ""}${rf.why ? `<span class="muted"> · ${esc(rf.why)}</span>` : ""}${s.ref_style ? `<span class="muted"> · ${esc(s.ref_style)}</span>` : ""}</div>` : ""}
-          <div class="say-big">${ed("B_plan.scenes." + si + ".say", s.say, "say")}</div>
-          <table class="gtable"><tr><th>자막</th><td>${ed("B_plan.scenes." + si + ".caption", s.caption, "inline", "span")}${f.text_pos ? ` <span class="muted">(${esc(f.text_pos)})</span>` : ""}</td></tr><tr><th>화면</th><td>${ed("B_plan.scenes." + si + ".screen", s.screen, "inline", "span")}</td></tr></table>
-          <div class="glabel">이렇게 찍으세요</div>
-          <table class="gtable">${grow("폰", g.camera)}${grow("구도", g.composition || [f.shot, f.camera].filter(Boolean).join(" · "))}${grow("조명", g.light)}${grow("소품", g.props)}${grow("행동", g.action)}${grow("의상·배경", g.wear)}${grow("표정·시선", g.look)}${grow("테이크", g.take)}</table>
-          <div class="glabel">캡컷 편집</div><div class="cchips">${chips(s.capcut) || '<span class="muted">-</span>'}</div>${s.tip ? `<div class="sb-tip">${ed("B_plan.scenes." + si + ".tip", s.tip, "inline", "span")}</div>` : ""}
-        </div></div>`; };
-    const scriptTable = `<div class="tablewrap"><table class="scenes stable"><tr><th>씬</th><th>초</th><th>단계</th><th>대사 (말하는 것)</th><th>자막</th><th>화면에 보이는 것</th></tr>${scenesAll.map((s, si) => `<tr><td><b>${s.no}</b></td><td>${esc(s.sec)}</td><td><span class="tag part-${esc(s.part || "")}">${esc(PART[s.part] || s.part || "")}</span></td><td class="say">${ed("B_plan.scenes." + si + ".say", s.say, "inline", "span")}</td><td class="cap">${ed("B_plan.scenes." + si + ".caption", s.caption, "inline", "span")}</td><td>${esc(s.screen)}</td></tr>`).join("")}</table></div>`;
-    const A0 = ((plan.A_refs) || [])[0]; const bestA2 = bestA || A0; const partsLine = ["기", "승", "전", "결"].map(k => { const sc = scenesAll.filter(x => x.part === k); return sc.length ? `<div class="bone"><span class="tag part-${k}">${esc(PART[k])}</span><div class="bone-text">${sc.map(x => phHtml(x.say)).join(" ")}</div></div>` : ""; }).join("");
-    const turnSay = scenesAll.filter(x => x.part === "전").map(x => x.say).join(" ") || (scenesAll[Math.floor(scenesAll.length / 2)] || {}).say || ""; const teaseTxt = String(turnSay).replace(/\[확인\s*필요[:：]?\s*([^\]]*)\]/g, "○○").slice(0, 38);
-    const bones = `<details class="bones fold2 teaser"><summary><span class="ph-kicker">이 기획안의 뼈대 — 레퍼런스가 터진 구조를 그대로 옮겼습니다</span><div class="bt-flow">${["기", "승", "전", "결"].map(k => `<span class="tag part-${k}">${esc(PART[k])}</span>`).join("<i>→</i>")}</div><div class="bt-tease"><span>반전 포인트</span> “${esc(teaseTxt)}…” <b class="bt-open">펼쳐서 전체 흐름 보기</b></div></summary>${bestA2 ? `<div class="bone-ref"><b>레퍼런스 구조</b> ${esc(bestA2.structure || "")}${bestA2.steal ? ` · <mark>${esc(bestA2.steal)}</mark>` : ""}</div>` : ""}${partsLine}</details>`;
-    return `<div class="plan-layout">${left}<div class="plan-main">${bones}<div class="plan-toolbar"><h2 style="margin:0">씬별 ${VIEW === "script" ? "대본" : "촬영 가이드"} <small>${scenesAll.length}씬 · ${esc(plan.length_sec)}초 · 눌러서 바로 고치기</small></h2><div class="seg">${[["guide", "촬영 가이드"], ["script", "대본"]].map(([k, v]) => `<button class="${VIEW === k ? "on" : ""}" onclick="planView('${k}')">${v}</button>`).join("")}</div></div>
-      ${VIEW === "script" ? scriptTable : `<div class="scenes-list2">${scenesAll.map(scene).join("")}</div>`}</div></div>`;
+    const B = plan.B_plan || {}; const sc = B.scenes || [];
+    const tools = `<section class="pv-card slim"><div class="pv-toolrow" style="margin:0"><b style="font-size:15px;margin-right:6px">대본 손보기</b><button class="pv-btn" onclick="humanize('${esc(p.id)}')">내 말투로 다듬기</button><button class="pv-btn" onclick="likeScript('${esc(p.id)}')">이 대본 좋아요(다음 기획안이 이 수준을 따라감)</button><button class="pv-btn" onclick="reSketch('${esc(p.id)}')">장면 스케치 전부 다시 그리기</button></div></section>`;
+    const scene = (x, si) => { const f = x.framing || {}; const g = x.guide || {}; const part = partOf(x);
+      const c = x.capcut || {}; const capInl = [["텍스트", c.text_style], ["전환", c.transition], ["효과음", c.sfx], ["효과", c.effect]].filter(y => y[1]).map(([k, v]) => `<span><i>${k}</i>${esc(v)}</span>`).join("");
+      const grid = kvGrid([["자막", x.caption ? ed("B_plan.scenes." + si + ".caption", x.caption, "inline", "span") : ""], ["화면", ed("B_plan.scenes." + si + ".screen", x.screen, "inline", "span")], ["붙잡는 장치", esc(x.hold || "")],
+        ["폰", esc(g.camera || "")], ["구도", esc(g.composition || [f.shot, f.camera].filter(Boolean).join(" · "))], ["조명", esc(g.light || "")], ["소품", esc(g.props || "")], ["행동", esc(g.action || "")], ["의상·배경", esc(g.wear || "")], ["표정·시선", esc(g.look || "")], ["테이크", esc(g.take || "")], ["팁", x.tip ? ed("B_plan.scenes." + si + ".tip", x.tip, "inline", "span") : ""]],
+        [["캡컷 편집", capInl ? `<div class="pv-inl">${capInl}</div>` : ""]]);
+      return `<section class="pv-scene p-${esc(part)}"><div class="pv-scene-head"><b class="no">${esc(x.no)}</b><span>${esc(secTxt(x.sec))}초</span><span class="part">${esc(part)} · ${esc(x.stage || PARTROLE2[part] || "")}</span>${f.shot ? `<span class="pv-muted">${esc(f.shot)}${f.camera ? " · " + esc(f.camera) : ""}</span>` : ""}</div>
+        <div class="pv-scene-body"><div class="pv-scene-img">${x.sketch ? `<img src="${esc(x.sketch)}" loading="lazy" alt="${esc(x.no)}번 장면 구도">` : sketch(f)}<a href="#" onclick="event.preventDefault();reSketch('${esc(p.id)}', ${Number(x.no) || 0})">이 장면 구도 다시 그리기</a></div>
+        <div class="pv-scene-main"><div class="pv-say">${ed("B_plan.scenes." + si + ".say", x.say, "say")}</div>${grid}</div></div></section>`; };
+    return `<div class="pv-detail">${refSectionHtml(plan, p)}${tools}${sc.map(scene).join("")}</div>`;
   }
+  function shootData(plan, p) {
+    const B = plan.B_plan || {}; const PP = plan.prep_pack || {}; const S = plan.summary || {}; const C = plan.cautions || {}; const sc = B.scenes || []; let lastG = {};
+    const rows = sc.map(x => { const g = x.guide || {}; const f = x.framing || {}; const cam = g.camera || lastG.camera || ""; lastG = { ...lastG, ...Object.fromEntries(Object.entries(g).filter(([k, v]) => v)) };
+      return { no: x.no, sec: x.sec, part: x.part, screen: x.screen || "", how: [g.composition || [f.shot, f.camera].filter(Boolean).join(" · "), g.action].filter(Boolean).join(" / "), camera: cam, say: x.say || "", caption: x.caption || "", hold: x.hold || "" }; });
+    return { B, PP, S, C, rows, mainRef: (p.refs || [])[(plan.main_ref || 1) - 1] };
+  }
+  window.shootText = () => { const plan = CUR.plan; const d = shootData(plan, CUR); const L = [];
+    L.push(`[촬영 외주서] ${plan.title}`, `형식 ${plan.format || "-"} · ${plan.length_sec}초 · ${d.rows.length}장면${d.S.cut_ratio ? " · " + d.S.cut_ratio : ""}`, "");
+    L.push("■ 촬영 개요", `의상: ${d.PP.wear || "-"}`, `촬영 배경: ${d.PP.location || "-"}`, `준비물: ${(d.PP.items || d.B.prep || []).join(", ") || "-"}`, `필수 인서트: ${(d.S.must_inserts || []).join(" / ") || "-"}`, ...(d.PP.order || []).map((x, i) => `촬영 순서 ${i + 1}. ${x}`), "");
+    L.push("■ 장면별 촬영표"); d.rows.forEach(r => L.push(`#${r.no} (${r.sec}초) ${r.screen}`, `   찍는 법: ${r.how || "-"}${r.camera ? " | 폰: " + r.camera : ""}`, `   대사: ${r.say}`, r.caption ? `   자막: ${r.caption}` : "", "").filter(x => x !== ""));
+    L.push("", "■ 주의", ...((d.B.tips || []).map(x => "- " + x)), ...((d.C.fact_check || []).map(x => "- 확인: " + x))); if (d.mainRef) L.push("", "■ 레퍼런스(이 느낌으로)", d.mainRef.url || "");
+    return L.filter(x => x != null).join("\n").replace(/\[확인\s*필요[:：]?\s*([^\]]*)\]/g, "($1)"); };
+  function renderShootTab(plan, p) {
+    const d = shootData(plan, p); const items = (d.PP.items || []).length ? d.PP.items : (d.B.prep || []);
+    const head = kvRows([["이 영상은", phHtml(d.S.core_message || plan.one_line || plan.title || "")], ["의상", phHtml(d.PP.wear || "")], ["촬영 배경", phHtml(d.PP.location || "")], ["준비물", items.length ? `<ul class="${items.length >= 4 ? "pv-cols" : ""}">${liList(items)}</ul>` : ""], ["필수 인서트", (d.S.must_inserts || []).length ? `<ul class="${d.S.must_inserts.length >= 4 ? "pv-cols" : ""}">${liList(d.S.must_inserts)}</ul>` : ""], ["촬영 순서", (d.PP.order || []).length ? `<ol>${liList(d.PP.order)}</ol>` : ""]]);
+    const rows = d.rows.map(r => `<tr class="p-${esc(r.part === "훅" ? "기" : (r.part || ""))}"><td class="c-no"><b>${esc(r.no)}</b><span>${esc(secTxt(r.sec))}초</span></td><td>${phHtml(r.screen)}</td><td class="c-sub">${esc(r.how)}${cLine("폰", esc(r.camera))}</td><td class="c-say"><div>${phHtml(r.say)}</div>${cLine("자막", phHtml(r.caption))}</td></tr>`).join("");
+    const tips = [...(d.B.tips || []), ...((d.C.fact_check || []).map(x => "확인 · " + x))];
+    return `<section class="pv-card"><div class="pv-h"><h2>촬영 외주서</h2><span>촬영하는 사람에게 이 화면을 그대로 보내세요</span><div class="pv-h-right"><button class="pv-btn primary" onclick="navigator.clipboard.writeText(shootText());toast('촬영 외주서를 복사했어요 — 촬영자에게 붙여넣으세요')">텍스트로 복사</button><button class="pv-btn" onclick="window.print()">인쇄·PDF</button></div></div><table class="pv-kv">${head}</table></section>
+      <section class="pv-card"><div class="pv-h"><h2>장면별 촬영표</h2><span>장면마다 2번씩 · 대사는 출연자가 말하는 그대로</span></div>
+        <div class="pv-scroll"><table class="pv-grid pv-shoot"><colgroup><col style="width:86px"><col style="width:25%"><col style="width:37%"><col></colgroup><thead><tr><th>#</th><th>화면</th><th>찍는 법 · 폰 세팅</th><th>대사 · 자막</th></tr></thead><tbody>${rows}</tbody></table></div></section>
+      ${tips.length ? `<section class="pv-card warn"><div class="pv-h"><h2>촬영할 때 주의</h2></div><ul class="pv-list">${liList(tips)}</ul></section>` : ""}
+      ${d.mainRef ? `<section class="pv-card"><div class="pv-h"><h2>레퍼런스</h2><span>이 영상의 느낌·구도로 찍어 주세요</span></div><div class="pv-ref">${d.mainRef.thumbnail ? `<img src="${esc(d.mainRef.thumbnail)}" onerror="this.style.visibility='hidden'">` : ""}<div><div class="pv-ref-name">@${esc(d.mainRef.account || "")}${d.mainRef.views ? ` <span class="pv-muted">▶ ${fmt(d.mainRef.views)}</span>` : ""}</div><div class="pv-toolrow"><a class="pv-btn" href="${esc(d.mainRef.url || "#")}" target="_blank" rel="noopener">원본 영상 ↗</a></div></div></div></section>` : ""}`;
+  }
+
+  // ---------- k) 내 훅 리스트에서 고르기 + (관리자) 훅 리스트 편집
+  let HOOKDB = null, HOOKTYPE = 0;
+  window.openHookPicker = async (pid) => { try { HOOKDB = await api("/api/hooks"); } catch (e) { return toast("훅 리스트를 못 불러왔어요: " + e.message); } HOOKTYPE = 0; drawHookPicker(pid); };
+  function drawHookPicker(pid) {
+    const T = (HOOKDB.types || []); const t = T[HOOKTYPE] || { groups: [] }; const admin = document.body.classList.contains("admin");
+    $("#modal").className = "modal on hookmodal"; $("#mask").classList.add("on");
+    $("#modal").innerHTML = `<button class="x" onclick="closeAll()">✕</button><div class="hp"><div class="hp-head"><h2>${esc(HOOKDB.title || "훅 리스트")} <small>${T.reduce((n, x) => n + x.groups.reduce((m, g) => m + g.items.length, 0), 0)}개</small></h2><p class="muted">템플릿을 누르면 [빈칸]을 이 기획안에 맞게 채워서 첫 문장으로 바로 적용합니다 (10초 안팎).</p>${admin ? `<button class="btn small" onclick="openHookEditor('${esc(pid)}')">훅 리스트 편집 (관리자)</button>` : ""}</div>
+      <div class="hp-types">${T.map((x, i) => `<button class="${i === HOOKTYPE ? "on" : ""}" onclick="hookType(${i}, '${esc(pid)}')">${i + 1}. ${esc(x.name)}</button>`).join("")}</div>
+      <div class="hp-desc"><b>${esc(t.name || "")}</b> — ${esc(t.tagline || "")}<div class="muted">${esc(t.desc || "")}</div></div>
+      <div class="hp-groups">${(t.groups || []).map(g => `<div class="hp-group"><small>${esc(g.name)}</small>${g.items.map(x => `<button class="hp-item" onclick="pickHookTemplate('${esc(pid)}', ${JSON.stringify(t.name).replace(/"/g, "&quot;")}, ${JSON.stringify(x).replace(/"/g, "&quot;")})">${esc(x)}</button>`).join("")}</div>`).join("")}</div></div>`;
+  }
+  window.hookType = (i, pid) => { HOOKTYPE = i; drawHookPicker(pid); };
+  window.pickHookTemplate = async (pid, type, tpl) => { closeAll(); showWait("훅을 내 기획안에 맞게 채우는 중", 12, tpl); try { const r = await post("/api/plans/" + pid + "/hook_from", { template: tpl, type }); if (r.error) throw new Error(r.error); CUR = r; renderPlan2(r); toast("새 첫 문장을 적용했어요"); } catch (e) { toast("실패: " + e.message); } finally { hideWait(); } };
+  const hooksToText = (d) => (d.types || []).map((t, i) => `# ${i + 1}. ${t.name} — ${t.tagline || ""}\n> ${t.desc || ""}\n` + (t.groups || []).map(g => `◾ ${g.name}\n` + g.items.map(x => "- " + x).join("\n")).join("\n")).join("\n\n");
+  const textToHooks = (txt) => { const types = []; let t = null, g = null;
+    String(txt || "").split(/\n/).forEach(raw => { const ln = raw.trim(); if (!ln) return;
+      if (ln.startsWith("#")) { const m = ln.replace(/^#+\s*/, "").replace(/^\d+\.\s*/, "").split(/\s+[—-]\s+/); t = { name: (m[0] || "").trim(), tagline: (m.slice(1).join(" — ") || "").trim(), desc: "", groups: [] }; types.push(t); g = null; }
+      else if (ln.startsWith(">")) { if (t) t.desc = ln.replace(/^>\s*/, ""); }
+      else if (/^[◾■▪️*]/.test(ln)) { if (!t) { t = { name: "내 훅", tagline: "", desc: "", groups: [] }; types.push(t); } g = { name: ln.replace(/^[◾■▪️*\s]+/, ""), items: [] }; t.groups.push(g); }
+      else { if (!t) { t = { name: "내 훅", tagline: "", desc: "", groups: [] }; types.push(t); } if (!g) { g = { name: "기본", items: [] }; t.groups.push(g); } g.items.push(ln.replace(/^[-•\d.\s]+/, "")); } });
+    return { title: "내 훅 리스트", types }; };
+  window.openHookEditor = async (pid) => { if (!HOOKDB) HOOKDB = await api("/api/hooks");
+    $("#modal").className = "modal on hookmodal"; $("#mask").classList.add("on");
+    $("#modal").innerHTML = `<button class="x" onclick="closeAll()">✕</button><div class="hp"><div class="hp-head"><h2>훅 리스트 편집 <small>${HOOKDB.custom ? "내가 고친 목록" : "기본: 준희즘 훅 템플릿 300"}</small></h2><p class="muted">한 줄에 훅 하나. <b>#</b> 으로 시작하면 유형, <b>&gt;</b> 는 유형 설명, <b>◾</b> 는 묶음 이름, 나머지 줄은 훅입니다. 빈칸은 [주제] 처럼 대괄호로 적으세요. 저장하면 다음 기획안부터 이 목록에서 훅을 고릅니다.</p></div>
+      <textarea id="hook-edit" class="wiz-input mono" style="min-height:52vh;font-size:14px;line-height:1.6">${esc(hooksToText(HOOKDB))}</textarea>
+      <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="btn p" onclick="saveHookEditor('${esc(pid || "")}')">저장</button><button class="btn" onclick="resetHookEditor('${esc(pid || "")}')">기본 목록(준희즘 300)으로 되돌리기</button><button class="btn" onclick="${pid ? `openHookPicker('${esc(pid)}')` : "closeAll()"}">닫기</button><span id="hook-edit-msg" class="muted"></span></div></div>`; };
+  window.saveHookEditor = async (pid) => { const d = textToHooks($("#hook-edit").value); const n = d.types.reduce((a, t) => a + t.groups.reduce((b, g) => b + g.items.length, 0), 0); if (!n) return toast("훅이 하나도 없어요");
+    try { const r = await post("/api/hooks", d); if (r.error) throw new Error(r.error); HOOKDB = await api("/api/hooks"); toast(`훅 ${r.count}개를 저장했어요`); if (pid) drawHookPicker(pid); else closeAll(); } catch (e) { toast("저장 실패: " + e.message); } };
+  window.resetHookEditor = async (pid) => { if (!confirm("내가 고친 목록을 지우고 기본 목록으로 되돌릴까요?")) return; try { await post("/api/hooks", { reset: true }); HOOKDB = await api("/api/hooks"); toast("기본 목록으로 되돌렸어요"); openHookEditor(pid); } catch (e) { toast(e.message); } };
+
   let REF_TABLE = false; window.refTable = () => { REF_TABLE = !REF_TABLE; renderPlan2(CUR); };
   const kv = (label, val) => val ? `<div class="kv2"><small>${esc(label)}</small><div>${val}</div></div>` : "";
   function renderRefsTab(p) {
@@ -650,10 +795,16 @@
   window.setPlanMeta = async (pid, d) => { try { await post("/api/plans/" + pid + "/meta", d); toast("저장됨"); viewPlanHome(); } catch (e) { toast(e.message); } };
   window.newFolder = async (pid) => { const name = (prompt("새 폴더 이름 (예: 9월 카페 시리즈)") || "").trim(); if (!name) return; if (pid) await setPlanMeta(pid, { folder: name }); else { PF.folder = "전체"; toast("폴더는 기획을 넣는 순간 생깁니다. 카드에서 '" + name + "'을 고르세요"); const plans = await api("/api/plans").catch(() => []); if (plans[0]) await setPlanMeta(plans[0].id, { folder: name }); } };
   window.viewPlanHome = async function () {
+    syncUser();
     const plans = await api("/api/plans").catch(() => []); const sets = await api("/api/plansets").catch(() => []);
     const setsHtml = sets.length ? `<div class="plan-toolbar" style="margin:4px 0 8px"><h2 style="margin:0">촬영 세트 <small>${sets.length}개</small></h2></div><div class="set-list">${sets.slice(0, 8).map(x => `<a class="set-chip" href="#/plan/set/${esc(x.id)}"><b>${esc(x.job || "세트")} ${x.n}편</b><span class="muted">${esc((x.topics || []).join(" · ").slice(0, 70))}</span><span class="muted">${esc(x.created_at || "")}</span></a>`).join("")}</div>` : "";
-    $("#main").innerHTML = `<div class="plan-home"><div class="hero"><div><div class="ph-kicker">콘텐츠 기획</div><h1>누구를 위한 기획인지 고르면<br>씬별 대본과 캡컷 편집표까지.</h1><p>내 가게 · 브랜드·제품 · 대행사(클라이언트) · 커머스 위탁판매 — 모드를 고르고 타깃 → 키워드 → 참고 릴스(최대 3개) → 주제만 정하면 됩니다. 모드마다 준희 님 강의 노하우(훅 3종·자영업 릴스 4종·소구점 축·PD 문답·촬영 대안)가 대본과 체크리스트에 들어갑니다.</p><button class="btn p big" onclick="wizStart()">+ 새 기획 만들기</button> ${W.job ? `<button class="btn big ghost2" onclick="wizResume()">이어서 하기 (STEP ${W.step})</button>` : ""}</div><div class="hero-art"><i></i><i></i><i></i></div></div>
-    <div class="panel soft" style="margin-bottom:14px"><b>처음이세요? 이렇게 됩니다 (5분)</b><ol style="margin:6px 0 0 18px;line-height:1.8"><li>누구를 위한 기획인지(내 가게 / 브랜드·제품 / 대행사 / 위탁판매)와 보여줄 사람을 버튼으로 고릅니다</li><li>카메라 앞에 서는 사람의 캐릭터, 영상 끝에서 보낼 곳, 내 경험과 숫자를 적습니다</li><li>키워드 하나 적으면 참고할 릴스가 뜹니다. ★ 주 레퍼런스 1개에 대본을 고정하고, 다른 업종에서 터진 구조도 버튼으로 볼 수 있어요</li><li>주제를 3~4개 고르면 촬영 1회차 세트가 같은 구조로 한 번에 나옵니다. 맨 위 요약 → 첫 문장 3개 → 대본 통째 → 장면 → 촬영 준비 순서예요</li><li>사장님께는 "사장님께 보내기" 링크로 대본·준비물·의상·촬영 배경만 보내고, 편집자에게는 편집 외주용 탭을 넘기면 끝</ol></div>
+    const mrH = (W.refsCache || []).find(x => x.id === W.mainRef);
+    const resume = (W.about || W.product || (W.refs || []).length) ? `<div class="resume"><div class="rs-thumb">${mrH && mrH.thumbnail ? `<img src="${esc(mrH.thumbnail)}" onerror="this.style.visibility='hidden'">` : "✍️"}</div>
+      <div class="rs-body"><span class="ph-kicker">작성 중인 기획이 있어요 · ${W.step || 1}/3 단계</span><b>${esc(W.about || W.product || "제목 없는 기획")}</b>
+        <div class="rs-meta">${[W.product && "상품 · " + W.product, W.targetText && "타깃 · " + W.targetText, W.usp && "소구점 · " + W.usp, mrH && "따라 할 릴스 · @" + mrH.account, (W.setTopics || []).length && "고른 주제 " + W.setTopics.length + "개"].filter(Boolean).map(x => `<span>${esc(x)}</span>`).join("")}</div></div>
+      <div class="rs-actions"><button class="btn p big" onclick="wizResume()">이어서 하기 →</button><button class="btn" onclick="wizDiscard()">지우고 새로 시작</button></div></div>` : "";
+    $("#main").innerHTML = `<div class="plan-home">${resume}<div class="hero"><div><div class="ph-kicker">콘텐츠 기획</div><h1>한 줄 적고, 릴스 하나 고르면<br>그 구조 그대로 내 대본이 나옵니다.</h1><p>무슨 일을 하는지 한 줄 → 따라 하고 싶은 릴스 1개 → 주제. 세 번이면 끝나요. 타깃·키워드·말투는 몰라도 되고, 대본은 고른 릴스의 구조와 말투를 그대로 따라갑니다.</p><button class="btn p big" onclick="wizStart()">+ 새 기획 만들기</button> ${W.job ? `<button class="btn big ghost2" onclick="wizResume()">이어서 하기 (STEP ${W.step})</button>` : ""}</div><div class="hero-art"><i></i><i></i><i></i></div></div>
+    <div class="panel soft" style="margin-bottom:14px"><b>처음이세요? 이렇게 됩니다 (5분)</b><ol style="margin:6px 0 0 18px;line-height:1.8"><li>무슨 일을 하는지 한 줄 적습니다. 업종·타깃·검색어는 AI가 파악해요</li><li>따라 하고 싶은 릴스를 하나 고릅니다. 다른 업종에서 터진 구조도 버튼으로 볼 수 있어요</li><li>주제를 고르거나 "알아서 골라줘"를 누르면 3편 세트가 같은 구조로 한 번에 나옵니다</li><li>사장님께는 "사장님께 보내기" 링크를, 편집자에게는 편집 외주용 탭을 넘기면 끝</ol></div>
     ${setsHtml}${planListHtml(plans)}</div>`;
   };
   let SET_T = null;
@@ -684,6 +835,8 @@
           <div class="prep-grid" style="margin-top:14px">${(v.prep.items || []).length ? `<div><small>준비물</small><ul>${v.prep.items.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}${v.prep.wear ? `<div><small>의상</small><p>${esc(v.prep.wear)}</p></div>` : ""}${v.prep.location ? `<div><small>촬영 배경</small><p>${esc(v.prep.location)}</p></div>` : ""}${(v.prep.order || []).length ? `<div><small>촬영 순서</small><ol>${v.prep.order.map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>` : ""}</div>` : `<div class="muted">아직 만드는 중이에요. 잠시 뒤에 다시 열어 주세요.</div>`}</section>`).join("")}</div>`;
     } catch (e) { $("#main").innerHTML = `<div class="empty"><b>열 수 없어요</b>${esc(e.message)}</div>`; }
   };
-  window.wizStart = () => { Object.assign(W, { step: 1, topic: "", topics: [] }); save(); if (location.hash !== "#/plan/new") location.hash = "#/plan/new"; else renderWizard(); };
+  const WIZ_BLANK = () => ({ uspQ: [], uspQA: [], uspDone: false, uspFor: "", uspWhy: "", clientId: null, pendingProfile: null, step: 1, job: "", target: [], keyword: "", subs: [], selSubs: [], refs: [], topic: "", topics: [], extra: {}, refsCache: [], urls: "", about: "", product: "", targetText: "", usp: "", sugg: null, profile: null, profileFor: "", mainRef: null, setTopics: [], autoOff: null, making: null, multi: false, moreOpen: false });
+  window.wizDiscard = () => { if (!confirm("작성 중이던 내용을 지우고 새로 시작할까요?")) return; Object.assign(W, WIZ_BLANK()); save(); viewPlanHome(); };
+  window.wizStart = () => { if (!(W.about || W.product)) Object.assign(W, { step: 1, topic: "", topics: [] }); save(); if (location.hash !== "#/plan/new") location.hash = "#/plan/new"; else renderWizard(); };
   window.wizResume = () => { if (location.hash !== "#/plan/new") location.hash = "#/plan/new"; else renderWizard(); };
 })();
